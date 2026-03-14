@@ -1,0 +1,167 @@
+.autoshow{
+    animation: text-appear both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 100vh;
+}
+
+@keyframes text-appear{
+    from{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.imageReveal{
+    animation: imageReveal both;
+    animation-timeline: view(60% 10%);
+}
+
+@keyframes imageReveal{
+    from{
+        opacity: 0;
+        scale: 0.95;
+        translate: 0 6rem;
+    }
+    to{
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+    }
+}
+
+.logoshow{
+    animation: text-appear1 both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 100vh;
+    animation-range-end: 25%;
+}
+
+@keyframes text-appear1{
+    from{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+        animation-timeline: view();
+    }
+}
+
+.fadeUp{
+    animation: fadeUp both;
+    animation-timeline: view();
+    animation-range: entry 10%;
+    animation-range-end: 60%;
+}
+
+
+@keyframes fadeUp{
+    from{
+        opacity: 0;
+        transform: translateY(10px) scale(0.5);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+
+.fadeUp2{
+    animation: fadeUp2 both;
+    animation-timeline: view();
+     animation-range: entry 10% cover 60%;
+}
+
+@keyframes fadeUp2{
+    from{
+        opacity: 0;
+        transform: translateY(10px) scale(0.5);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+.fadeUp3{
+    animation: fadeUp3 both;
+    animation-timeline: view();
+     animation-range: entry 0% cover 55%;
+}
+
+@keyframes fadeUp3{
+    from{
+        opacity: 0;
+        transform: translateY(50px) scale(0.5);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0px) scale(100%);
+    }
+}
+
+
+/* Animácia obrázka */
+.hero-image-wrapper {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: fadeInImage 1s ease-out 0.4s forwards;
+}
+
+@keyframes fadeInImage {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* Animácia textov */
+.hero-details h3,.hero-details p {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: slideUp 1s ease-out forwards;
+}
+
+.hero-details h3 {
+  animation-delay: 0.2;
+}
+.hero-details p {
+  animation-delay: 0.2s;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.buttons .button {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: fadeInBtn 1.2s ease-out forwards;
+}
+
+.buttons .button order-now{
+  animation-delay: 0.4s;
+}
+
+.buttons .button contact-us{
+  animation-delay: 0.6s;
+}
+
+@keyframes fadeInBtn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
