@@ -2,7 +2,7 @@
 // E-shop stránka - products.php
 // include 'config.php'; // Na pripojenie k databáze keď ju nastavíte
 
-include __DIR__ . '/header.php';
+include __DIR__ . '/header-shop.php';
 ?>
 
   <main>
@@ -196,5 +196,5 @@ include __DIR__ . '/header.php';
   </script>
 
 <?php
-include __DIR__ . '/footer.php';
+include __DIR__ . '/footer-shop.php';
 ?>
