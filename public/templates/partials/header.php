@@ -26,7 +26,7 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Jakub Chrkavý">
     <meta name="description" content="Objav našu ponuku chilli papričiek – klikni a ochutnaj pálivú vášeň zo slovenských záhrad! Vyber si svoju pálivosť – od jemného Jalapena po extrémne Carolina Reaper!">
-    <title>Red Ghost - Chilli Papričky a Omáčky</title>
+    <title>Red Ghost - O NÁS</title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -34,7 +34,6 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo $assetBaseEscaped; ?>/css/style.css">
-    <link rel="stylesheet" href="<?php echo $assetBaseEscaped; ?>/css/style2.css">
     <link rel="stylesheet" href="<?php echo $assetBaseEscaped; ?>/css/animation.css">
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="<?php echo $assetBaseEscaped; ?>/images/305036798_501410268657650_7493754093765322046_n-modified.png">
@@ -44,7 +43,7 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
   <header>
     <nav class="navbar section-content">
       <a href="<?php echo $baseUrlEscaped; ?>/home.php" class="nav-logo">
-        <img src="<?php echo $assetBaseEscaped; ?>/images/logo-text.png" class="logo"><h2 class="logo-text">Red Ghost</h2>
+        <img src="<?php echo $assetBaseEscaped; ?>/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
       </a>                                                        
       <ul class="nav-menu"> 
         <button id="menu-close-button" class="fas fa-times"></button>

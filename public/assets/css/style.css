@@ -105,7 +105,8 @@ header .navbar{
 .navbar .nav-logo .logo-text{
   font-family: 'Times New Roman', serif;
   color: var(--white-color);
-  font-size: var(--font-size-xl);
+  font-size: 30px;
+  margin-left: 20px;
   font-weight: var(--font-weight-semibold);
 }
 
