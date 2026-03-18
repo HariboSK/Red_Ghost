@@ -63,7 +63,7 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
           <a href="<?php echo $baseUrlEscaped; ?>/home.php#contact" class="nav-link">Kontakt</a>
         </li>
         <li class="nav-item">
-          <a href="<?php echo $baseUrlEscaped; ?>/E-shop.php" class="nav-link">E-shop</a>
+          <a href="<?php echo $baseUrlEscaped; ?>/e_shop.php" class="nav-link">E-shop</a>
         </li>
       </ul>
 

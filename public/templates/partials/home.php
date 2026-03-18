@@ -15,7 +15,7 @@ include __DIR__ . '/header.php';
           <p class="description"> Ohnivá explózia chutí! Zaži skutočný pikantný zážitok s našimi prémiovými chilli omáčkami a čerstvými papričkami! Každá kvapka našich omáčok je dokonale vyvážená - od jemnej pikantnosti až po extrémne ohnivé kúsky, ktoré rozohrejú tvoje chuťové bunky! </p>
           
           <div class="buttons">
-            <a href="<?php echo $baseUrlEscaped; ?>/E-shop.php" class="button order-now">Objednaj si tu</a>
+            <a href="<?php echo $baseUrlEscaped; ?>/e_shop.php" class="button order-now">Objednaj si tu</a>
             <a href="#contact" class="button contact-us">Kontakt na nás</a>
           </div>
         </div>
