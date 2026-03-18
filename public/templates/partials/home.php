@@ -15,12 +15,12 @@ include __DIR__ . '/header.php';
           <p class="description"> Ohnivá explózia chutí! Zaži skutočný pikantný zážitok s našimi prémiovými chilli omáčkami a čerstvými papričkami! Každá kvapka našich omáčok je dokonale vyvážená - od jemnej pikantnosti až po extrémne ohnivé kúsky, ktoré rozohrejú tvoje chuťové bunky! </p>
           
           <div class="buttons">
-            <a href="<?php echo $baseUrlEscaped; ?>/e_shop.php" class="button order-now">Objednaj si tu</a>
+            <a href="<?php echo htmlspecialchars($baseUrlEscaped); ?>/e_shop.php" class="button order-now">Objednaj si tu</a>
             <a href="#contact" class="button contact-us">Kontakt na nás</a>
           </div>
         </div>
         <div class="hero-image-wrapper">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/Copilot_upravene.png" alt="Hero" 
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/Copilot_upravene.png" alt="Hero" 
             class="hero-image">
         </div>
       </div>
@@ -33,7 +33,7 @@ include __DIR__ . '/header.php';
       <br>
       <div class="section-content">
         <div class="about-image-wrapper imageReveal">
-          <img src="<?php echo $assetBaseEscaped; ?>/images/1111.jpg" alt="O nás" class="about-image">
+          <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/1111.jpg" alt="O nás" class="about-image">
         </div>
         <div class="about-details autoshow">
           <h2 class="section-title">O NÁS</h2>
@@ -60,37 +60,37 @@ include __DIR__ . '/header.php';
       <div class="section-content">
         <ul class="menu-list">
           <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/klucenka.png" alt=" CHILLI KĽÚČENKY" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/klucenka.png" alt=" CHILLI KĽÚČENKY" class="menu-image">
             <h3 class="name"> CHILLI KĽÚČENKY</h3>
             <p class="text">Kľučenky podľa vlasntého výberu farby + vlasný výber náplne do nej 1,50€ do 2,00€</p>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/omacka3.jpg" alt="CHILLI OMÁČKY" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/omacka3.jpg" alt="CHILLI OMÁČKY" class="menu-image">
             <h3 class="name">CHILLI OMÁČKY</h3>
             <p class="text">Rôzne príchute a druhy chilli omáčiek podľa preferencie intenzity pálivosti a chute</p>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/chutney.jpg" alt="CHUTNEY" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/chutney.jpg" alt="CHUTNEY" class="menu-image">
             <h3 class="name">CHUTNEY</h3>
           </li>
            <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/susene-chilli-Picsart-AiImageEnhancer.jpg" alt="SUŠENÉ PAPRIČKY" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/susene-chilli-Picsart-AiImageEnhancer.jpg" alt="SUŠENÉ PAPRIČKY" class="menu-image">
             <h3 class="name">SUŠENÉ PAPRIČKY</h3>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/sadenice-Picsart-AiImageEnhancer.png" alt=" CHILLI SADENICE" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/sadenice-Picsart-AiImageEnhancer.png" alt=" CHILLI SADENICE" class="menu-image">
             <h3 class="name"> CHILLI SADENICE</h3>
           </li>
            <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/mlete-chilli-Picsart-AiImageEnhancer.jpg" alt=" MLETE CHILLI" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/mlete-chilli-Picsart-AiImageEnhancer.jpg" alt=" MLETE CHILLI" class="menu-image">
             <h3 class="name"> MLETE CHILLI</h3>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/chilli-sol.jpg" alt=" CHILLI SOĽ" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/chilli-sol.jpg" alt=" CHILLI SOĽ" class="menu-image">
             <h3 class="name"> CHILLI SOĽ</h3>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo $assetBaseEscaped; ?>/images/exktrakt.png" alt="CHILLI EXTRAKT" class="menu-image">
+            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/exktrakt.png" alt="CHILLI EXTRAKT" class="menu-image">
             <h3 class="name">CHILLI EXTRAKT</h3>
           </li>
         </ul>

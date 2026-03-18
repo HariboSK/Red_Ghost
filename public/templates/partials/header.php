@@ -33,17 +33,17 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?php echo $assetBaseEscaped; ?>/css/style.css">
-    <link rel="stylesheet" href="<?php echo $assetBaseEscaped; ?>/css/animation.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($assetBaseEscaped); ?>/css/style.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($assetBaseEscaped); ?>/css/animation.css">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="<?php echo $assetBaseEscaped; ?>/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/305036798_501410268657650_7493754093765322046_n-modified.png">
 </head>
 <body>
   <!-- Header / Navbar -->
   <header>
     <nav class="navbar section-content">
       <a href="<?php echo $baseUrlEscaped; ?>/home.php" class="nav-logo">
-        <img src="<?php echo $assetBaseEscaped; ?>/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
+        <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
       </a>                                                        
       <ul class="nav-menu"> 
         <button id="menu-close-button" class="fas fa-times"></button>

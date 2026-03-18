@@ -32,8 +32,8 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
   </main>
 
   <!-- Scripts -->
-  <script src="<?php echo $assetBaseEscaped; ?>/js/animaciaScript.js"></script>
+  <script src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/js/animaciaScript.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="<?php echo $assetBaseEscaped; ?>/js/script.js"></script>
+  <script src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/js/script.js"></script>
 </body>
 </html>
