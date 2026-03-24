@@ -3,11 +3,14 @@
 
 if (!isset($assetBase)) {
   $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-  $baseUrl = rtrim(dirname($scriptName), '/');
-  if ($baseUrl === '/' || $baseUrl === '.') {
+  $baseUrl = str_replace('\\', '/', dirname($scriptName));
+  $baseUrl = rtrim($baseUrl, '/');
+  if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
     $baseUrl = '';
   }
-  $assetBase = rtrim($baseUrl, '/') . '/public/assets';
+  $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+  $isPublicEntrypoint = preg_match('~/public/[^/]+\\.php$~', $scriptFilename) === 1;
+  $assetBase = rtrim($baseUrl, '/') . ($isPublicEntrypoint ? '/assets' : '/public/assets');
 }
 
 $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');

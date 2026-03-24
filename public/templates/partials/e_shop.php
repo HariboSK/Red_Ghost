@@ -1,7 +1,4 @@
 <?php
-// E-shop stránka - products.php
-// include 'config.php'; // Na pripojenie k databáze keď ju nastavíte
-
 include __DIR__ . '/header-shop.php';
 ?>
 
@@ -32,13 +29,6 @@ include __DIR__ . '/header-shop.php';
       <h2 class="title">Odporúčané produkty</h2>
       <div class="row" id="productsContainer">
         <?php
-        // TODO: Produkty sa budú načítavať z databázy
-        // Príklad MySQL query:
-        // $query = "SELECT * FROM products WHERE featured = 1";
-        // $result = $conn->query($query);
-        // while($row = $result->fetch_assoc()) { ... }
-        
-        // DOČASNE - statické produkty (neskôr z DB)
         $products = array(
           array(
             'id' => 1,
@@ -147,53 +137,7 @@ include __DIR__ . '/header-shop.php';
 
   </main>
 
-  <script>
-    // Vyhľadávanie produktov
-    document.getElementById('searchInput').addEventListener('keyup', function() {
-      const searchValue = this.value.toLowerCase();
-      const products = document.querySelectorAll('.product-card');
-      
-      products.forEach(product => {
-        const productName = product.dataset.name.toLowerCase();
-        if(productName.includes(searchValue)) {
-          product.style.display = 'block';
-        } else {
-          product.style.display = 'none';
-        }
-      });
-    });
-
-    // Triedenie produktov
-    function sortProducts() {
-      const sortBy = document.getElementById('sortBy').value;
-      const container = document.getElementById('productsContainer');
-      const products = Array.from(container.querySelectorAll('.product-card'));
-      
-      if(sortBy === 'popular') {
-        products.sort((a, b) => b.dataset.price - a.dataset.price);
-      } else if(sortBy === '') {
-        products.sort((a, b) => a.dataset.price - b.dataset.price);
-      }
-      
-      container.innerHTML = '';
-      products.forEach(product => container.appendChild(product));
-    }
-
-    // Pridanie do košíka
-    function addToCart(id, name, price) {
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existingItem = cart.find(item => item.id === id);
-      
-      if(existingItem) {
-        existingItem.quantity++;
-      } else {
-        cart.push({id, name, price, quantity: 1});
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(cart));
-      alert(name + ' bolo pridané do košíka!');
-    }
-  </script>
+<script src="<?php echo htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8'); ?>/js/shop.js"></script>
 
 <?php
 include __DIR__ . '/footer-shop.php';

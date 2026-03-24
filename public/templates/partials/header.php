@@ -3,22 +3,20 @@
 
 if (!isset($baseUrl)) {
   $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-  $publicPos = strpos($scriptName, '/public/');
-
-  if ($publicPos !== false) {
-    $baseUrl = substr($scriptName, 0, $publicPos);
-  } else {
-    $baseUrl = rtrim(dirname($scriptName), '/');
-    if ($baseUrl === '/' || $baseUrl === '.') {
-      $baseUrl = '';
+  $baseUrl = str_replace('\\', '/', dirname($scriptName));
+  $baseUrl = rtrim($baseUrl, '/');
+  if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
+        $baseUrl = '';
     }
-  }
 }
 
-$assetBase = rtrim($baseUrl, '/') . '/public/assets';
+$scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+$isPublicEntrypoint = preg_match('~/public/[^/]+\\.php$~', $scriptFilename) === 1;
+$assetBase = rtrim($baseUrl, '/') . ($isPublicEntrypoint ? '/assets' : '/public/assets');
 $baseUrlEscaped = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
 $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
 ?>
+
 <!DOCTYPE html>
 <html lang="sk">
 <head>
