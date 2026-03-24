@@ -56,3 +56,10 @@ function showConfirmation() {
     box.style.display = 'none';
   }, 3000); // zmizne po 3 sekundách
 }
+
+const sendStatusOverlay = document.getElementById('sendStatusOverlay');
+if (sendStatusOverlay) {
+  setTimeout(() => {
+    sendStatusOverlay.style.display = 'none';
+  }, 5000);
+}

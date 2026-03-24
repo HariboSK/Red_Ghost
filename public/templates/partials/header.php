@@ -5,6 +5,10 @@ if (!isset($baseUrl)) {
   $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
   $baseUrl = str_replace('\\', '/', dirname($scriptName));
   $baseUrl = rtrim($baseUrl, '/');
+  
+  if (substr($baseUrl, -19) === '/templates/partials') {
+    $baseUrl = substr($baseUrl, 0, -19);
+  }
   if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
         $baseUrl = '';
     }

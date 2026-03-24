@@ -492,6 +492,38 @@ header .navbar{
 
     }
 
+/* Contact submit status overlay */
+#sendStatusOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 20px;
+}
+
+#sendStatusOverlay .overlay-card {
+  width: min(92vw, 560px);
+  border-radius: 14px;
+  padding: 20px 22px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.28);
+  color: #ffffff;
+}
+
+#sendStatusOverlay.success .overlay-card {
+  background: linear-gradient(135deg, #138a36, #0f6f2d);
+}
+
+#sendStatusOverlay.error .overlay-card {
+  background: linear-gradient(135deg, #c62828, #9f1f1f);
+}
+
 /* Footer sekcia */
 .footer-section {
   padding: 20px 0;

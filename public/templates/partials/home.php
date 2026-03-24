@@ -1,7 +1,21 @@
 <?php
 // Hlavná stránka - index.php
 include __DIR__ . '/header.php';
+
+$sendStatus = $_GET['success'] ?? null;
+$contactNotice = '';
+if ($sendStatus === '1') {
+  $contactNotice = 'Sprava bola uspesne odoslana.';
+} elseif ($sendStatus === '0') {
+  $contactNotice = 'Spravu sa nepodarilo odoslat. Skus to znova neskor alebo nas kontaktuj cez socialne siete.';
+}
 ?>
+
+<?php if ($contactNotice !== ''): ?>
+  <div id="sendStatusOverlay" class="<?php echo $sendStatus === '1' ? 'success' : 'error'; ?>" role="status" aria-live="polite">
+    <div class="overlay-card"><?php echo htmlspecialchars($contactNotice, ENT_QUOTES, 'UTF-8'); ?></div>
+  </div>
+<?php endif; ?>
 
   <main>
     <!-- Hero section -->
@@ -170,7 +184,7 @@ include __DIR__ . '/header.php';
               <p>Pondelok - Nedeľa 9:00 - 19:00</p>           
         </ul>
 
-        <form action="<?php echo $baseUrlEscaped; ?>/send-message.php" class="contact-form" method="POST">
+        <form action="<?php echo htmlspecialchars(rtrim($baseUrl, '/'), ENT_QUOTES, 'UTF-8'); ?>/send-message.php" class="contact-form" method="POST">
           <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required>
           <input type="email" name="email" placeholder="Tvoj email" class="form-input" required>
           <textarea name="message" placeholder="Tvoja správa" class="form-input" required></textarea>
