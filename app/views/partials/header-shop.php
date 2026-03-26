@@ -24,9 +24,9 @@ $baseUrlEscaped = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/../../assets/css/style2.css">
+    <link rel="stylesheet" href="/assets/css/style2.css">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="/../../assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
 </head>
 <body>
   <!-- Header pre e-shop -->
@@ -34,7 +34,7 @@ $baseUrlEscaped = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
     <div class="container">
       <div class="navbar">
         <a href="<?php echo $baseUrlEscaped; ?>/home.php" class="nav-logo">
-          <img src="/../../assets/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
+          <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
         </a>
 
       </div>

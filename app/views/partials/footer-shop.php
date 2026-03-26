@@ -8,9 +8,7 @@ if (!isset($assetBase)) {
   if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
     $baseUrl = '';
   }
-  $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
-  $isPublicEntrypoint = preg_match('~/public/[^/]+\\.php$~', $scriptFilename) === 1;
-  $assetBase = rtrim($baseUrl, '/') . ($isPublicEntrypoint ? '/assets' : '/public/assets');
+  $assetBase = rtrim($baseUrl, '/') . '/assets';
 }
 
 $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');

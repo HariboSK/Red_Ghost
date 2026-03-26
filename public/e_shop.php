@@ -1,3 +1,3 @@
 <?php
 // Public entry point when VirtualHost DocumentRoot points to /public.
-include __DIR__ . '/templates/partials/e_shop.php';
+include dirname(__DIR__) . '/app/views/partials/e_shop.php';
