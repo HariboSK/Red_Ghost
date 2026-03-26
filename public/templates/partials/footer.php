@@ -1,42 +1,26 @@
-<?php
-// Footer - Globálny footer pre všetky stránky
 
-if (!isset($assetBase)) {
-  $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-  $baseUrl = str_replace('\\', '/', dirname($scriptName));
-  $baseUrl = rtrim($baseUrl, '/');
-  if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
-    $baseUrl = '';
-  }
-  $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
-  $isPublicEntrypoint = preg_match('~/public/[^/]+\\.php$~', $scriptFilename) === 1;
-  $assetBase = rtrim($baseUrl, '/') . ($isPublicEntrypoint ? '/assets' : '/public/assets');
-}
+  <!-- Footer section -->
+  <footer class="footer-section">
+    <div class="section-content">
+      <p class="copyright-text">© 2025 Red_Ghost_Slovakia</p>
 
-$assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
-?>
-    <!-- Footer section -->
-    <footer class="footer-section">
-      <div class="section-content">
-        <p class="copyright-text">© 2025 Red_Ghost_Slovakia</p>
-
-        <div class="social-link-list">
-            <a href="https://www.facebook.com/profile.php?id=100063660427736" target="_blank" rel="noopener noreferrer" class="social-link1"><i class="fa-brands fa-facebook"></i></a>
-            <a href="https://www.instagram.com/red_ghost_slovakia/?fbclid=IwY2xjawK1m1NleHRuA2FlbQIxMAABHhN7UFe1Z0tFRk3C9Py8Ji1yELLKaEQYjPExpfQD0vmtt5V7jiwRdZisOOXZ_aem_kmrVnxHYgfBFf8ysUkMJnQ" target="_blank" rel="noopener noreferrer" class="social-link2"><i class="fa-brands fa-instagram"></i></a>
-        </div>
-
-        <p class="policy-text">
-          <a href="#" class="policy-link">Privacy policy</a>
-          <span class="separator">•</span>
-          <a href="#" class="policy-link">Refund policy</a>
-        </p>
+      <div class="social-link-list">
+          <a href="https://www.facebook.com/profile.php?id=100063660427736" target="_blank" rel="noopener noreferrer" class="social-link1"><i class="fa-brands fa-facebook"></i></a>
+          <a href="https://www.instagram.com/red_ghost_slovakia/?fbclid=IwY2xjawK1m1NleHRuA2FlbQIxMAABHhN7UFe1Z0tFRk3C9Py8Ji1yELLKaEQYjPExpfQD0vmtt5V7jiwRdZisOOXZ_aem_kmrVnxHYgfBFf8ysUkMJnQ" target="_blank" rel="noopener noreferrer" class="social-link2"><i class="fa-brands fa-instagram"></i></a>
       </div>
-    </footer>
-  </main>
 
-  <!-- Scripts -->
-  <script src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/js/animaciaScript.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/js/script.js"></script>
+      <p class="policy-text">
+        <a href="#" class="policy-link">Privacy policy</a>
+        <span class="separator">•</span>
+        <a href="#" class="policy-link">Refund policy</a>
+      </p>
+    </div>
+  </footer>
+</main>
+
+<!-- Scripts -->
+<script src="/../../assets/js/animaciaScript.js"></script>
+<script src="/../../assets/js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </body>
 </html>

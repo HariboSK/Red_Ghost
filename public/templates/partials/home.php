@@ -34,7 +34,7 @@ if ($sendStatus === '1') {
           </div>
         </div>
         <div class="hero-image-wrapper">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/Copilot_upravene.png" alt="Hero" 
+            <img src="/../../assets/images/Copilot_upravene.png" alt="Hero" 
             class="hero-image">
         </div>
       </div>
@@ -47,7 +47,7 @@ if ($sendStatus === '1') {
       <br>
       <div class="section-content">
         <div class="about-image-wrapper imageReveal">
-          <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/1111.jpg" alt="O nás" class="about-image">
+          <img src="/../../assets/images/1111.jpg" alt="O nás" class="about-image">
         </div>
         <div class="about-details autoshow">
           <h2 class="section-title">O NÁS</h2>
@@ -74,37 +74,37 @@ if ($sendStatus === '1') {
       <div class="section-content">
         <ul class="menu-list">
           <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/klucenka.png" alt=" CHILLI KĽÚČENKY" class="menu-image">
+            <img src="/../../assets/images/klucenka.png" alt=" CHILLI KĽÚČENKY" class="menu-image">
             <h3 class="name"> CHILLI KĽÚČENKY</h3>
             <p class="text">Kľučenky podľa vlasntého výberu farby + vlasný výber náplne do nej 1,50€ do 2,00€</p>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/omacka3.jpg" alt="CHILLI OMÁČKY" class="menu-image">
+            <img src="/../../assets/images/omacka3.jpg" alt="CHILLI OMÁČKY" class="menu-image">
             <h3 class="name">CHILLI OMÁČKY</h3>
             <p class="text">Rôzne príchute a druhy chilli omáčiek podľa preferencie intenzity pálivosti a chute</p>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/chutney.jpg" alt="CHUTNEY" class="menu-image">
+            <img src="/../../assets/images/chutney.jpg" alt="CHUTNEY" class="menu-image">
             <h3 class="name">CHUTNEY</h3>
           </li>
            <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/susene-chilli-Picsart-AiImageEnhancer.jpg" alt="SUŠENÉ PAPRIČKY" class="menu-image">
+            <img src="/../../assets/images/susene-chilli-Picsart-AiImageEnhancer.jpg" alt="SUŠENÉ PAPRIČKY" class="menu-image">
             <h3 class="name">SUŠENÉ PAPRIČKY</h3>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/sadenice-Picsart-AiImageEnhancer.png" alt=" CHILLI SADENICE" class="menu-image">
+            <img src="/../../assets/images/sadenice-Picsart-AiImageEnhancer.png" alt=" CHILLI SADENICE" class="menu-image">
             <h3 class="name"> CHILLI SADENICE</h3>
           </li>
            <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/mlete-chilli-Picsart-AiImageEnhancer.jpg" alt=" MLETE CHILLI" class="menu-image">
+            <img src="/../../assets/images/mlete-chilli-Picsart-AiImageEnhancer.jpg" alt=" MLETE CHILLI" class="menu-image">
             <h3 class="name"> MLETE CHILLI</h3>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/chilli-sol.jpg" alt=" CHILLI SOĽ" class="menu-image">
+            <img src="/../../assets/images/chilli-sol.jpg" alt=" CHILLI SOĽ" class="menu-image">
             <h3 class="name"> CHILLI SOĽ</h3>
           </li>
           <li class="menu-item fadeUp">
-            <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/exktrakt.png" alt="CHILLI EXTRAKT" class="menu-image">
+            <img src="/../../assets/images/exktrakt.png" alt="CHILLI EXTRAKT" class="menu-image">
             <h3 class="name">CHILLI EXTRAKT</h3>
           </li>
         </ul>

@@ -1,8 +1,5 @@
 <?php
-// Header pre e-shop stranku - oddeleny od hlavnej stranky
-
 if (!isset($baseUrl)) {
-  $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
   $baseUrl = str_replace('\\', '/', dirname($scriptName));
   $baseUrl = rtrim($baseUrl, '/');
   if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
@@ -10,12 +7,9 @@ if (!isset($baseUrl)) {
   }
 }
 
-$scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
-$isPublicEntrypoint = preg_match('~/public/[^/]+\\.php$~', $scriptFilename) === 1;
-$assetBase = rtrim($baseUrl, '/') . ($isPublicEntrypoint ? '/assets' : '/public/assets');
 $baseUrlEscaped = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
-$assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
 ?>
+
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -30,9 +24,9 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?php echo htmlspecialchars($assetBaseEscaped); ?>/css/style2.css">
+    <link rel="stylesheet" href="/../../assets/css/style2.css">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/../../assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
 </head>
 <body>
   <!-- Header pre e-shop -->
@@ -40,7 +34,7 @@ $assetBaseEscaped = htmlspecialchars($assetBase, ENT_QUOTES, 'UTF-8');
     <div class="container">
       <div class="navbar">
         <a href="<?php echo $baseUrlEscaped; ?>/home.php" class="nav-logo">
-          <img src="<?php echo htmlspecialchars($assetBaseEscaped); ?>/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
+          <img src="/../../assets/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
         </a>
 
       </div>
