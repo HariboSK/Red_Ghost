@@ -1,5 +1,6 @@
 <?php
 include __DIR__ . '/header-shop.php';
+$assetBase = '/assets';
 ?>
 
   <main>

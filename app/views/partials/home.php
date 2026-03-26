@@ -1,21 +1,6 @@
 <?php
-// Hlavná stránka - index.php
 include __DIR__ . '/header.php';
-
-$sendStatus = $_GET['success'] ?? null;
-$contactNotice = '';
-if ($sendStatus === '1') {
-  $contactNotice = 'Sprava bola uspesne odoslana.';
-} elseif ($sendStatus === '0') {
-  $contactNotice = 'Spravu sa nepodarilo odoslat. Skus to znova neskor alebo nas kontaktuj cez socialne siete.';
-}
 ?>
-
-<?php if ($contactNotice !== ''): ?>
-  <div id="sendStatusOverlay" class="<?php echo $sendStatus === '1' ? 'success' : 'error'; ?>" role="status" aria-live="polite">
-    <div class="overlay-card"><?php echo htmlspecialchars($contactNotice, ENT_QUOTES, 'UTF-8'); ?></div>
-  </div>
-<?php endif; ?>
 
   <main>
     <!-- Hero section -->
@@ -29,7 +14,7 @@ if ($sendStatus === '1') {
           <p class="description"> Ohnivá explózia chutí! Zaži skutočný pikantný zážitok s našimi prémiovými chilli omáčkami a čerstvými papričkami! Každá kvapka našich omáčok je dokonale vyvážená - od jemnej pikantnosti až po extrémne ohnivé kúsky, ktoré rozohrejú tvoje chuťové bunky! </p>
           
           <div class="buttons">
-            <a href="<?php echo htmlspecialchars($baseUrlEscaped); ?>/e_shop.php" class="button order-now">Objednaj si tu</a>
+            <a href="<?php echo route('/e_shop'); ?>" class="button order-now">Objednaj si tu</a>
             <a href="#contact" class="button contact-us">Kontakt na nás</a>
           </div>
         </div>
@@ -184,7 +169,7 @@ if ($sendStatus === '1') {
               <p>Pondelok - Nedeľa 9:00 - 19:00</p>           
         </ul>
 
-        <form action="<?php echo htmlspecialchars(rtrim($baseUrl, '/'), ENT_QUOTES, 'UTF-8'); ?>/send-message.php" class="contact-form" method="POST">
+        <form action="<?php echo route('/send-message.php'); ?>" class="contact-form" method="POST">
           <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required>
           <input type="email" name="email" placeholder="Tvoj email" class="form-input" required>
           <textarea name="message" placeholder="Tvoja správa" class="form-input" required></textarea>

@@ -1,15 +1,3 @@
-<?php
-if (!isset($baseUrl)) {
-  $baseUrl = str_replace('\\', '/', dirname($scriptName));
-  $baseUrl = rtrim($baseUrl, '/');
-  if ($baseUrl === '/' || $baseUrl === '\\' || $baseUrl === '.') {
-    $baseUrl = '';
-  }
-}
-
-$baseUrlEscaped = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
-?>
-
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -33,7 +21,7 @@ $baseUrlEscaped = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
   <header class="posun">
     <div class="container">
       <div class="navbar">
-        <a href="<?php echo $baseUrlEscaped; ?>/home.php" class="nav-logo">
+        <a href="<?php echo route('/home'); ?>" class="nav-logo">
           <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo"><h2 class="logo-text">Red Ghost</h2>
         </a>
 
