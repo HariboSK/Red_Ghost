@@ -40,3 +40,21 @@
     background-color: orangered;
     color: white;
 }
+
+.shop-link{
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: red;
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 18px;
+    transition: 0.3s ease;
+}
+
+.shop-link:hover {
+    scale: 1.05;
+    background-color: orangered;
+    color: white;
+}

@@ -39,6 +39,15 @@ class Router {
         }
 
         http_response_code(404);
-        echo "404 - Stránka nenájdená";
+        $projectRoot = dirname(__DIR__, 2);
+        $notFoundViewPath = $projectRoot . '/app/views/partials/404.php';
+
+        if (file_exists($notFoundViewPath)) {
+            include $notFoundViewPath;
+            return;
+        }
+
+        echo '404 - Stranka nenajdena';
+        exit;
     }
 }
