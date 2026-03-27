@@ -21,7 +21,6 @@ const swiper = new Swiper('.slider-wrapper', {
   grabCursor: true,
   spaceBetween: 25,
 
-  // If we need pagination
   pagination: {
     el: '.swiper-pagination',
     clickable: true,
@@ -54,7 +53,7 @@ function showConfirmation() {
   box.style.display = 'block';
   setTimeout(() => {
     box.style.display = 'none';
-  }, 3000); // zmizne po 3 sekundách
+  }, 3000);
 }
 
 const sendStatusOverlay = document.getElementById('sendStatusOverlay');

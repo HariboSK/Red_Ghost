@@ -133,9 +133,20 @@ header .navbar{
   transition: 0.3s ease;
 }
 
-.nav-login:hover .nav-login-icon {
+.nav-login-icon:hover,
+.nav-login-mobile-link:hover .nav-login-icon {
   filter: brightness(1.30) drop-shadow(0 0 10px var(--light-red-color)) drop-shadow(0 0 20px var(--light-red-color));
   transform: scale(1.15);
+}
+
+.nav-login-mobile {
+  display: none;
+}
+
+.nav-login-mobile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 
@@ -710,6 +721,27 @@ body.show-mobile-menu .navbar .nav-menu {
     display: block;
     margin-top: 17px;
     font-size: var(--font-size-l);
+  }
+
+  .navbar > .nav-login {
+    display: none;
+  }
+
+  .navbar .nav-menu .nav-login-mobile {
+    display: block;
+  }
+
+  .navbar .nav-menu .nav-login-mobile-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 25px;
+  }
+
+  .navbar .nav-menu .nav-login-mobile-link .nav-login-icon {
+    width: 26px;
+    height: 26px;
   }
 
   .hero-section .section-content {

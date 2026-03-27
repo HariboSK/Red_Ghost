@@ -13,6 +13,8 @@ class Router {
             '/e_shop' => 'app/views/partials/e_shop.php',
             '/e_shop.php' => 'app/views/partials/e_shop.php',
             '/e-shop.php' => 'app/views/partials/e_shop.php',
+            '/login.php' => 'app/views/partials/login.php',
+            '/login' => 'app/views/partials/login.php',
         ];
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+//funkcia na ziskanie zakladnej cesty aplikacie, aby sme mohli správne generovat URL
 function app_base_path() {
     $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
     $scriptDir = str_replace('\\', '/', dirname($scriptName));
@@ -12,6 +13,7 @@ function app_base_path() {
     return $scriptDir;
 }
 
+//kompletne cesty pre odkay v aplikacii
 function route($path) {
     if (preg_match('#^(https?:)?//#i', (string) $path) === 1) {
         return htmlspecialchars((string) $path, ENT_QUOTES, 'UTF-8');
@@ -23,6 +25,7 @@ function route($path) {
     return htmlspecialchars($basePath . $normalizedPath, ENT_QUOTES, 'UTF-8');
 }
 
+//skratka pre app_base_path
 function baseUrl() {
     return app_base_path();
 }
@@ -130,3 +133,16 @@ function app_register_error_handlers() {
         app_render_friendly_error('Aplikacia narazila na kriticku chybu. Skuste to prosim neskor.');
     });
 }
+
+
+
+/*
+
+
+<?php
+baseUrl();           // '/Red_Ghost'
+route('home');       // '/Red_Ghost/home'
+route('/login');     // '/Red_Ghost/login'
+
+
+*/

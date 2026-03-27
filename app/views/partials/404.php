@@ -8,6 +8,10 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/assets/css/errors.css">
     <link rel="stylesheet" href="/assets/css/style.css">
+
+     <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+
 </head>
 <body>
     <div class="error-container">

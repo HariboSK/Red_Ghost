@@ -44,11 +44,16 @@
         <li class="nav-item">
           <a href="<?php echo route('/e-shop'); ?>" class="nav-link">E-shop</a>
         </li>
+        <li class="nav-item nav-login-mobile">
+          <a href="<?php echo route('/login'); ?>" class="nav-link nav-login-mobile-link">
+            <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+          </a>
+        </li>
       </ul>
 
-        <a href="<?php echo route('/login'); ?>" class="nav-login">
-          <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
-        </a>
+      <a href="<?php echo route('/login'); ?>" class="nav-login">
+        <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+      </a>
 
       <button id="menu-open-button" class="fas fa-bars"></button>
     </nav>  
