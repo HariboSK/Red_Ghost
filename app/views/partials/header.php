@@ -46,6 +46,10 @@
         </li>
       </ul>
 
+        <a href="<?php echo route('/login'); ?>" class="nav-login">
+          <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+        </a>
+
       <button id="menu-open-button" class="fas fa-bars"></button>
     </nav>  
   </header>

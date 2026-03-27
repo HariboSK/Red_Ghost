@@ -119,9 +119,30 @@ header .navbar{
   margin-top: 10px;
 }
 
+.nav-login{
+  float: right;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+
+}
+
+.nav-login-icon {
+  width: 30px;
+  height: 30px;
+  transition: 0.3s ease;
+}
+
+.nav-login:hover .nav-login-icon {
+  filter: brightness(1.30) drop-shadow(0 0 10px var(--light-red-color)) drop-shadow(0 0 20px var(--light-red-color));
+  transform: scale(1.15);
+}
+
+
 .navbar .nav-menu {
   display: flex;
-  gap: 10px;
+  gap: 15px;
+  margin-left: auto;
 }
 
 .navbar .nav-menu .nav-link{

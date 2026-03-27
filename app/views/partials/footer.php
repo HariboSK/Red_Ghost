@@ -20,7 +20,8 @@
 
 <!-- Scripts -->
 <script src="/assets/js/animaciaScript.js"></script>
-<script src="/assets/js/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- Swiper na recenziu musi to bud tu lebo najprv sa nacita swiper bundle -->
+<script src="/assets/js/script.js"></script>
 </body>
 </html>

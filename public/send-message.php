@@ -1,5 +1,8 @@
 <?php
 
+require_once dirname(__DIR__) . '/app/core/function.php';
+app_register_error_handlers();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Honeypot kontrola
     if (!empty($_POST['robot'])) {
@@ -69,7 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$mailSent) {
         $lastError = error_get_last();
         $errorMessage = $lastError['message'] ?? 'mail() returned false without PHP error details';
-        error_log('[Red Ghost] Contact form mail send failed: ' . $errorMessage);
+        app_log('error', 'Contact form mail send failed', [
+            'error' => $errorMessage,
+            'email' => $email,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+        ]);
+    } else {
+        app_log('info', 'Contact form mail sent', [
+            'email' => $email,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+        ]);
     }
 
     $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
