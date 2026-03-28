@@ -22,4 +22,23 @@
         setMode(this.getAttribute('data-target'));
       });
     });
+
+    const passwordToggles = authShell.querySelectorAll('.password-toggle');
+
+    passwordToggles.forEach((toggle) => {
+      toggle.addEventListener('click', function () {
+        const targetInputId = this.getAttribute('data-toggle-password');
+        const input = targetInputId ? document.getElementById(targetInputId) : null;
+
+        if (!input) {
+          return;
+        }
+
+        const isVisible = input.type === 'text';
+        input.type = isVisible ? 'password' : 'text';
+        this.classList.toggle('is-visible', !isVisible);
+        this.setAttribute('aria-pressed', isVisible ? 'false' : 'true');
+        this.setAttribute('aria-label', isVisible ? 'Zobraziť heslo' : 'Skryť heslo');
+      });
+    });
   })();

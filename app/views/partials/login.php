@@ -31,10 +31,31 @@
                    
                     <form action="/login" method="POST" class="auth-form">
                         <label for="login-email">E-mail:</label>
-                        <input type="email" id="login-email" name="email" placeholder="jano@mrkvicka.com" required>
+                        <div class="input-with-icon email-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="email" id="login-email" name="email" placeholder="jano@mrkvicka.com" required>
+                        </div>
 
                         <label for="login-password">Heslo:</label>
-                        <input type="password" id="login-password" name="password" placeholder="Heslo123" required>
+                        <div class="input-with-icon password-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="password" id="login-password" name="password" placeholder="Heslo123" required>
+                            <button type="button" class="password-toggle" data-toggle-password="login-password" aria-label="Zobraziť heslo" aria-pressed="false">
+                                <span class="password-toggle-icon" aria-hidden="true"></span>
+                            </button>
+                        </div>
+
+                        <label for="login-password-repe">Zopakuj heslo:</label>
+                        <div class="input-with-icon password-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="password" id="login-password-repe" name="repaet-password" placeholder="Heslo123" required>
+                            <button type="button" class="password-toggle" data-toggle-password="login-password-repe" aria-label="Zobraziť heslo" aria-pressed="false">
+                                <span class="password-toggle-icon" aria-hidden="true"></span>
+                            </button>
+                        </div>
+
+                        <!--Zabudnute heslo link-->
+                        <a class="forgot-password" href="<?php echo route('/forgot-password'); ?>">Zabudli ste heslo?</a>
 
                         <button type="submit" name="login" class="auth-submit">Prihlásiť sa</button>
                     </form>
@@ -47,16 +68,31 @@
                     
                     <form action="/register" method="POST" class="auth-form">
                         <label for="register-meno">Meno:</label>
-                        <input type="text" id="register-meno" name="meno" placeholder="Jano" required>
+                        <div class="input-with-icon user-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="text" id="register-meno" name="meno" placeholder="Jano" required>
+                        </div>
 
                         <label for="register-priezvisko">Priezvisko:</label>
-                        <input type="text" id="register-priezvisko" name="priezvisko" placeholder="Mrkvicka" required>
+                        <div class="input-with-icon user-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="text" id="register-priezvisko" name="priezvisko" placeholder="Mrkvicka" required>
+                        </div>
 
                         <label for="register-email">E-mail:</label>
-                        <input type="email" id="register-email" name="email" placeholder="jano@mrkvicka.com" required>
+                        <div class="input-with-icon email-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="email" id="register-email" name="email" placeholder="jano@mrkvicka.com" required>
+                        </div>
 
                         <label for="register-password">Heslo:</label>
-                        <input type="password" id="register-password" name="password" placeholder="Heslo123" required>
+                        <div class="input-with-icon password-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="password" id="register-password" name="password" placeholder="Heslo123" required>
+                            <button type="button" class="password-toggle" data-toggle-password="register-password" aria-label="Zobraziť heslo" aria-pressed="false">
+                                <span class="password-toggle-icon" aria-hidden="true"></span>
+                            </button>
+                        </div>
 
                         <button type="submit" name="register" class="auth-submit">Vytvoriť účet</button>
                     </form>
