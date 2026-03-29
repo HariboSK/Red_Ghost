@@ -439,7 +439,7 @@ header .navbar{
 }
 
 .testimonials-section .swiper-slide-button:hover {
-  color: var(--secondary-color);
+  color: var(--dark-color);
 }
 
 /* Contact us section styling */
