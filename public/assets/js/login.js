@@ -4,11 +4,27 @@
       return;
     }
 
+    const authTrack = authShell.querySelector('#authTrack');
+    const loginPanel = authShell.querySelector('.login-panel');
+    const registerPanel = authShell.querySelector('.register-panel');
     const tabs = authShell.querySelectorAll('.auth-tab, .auth-inline-switch');
     const tabButtons = authShell.querySelectorAll('.auth-tab');
 
+    function setTrackHeight(mode) {
+      if (!authTrack || !loginPanel || !registerPanel) {
+        return;
+      }
+
+      const activePanel = mode === 'register' ? registerPanel : loginPanel;
+      authTrack.style.height = `${activePanel.scrollHeight}px`;
+    }
+
     function setMode(mode) {
       authShell.classList.toggle('is-register', mode === 'register');
+
+      requestAnimationFrame(function () {
+        setTrackHeight(mode);
+      });
 
       tabButtons.forEach((tab) => {
         const isActive = tab.getAttribute('data-target') === mode;
@@ -22,6 +38,13 @@
         setMode(this.getAttribute('data-target'));
       });
     });
+
+    window.addEventListener('resize', function () {
+      setTrackHeight(authShell.classList.contains('is-register') ? 'register' : 'login');
+    });
+
+    // Keep initial height aligned with the currently active tab.
+    setTrackHeight(authShell.classList.contains('is-register') ? 'register' : 'login');
 
     const passwordToggles = authShell.querySelectorAll('.password-toggle');
 

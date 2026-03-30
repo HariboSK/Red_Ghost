@@ -16,6 +16,12 @@
 
 <main>
 
+    <!--Icona domvo-->
+    <a href="<?php echo route('/'); ?>" class="home-link">
+        <img src="./assets/icons/alt-house-svgrepo-com.svg" alt="Icona na vratenie na Home" class="home-logo">
+    </a>
+
+
     <div class="login-page-container">
         <section class="auth-shell" id="authShell">
             <div class="auth-tabs" role="tablist" aria-label="Prepnutie formulara">
@@ -41,15 +47,6 @@
                             <span class="input-icon" aria-hidden="true"></span>
                             <input type="password" id="login-password" name="password" placeholder="Heslo123" required>
                             <button type="button" class="password-toggle" data-toggle-password="login-password" aria-label="Zobraziť heslo" aria-pressed="false">
-                                <span class="password-toggle-icon" aria-hidden="true"></span>
-                            </button>
-                        </div>
-
-                        <label for="login-password-repe">Zopakuj heslo:</label>
-                        <div class="input-with-icon password-icon">
-                            <span class="input-icon" aria-hidden="true"></span>
-                            <input type="password" id="login-password-repe" name="repaet-password" placeholder="Heslo123" required>
-                            <button type="button" class="password-toggle" data-toggle-password="login-password-repe" aria-label="Zobraziť heslo" aria-pressed="false">
                                 <span class="password-toggle-icon" aria-hidden="true"></span>
                             </button>
                         </div>
@@ -90,6 +87,15 @@
                             <span class="input-icon" aria-hidden="true"></span>
                             <input type="password" id="register-password" name="password" placeholder="Heslo123" required>
                             <button type="button" class="password-toggle" data-toggle-password="register-password" aria-label="Zobraziť heslo" aria-pressed="false">
+                                <span class="password-toggle-icon" aria-hidden="true"></span>
+                            </button>
+                        </div>
+
+                        <label for="login-password-repe">Zopakuj heslo:</label>
+                        <div class="input-with-icon password-icon">
+                            <span class="input-icon" aria-hidden="true"></span>
+                            <input type="password" id="login-password-repe" name="repaet-password" placeholder="Heslo123" required>
+                            <button type="button" class="password-toggle" data-toggle-password="login-password-repe" aria-label="Zobraziť heslo" aria-pressed="false">
                                 <span class="password-toggle-icon" aria-hidden="true"></span>
                             </button>
                         </div>
