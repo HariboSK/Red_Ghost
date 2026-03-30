@@ -33,7 +33,9 @@
             <div class="auth-track" id="authTrack">
                 <section class="auth-panel login-panel" aria-labelledby="loginTitle">
                     <h2 id="loginTitle">Prihlásenie</h2>
-                    <p class="auth-helper">Nemáte účet ?<br><button type="button" class="auth-inline-switch" data-target="register">Registrovať sa</button></p>
+                    <p class="auth-helper">Nemáte účet?
+                        <button type="button" class="auth-inline-switch" data-target="register">Registrovať sa</button>
+                    </p>
                    
                     <form action="/login" method="POST" class="auth-form">
                         <label for="login-email">E-mail:</label>
@@ -61,7 +63,9 @@
 
                 <section class="auth-panel register-panel" aria-labelledby="registerTitle">
                     <h2 id="registerTitle">Registrácia</h2>
-                    <p class="auth-helper">Už máte účet ?<br><button type="button" class="auth-inline-switch" data-target="login">Prihlásiť sa</button></p>
+                    <p class="auth-helper">Už máte účet?
+                        <button type="button" class="auth-inline-switch" data-target="login">Prihlásiť sa</button>
+                    </p>
                     
                     <form action="/register" method="POST" class="auth-form">
                         <label for="register-meno">Meno:</label>

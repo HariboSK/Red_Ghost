@@ -95,8 +95,8 @@ body.login-page {
   width: calc(50% - 16px);
   height: calc(100% - 24px);
   border-radius: 12px;
-  background: linear-gradient(135deg, #fa6e17 0%, #c74b21 100%);
-  box-shadow: 0 10px 24px rgba(199, 75, 33, 0.45);
+  background: linear-gradient(135deg, #cc4f01 0%, #c7390a 100%);
+  box-shadow: 0 5px 15px rgba(255, 64, 0, 0.592);
   transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -135,14 +135,15 @@ body.login-page {
 }
 
 .auth-helper {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   margin: 0 0 18px;
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.92rem;
 }
 
 .auth-inline-switch {
+  display: block;
+  margin: 6px auto 0;
   border: none;
   background: none;
   color: #ffd4c4;
