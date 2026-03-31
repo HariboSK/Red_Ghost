@@ -1,0 +1,348 @@
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Pacifico&display=swap");
+
+:root {
+  /*Farby*/
+--white-color:#fff;
+--dark-color:#373737;
+--primary-color:#000000;
+--secondary-color:rgb(162, 49, 27);
+--light-red-color:#fa6e17;
+--medium-gray-color:#ccc;
+}
+
+.dashboard-page {
+  min-height: 100vh;
+  padding: 110px 20px 36px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(250, 110, 23, 0.16), transparent 35%),
+    radial-gradient(circle at 10% 80%, rgba(162, 49, 27, 0.2), transparent 45%),
+    linear-gradient(160deg, #120a09 0%, #1b0d0c 50%, #120807 100%);
+  color: var(--white-color);
+}
+
+.dashboard-topbar,
+.dash-kpi-grid,
+.dash-panels {
+  width: min(1150px, 100%);
+  margin: 0 auto;
+}
+
+.dashboard-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dash-eyebrow {
+  margin: 0;
+  color: var(--light-red-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.82rem;
+}
+
+.dashboard-topbar h1 {
+  margin: 2px 0 6px;
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+}
+
+.dash-subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 620px;
+}
+
+.dash-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dash-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--white-color);
+}
+
+.dash-btn.primary {
+  background: linear-gradient(135deg, var(--light-red-color), var(--secondary-color));
+  border-color: transparent;
+}
+
+.dash-btn.ghost {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dash-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.dash-kpi-card,
+.dash-panel {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.dash-kpi-card {
+  padding: 14px;
+}
+
+.dash-kpi-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.dash-kpi-card .value {
+  margin: 8px 0 3px;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  font-weight: 800;
+  color: #ffd8c4;
+}
+
+.dash-kpi-card .meta {
+  margin: 0;
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.dash-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.dash-panel {
+  padding: 16px;
+}
+
+.dash-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dash-panel-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.panel-link {
+  color: #ffd4bf;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.dash-list,
+.dash-checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+}
+
+.dash-list li {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 9px 11px;
+}
+
+.dash-list li span,
+.dash-checklist li {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.dash-list li strong {
+  color: var(--white-color);
+  font-weight: 700;
+}
+
+.dash-list li em {
+  color: #ffd8c4;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.dash-checklist li {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-checklist input[type="checkbox"] {
+  accent-color: var(--light-red-color);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.dash-management {
+  width: min(1150px, 100%);
+  margin: 16px auto 0;
+}
+
+.dash-management-head {
+  margin-bottom: 12px;
+}
+
+.dash-management-head h2 {
+  margin: 0 0 4px;
+  font-size: 1.22rem;
+}
+
+.dash-management-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.dash-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dash-form-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  padding: 16px;
+}
+
+.dash-form-card h3 {
+  margin: 0 0 12px;
+  color: var(--white-color);
+}
+
+.dash-form {
+  display: grid;
+  gap: 9px;
+}
+
+.dash-form label {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dash-form input,
+.dash-form select {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 16px;
+  background: rgba(16, 7, 7, 0.86);
+  color: var(--white-color);
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dash-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 10px 44px 10px 14px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--light-red-color) 50%),
+    linear-gradient(135deg, var(--light-red-color) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.dash-form input:hover,
+.dash-form select:hover {
+  border-color: rgba(250, 110, 23, 0.75);
+  background-color: rgba(22, 10, 10, 0.9);
+}
+
+.dash-form select option {
+  background: #1a0d0b;
+  color: var(--white-color);
+}
+
+.dash-form input[type="date"] {
+  color-scheme: dark;
+}
+
+.dash-form input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(55%) sepia(92%) saturate(2525%) hue-rotate(358deg) brightness(101%) contrast(96%);
+  opacity: 1;
+  cursor: pointer;
+}
+
+.dash-form input:focus,
+.dash-form select:focus {
+  outline: none;
+  border-color: var(--light-red-color);
+  box-shadow: 0 0 0 3px rgba(250, 110, 23, 0.2);
+}
+
+.dash-submit {
+  margin-top: 4px;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 12px;
+  color: var(--white-color);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--light-red-color), var(--secondary-color));
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.dash-submit:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.07);
+}
+
+@media screen and (max-width: 980px) {
+  .dash-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .dashboard-page {
+    padding: 94px 14px 24px;
+  }
+
+  .dashboard-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -17,5 +17,4 @@ $conn->set_charset("utf8mb4");
 
 // Predvolené časové pásmo
 date_default_timezone_set('Europe/Bratislava');
-
 ?>
