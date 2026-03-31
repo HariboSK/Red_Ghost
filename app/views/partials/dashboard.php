@@ -1,5 +1,4 @@
 <?php
-$extraStyles = ['/assets/css/dashboard.css'];
 include __DIR__ . '/header.php';
 ?>
 

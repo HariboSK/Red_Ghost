@@ -19,6 +19,8 @@ class Router
             '/shopcart.php' => 'app/views/partials/shopcart.php',
             '/dashboard' => 'app/views/partials/dashboard.php',
             '/dashboard.php' => 'app/views/partials/dashboard.php',
+            '/userprofile' => 'app/views/partials/userprofile.php',
+            '/userprofile.php' => 'app/views/partials/userprofile.php',
             '/login.php' => 'app/views/partials/login.php',
             '/login' => 'app/views/partials/login.php',
         ];

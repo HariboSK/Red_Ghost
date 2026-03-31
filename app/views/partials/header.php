@@ -16,11 +16,8 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="stylesheet" href="/assets/css/animation.css">
-  <?php if (isset($extraStyles) && is_array($extraStyles)): ?>
-    <?php foreach ($extraStyles as $stylePath): ?>
-      <link rel="stylesheet" href="<?php echo htmlspecialchars($stylePath, ENT_QUOTES, 'UTF-8'); ?>">
-    <?php endforeach; ?>
-  <?php endif; ?>
+  <link rel="stylesheet" href="/assets/css/dashboard.css">
+  <link rel="stylesheet" href="/assets/css/userprofile.css">
   <!-- Favicon -->
   <link rel="shortcut icon" type="image/x-icon"
     href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">

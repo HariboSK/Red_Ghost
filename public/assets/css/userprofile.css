@@ -1,0 +1,215 @@
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Pacifico&display=swap");
+
+:root {
+	--white-color: #fff;
+	--dark-color: #373737;
+	--primary-color: #000000;
+	--secondary-color: rgb(162, 49, 27);
+	--light-red-color: #fa6e17;
+	--medium-gray-color: #ccc;
+}
+
+.profile-page {
+	min-height: 100vh;
+	padding: 108px 16px 36px;
+	background:
+		radial-gradient(circle at 100% 0, rgba(250, 110, 23, 0.18), transparent 36%),
+		radial-gradient(circle at 5% 95%, rgba(162, 49, 27, 0.2), transparent 40%),
+		linear-gradient(150deg, #100706 0%, #1b0d0c 56%, #130706 100%);
+}
+
+.profile-shell {
+	width: min(1100px, 100%);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 320px 1fr;
+	gap: 16px;
+}
+
+.profile-card,
+.account-card,
+.orders-card {
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 16px;
+	background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+	box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(6px);
+}
+
+.profile-card {
+	padding: 18px;
+	color: var(--white-color);
+}
+
+.avatar-wrap {
+	width: 92px;
+	height: 92px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	margin-bottom: 10px;
+	background: linear-gradient(135deg, var(--light-red-color), var(--secondary-color));
+}
+
+.profile-avatar {
+	width: 56px;
+	height: 56px;
+}
+
+.profile-card h1 {
+	margin: 0;
+	font-size: 1.35rem;
+}
+
+.profile-email,
+.profile-tag {
+	margin: 6px 0 0;
+	color: rgba(255, 255, 255, 0.82);
+}
+
+.profile-stats {
+	margin-top: 14px;
+	display: grid;
+	gap: 8px;
+}
+
+.stat-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 11px 12px;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.24);
+}
+
+.stat-item span {
+	color: rgba(255, 255, 255, 0.84);
+}
+
+.stat-item strong {
+	color: #ffd8c4;
+}
+
+.profile-main {
+	display: grid;
+	gap: 16px;
+}
+
+.account-card,
+.orders-card {
+	padding: 16px;
+}
+
+.section-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.section-head h2 {
+	margin: 0;
+	color: var(--white-color);
+	font-size: 1.15rem;
+}
+
+.edit-link {
+	text-decoration: none;
+	color: #ffd8c4;
+	font-size: 0.9rem;
+}
+
+.account-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+.account-grid article {
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.24);
+}
+
+.account-grid h3 {
+	margin: 0 0 6px;
+	color: rgba(255, 255, 255, 0.86);
+	font-size: 0.9rem;
+}
+
+.account-grid p {
+	margin: 0;
+	color: var(--white-color);
+	font-weight: 600;
+}
+
+.orders-list {
+	display: grid;
+	gap: 9px;
+}
+
+.order-row {
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	align-items: center;
+	gap: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.24);
+}
+
+.order-row h3 {
+	margin: 0 0 3px;
+	color: var(--white-color);
+}
+
+.order-row p {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.order-row strong {
+	color: #ffd8c4;
+}
+
+.order-state {
+	font-size: 0.8rem;
+	font-weight: 700;
+	padding: 6px 8px;
+	border-radius: 999px;
+}
+
+.order-state.done {
+	color: #e7ffe5;
+	background: rgba(41, 130, 52, 0.4);
+}
+
+.order-state.progress {
+	color: #fff6e8;
+	background: rgba(199, 108, 18, 0.45);
+}
+
+@media screen and (max-width: 930px) {
+	.profile-shell {
+		grid-template-columns: 1fr;
+	}
+
+	.account-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media screen and (max-width: 640px) {
+	.profile-page {
+		padding: 96px 12px 26px;
+	}
+
+	.order-row {
+		grid-template-columns: 1fr;
+		gap: 7px;
+	}
+}
