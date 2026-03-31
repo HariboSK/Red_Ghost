@@ -96,6 +96,45 @@
 	gap: 16px;
 }
 
+.profile-top-actions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.profile-logout-icon {
+	padding: 10px 14px;
+	height: auto;
+	width: auto;
+	border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: rgba(255, 255, 255, 0.06);
+	color: #ffd8c4;
+	text-decoration: none;
+	font-size: 0.95rem;
+	font-weight: 600;
+	transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.profile-logout-icon i {
+	font-size: 1rem;
+}
+
+.profile-logout-icon:hover {
+	transform: translateY(-1px);
+	border-color: rgba(250, 110, 23, 0.72);
+	background: rgba(250, 110, 23, 0.16);
+	color: #fff3ea;
+}
+
+.profile-logout-icon:focus-visible {
+	outline: 2px solid rgba(250, 110, 23, 0.75);
+	outline-offset: 2px;
+}
+
 .account-card,
 .orders-card {
 	padding: 16px;

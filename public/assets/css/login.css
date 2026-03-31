@@ -399,6 +399,16 @@ gap: 10px;
   transition: text-shadow 0.3s ease, color 0.3s ease;
 }
 
+.error-message {
+  background-color: rgba(255, 0, 0, 0.8);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 600;
+} 
+
 .forgot-password:hover{
   text-shadow: 0 0 10px var(--light-red-color);
   text-decoration: underline;

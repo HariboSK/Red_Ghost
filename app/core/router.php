@@ -23,6 +23,7 @@ class Router
             '/userprofile.php' => 'app/views/partials/userprofile.php',
             '/login.php' => 'app/views/partials/login.php',
             '/login' => 'app/views/partials/login.php',
+            '/logout' => 'app/views/partials/logout.php'
         ];
     }
 

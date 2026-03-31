@@ -1,5 +1,12 @@
 <?php
-include __DIR__ . '/header.php';
+session_start();
+if (!isset($_SESSION['email'])) {
+    header('Location: /login.php');
+    exit();
+}
+
+include __DIR__ . '/userprofile-header.php';
+
 ?>
 
 <main>
@@ -9,7 +16,7 @@ include __DIR__ . '/header.php';
                 <div class="avatar-wrap">
                     <img src="/assets/icons/user-svgrepo-com.svg" alt="Avatar uzivatela" class="profile-avatar">
                 </div>
-                <h1>Jano Mrkvicka</h1>
+                <h1>VITAJ, <span><?= $_SESSION['name']; ?></span></h1>
                 <p class="profile-email">jano@mrkvicka.com</p>
                 <p class="profile-tag">Zakaznik od 2025</p>
 
@@ -26,6 +33,14 @@ include __DIR__ . '/header.php';
             </aside>
 
             <div class="profile-main">
+                <div class="profile-top-actions">
+                    <a href="<?php echo route('/logout'); ?>" class="profile-logout-icon" title="Odhlasit sa"
+                        aria-label="Odhlasit sa">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                        <span>Odhlasit sa</span>
+                    </a>
+                </div>
+
                 <section class="account-card">
                     <div class="section-head">
                         <h2>Svoje udaje uctu</h2>

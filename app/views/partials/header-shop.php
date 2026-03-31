@@ -22,7 +22,8 @@
     href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
 </head>
 
-<body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>">
+<body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>"
+  data-cart-api="<?php echo route('/api/cart.php'); ?>">
   <!-- Header pre e-shop -->
   <header class="posun">
     <div class="container">
@@ -31,6 +32,20 @@
           <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo">
           <h2 class="logo-text">Red Ghost</h2>
         </a>
+
+        <div class="shop-header-tools">
+          <div class="nav-bar-searchbar">
+            <div class="search-bar-container">
+              <input type="text" id="searchInput" placeholder="Hladaj produkty..." class="search-bar-input">
+              <a href="#" class="search_icon" aria-label="Vyhladat produkty"><i class="fas fa-search"></i></a>
+            </div>
+          </div>
+
+          <a href="<?php echo route('/shopcart'); ?>" class="header-cart-summary" aria-label="Otvorit kosik">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span id="headerCartTotal">0.00 EUR</span>
+          </a>
+        </div>
 
       </div>
     </div>

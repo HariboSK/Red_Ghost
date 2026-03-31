@@ -1,5 +1,12 @@
 <?php
-include __DIR__ . '/header.php';
+session_start();
+if (!isset($_SESSION['email'])) {
+    header('Location: /login.php');
+    exit();
+}
+
+include __DIR__ . '/dashboard-header.php';
+
 ?>
 
 <main class="dashboard-page">
@@ -7,11 +14,17 @@ include __DIR__ . '/header.php';
         <div>
             <p class="dash-eyebrow">Admin panel</p>
             <h1>Dashboard</h1>
+            <p class="dash-title">Vitaj,<span><?= $_SESSION['name']; ?></span> v sprave tvojho e-shopu</p>
             <p class="dash-subtitle">Prehlad objednavok, predaja a stavu produktov na jednom mieste.</p>
         </div>
         <div class="dash-actions">
             <a href="<?php echo route('/e-shop'); ?>" class="dash-btn primary">E-shop</a>
             <a href="<?php echo route('/shopcart'); ?>" class="dash-btn ghost">Kosik</a>
+            <a href="<?php echo route('/logout'); ?>" class="dash-logout-icon" title="Odhlasit sa"
+                aria-label="Odhlasit sa">
+                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                <span>Odhlasit sa</span>
+            </a>
         </div>
     </section>
 

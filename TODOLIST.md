@@ -7,3 +7,7 @@ SPRAVIT
 - [ ] pridanie prepinanie light a dark mode 
 - [ ] pridanie toggle button na zmenu jazyka
 - [ ] uprava css login aj php 
+
+
+cart.php 
+shop.js

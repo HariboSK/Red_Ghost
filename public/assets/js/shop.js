@@ -1,5 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.getElementById('searchInput');
+  const headerCartTotal = document.getElementById('headerCartTotal');
+  const cartApiUrl = document.body.dataset.cartApi || 'api/cart.php';
+
+  function updateHeaderTotal(summary) {
+    if (!headerCartTotal || !summary) {
+      return;
+    }
+
+    const total = Number(summary.total || 0);
+    headerCartTotal.textContent = total.toFixed(2) + ' EUR';
+  }
 
   if (searchInput) {
     searchInput.addEventListener('keyup', function () {
@@ -11,6 +22,26 @@ document.addEventListener('DOMContentLoaded', function () {
         product.style.display = productName.includes(searchValue) ? 'block' : 'none';
       });
     });
+  }
+
+  if (headerCartTotal) {
+    fetch(cartApiUrl + '?action=summary', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (payload) {
+        if (payload && payload.success && payload.summary) {
+          updateHeaderTotal(payload.summary);
+        }
+      })
+      .catch(function () {
+        // Keep default value when API is unavailable.
+      });
   }
 });
 
@@ -35,18 +66,34 @@ function sortProducts() {
   });
 }
 
-function addToCart(id, name, price) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existingItem = cart.find(function (item) {
-    return item.id === id;
-  });
+function addToCart(id) {
+  const cartApiUrl = document.body.dataset.cartApi || 'api/cart.php';
+  fetch(cartApiUrl + '?action=add', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ id: id })
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (payload) {
+      if (!payload || !payload.success) {
+        alert('Nepodarilo sa pridat produkt do kosika.');
+        return;
+      }
 
-  if (existingItem) {
-    existingItem.quantity += 1;
-  } else {
-    cart.push({ id: id, name: name, price: price, quantity: 1 });
-  }
+      const headerCartTotal = document.getElementById('headerCartTotal');
+      if (headerCartTotal && payload.summary) {
+        const total = Number(payload.summary.total || 0);
+        headerCartTotal.textContent = total.toFixed(2) + ' EUR';
+      }
 
-  localStorage.setItem('cart', JSON.stringify(cart));
-  alert(name + ' bolo pridané do košíka!');
+      alert(payload.message || 'Produkt bol pridany do kosika.');
+    })
+    .catch(function () {
+      alert('Chyba spojenia so serverom. Skus to znova.');
+    });
 }

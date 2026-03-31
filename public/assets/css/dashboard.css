@@ -69,12 +69,61 @@
 }
 
 .dash-btn.primary {
-  background: linear-gradient(135deg, var(--light-red-color), var(--secondary-color));
-  border-color: transparent;
+    color: var(--primary-color);
+    background: var(--medium-gray-color);
+    border-color: transparent;
+}
+
+.dash-btn.primary:hover {
+    transform: translateY(-1px);
+    background: var(--light-red-color);
+    filter: brightness(1.07);
+    color: var(--white-color);
 }
 
 .dash-btn.ghost {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.dash-btn.ghost:hover {
+  transform: translateY(-1px);
+  border-color: rgba(250, 110, 23, 0.72);
+  background: rgba(250, 110, 23, 0.16);
+  color: #fff3ea;
+}
+
+.dash-logout-icon {
+  padding: 10px 14px;
+  height: auto;
+  width: auto;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffd8c4;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.dash-logout-icon i {
+  font-size: 1rem;
+}
+
+.dash-logout-icon:hover {
+  transform: translateY(-1px);
+  border-color: rgba(250, 110, 23, 0.72);
+  background: rgba(250, 110, 23, 0.16);
+  color: #fff3ea;
+}
+
+.dash-logout-icon:focus-visible {
+  outline: 2px solid rgba(250, 110, 23, 0.75);
+  outline-offset: 2px;
 }
 
 .dash-kpi-grid {
@@ -318,6 +367,17 @@
   filter: brightness(1.07);
 }
 
+.dash-title{
+    font-size: xx-large;
+    color: var(--white-color);
+}
+
+.dash-title span{
+    color: var(--light-red-color);
+    text-transform: bold;
+}
+
+
 @media screen and (max-width: 980px) {
   .dash-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -340,6 +400,11 @@
   .dashboard-topbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .dash-actions {
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .dash-kpi-grid {

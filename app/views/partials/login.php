@@ -1,3 +1,26 @@
+<?php
+
+session_start();
+
+$errors = [
+    'login' => $_SESSION['login_error'] ?? '',
+    'register' => $_SESSION['register_error'] ?? ''
+];
+
+$activeForm = $_SESSION['active_form'] ?? 'login';
+
+session_unset();
+
+function showError($error) {
+    return !empty($error) ? '<p class="error-message">' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</p>' : '';
+}
+
+function isActiveForm($formName, $activeForm) {
+    return $formName === $activeForm ? 'active' : '';
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,12 +67,13 @@
                 </div>
 
                 <div class="auth-track" id="authTrack">
-                    <section class="auth-panel login-panel" aria-labelledby="loginTitle">
+                    <section class="auth-panel login-panel <?= isActiveForm('login', $activeForm); ?>" aria-labelledby="loginTitle">
                         <h2 id="loginTitle">Prihlásenie</h2>
                         <p class="auth-helper">Nemáte účet?</p>
                         <button type="button" class="auth-inline-switch" data-target="register">Registrovať sa</button>
 
-                        <form action="/login" method="POST" class="auth-form">
+                        <!-- FORM na LOGIN --> 
+                        <form action="/login-register.php" method="POST" class="auth-form">
                             <label for="login-email">E-mail:</label>
                             <div class="input-with-icon email-icon">
                                 <span class="input-icon" aria-hidden="true"></span>
@@ -73,22 +97,26 @@
                                 heslo?</a>
 
                             <button type="submit" name="login" class="auth-submit">Prihlásiť sa</button>
+                            <?= showError($errors['login']); ?>
                         </form>
 
                     </section>
 
-                    <section class="auth-panel register-panel" aria-labelledby="registerTitle">
+                    <section class="auth-panel register-panel <?= isActiveForm('register', $activeForm); ?>" aria-labelledby="registerTitle">
                         <h2 id="registerTitle">Registrácia</h2>
-                        <p class="auth-helper">Už máte účet?</p>
-                            <button type="button" class="auth-inline-switch" data-target="login">Prihlásiť sa</button>
 
-                        <form action="/register" method="POST" class="auth-form">
+                        <p class="auth-helper">Už máte účet?</p>
+                        <button type="button" class="auth-inline-switch" data-target="login">Prihlásiť sa</button>
+                    
+
+                        <!--FORM na REGISTER -->
+                        <form action="/login-register.php" method="POST" class="auth-form">
                             <div class="name-row">
                                 <div class="name-col">
-                                    <label for="register-meno">Meno:</label>
+                                    <label for="register-name">Meno:</label>
                                     <div class="input-with-icon user-icon">
                                         <span class="input-icon" aria-hidden="true"></span>
-                                        <input type="text" id="register-meno" name="meno" placeholder="Jano" required>
+                                        <input type="text" id="register-name" name="name" placeholder="Jano" required>
                                     </div>
                                 </div>
                                 <div class="name-col">
@@ -131,6 +159,8 @@
                             </div>
 
                             <button type="submit" name="register" class="auth-submit">Vytvoriť účet</button>
+                            <?= showError($errors['register']); ?>
+
                         </form>
 
                     </section>
