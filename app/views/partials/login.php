@@ -165,7 +165,6 @@ function isActiveForm($formName, $activeForm)
 
                             <button type="submit" name="register" class="auth-submit">Vytvoriť účet</button>
                             <?= showError($errors['register']); ?>
-
                         </form>
 
                     </section>

@@ -7,7 +7,7 @@ $featuredProducts = [];
 $otherProducts = [];
 
 if (isset($conn) && $conn instanceof mysqli) {
-  $sql = 'SELECT id, name, price, rating, featured, image FROM products ORDER BY featured DESC, id ASC';
+  $sql = 'SELECT id, name, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
   $result = $conn->query($sql);
 
   if ($result instanceof mysqli_result) {
@@ -19,6 +19,7 @@ if (isset($conn) && $conn instanceof mysqli) {
         'price' => (float) ($row['price'] ?? 0),
         'rating' => (int) ($row['rating'] ?? 4),
         'featured' => (int) ($row['featured'] ?? 0) === 1,
+        'stock' => (int) ($row['stock'] ?? 0),
       ];
 
       if ($product['image'] === '') {
@@ -48,6 +49,7 @@ function renderProductCard(array $product): void
   $image = (string) ($product['image'] ?? '');
   $price = (float) ($product['price'] ?? 0);
   $rating = max(0, min(5, (int) ($product['rating'] ?? 4)));
+  $stock = (int) ($product['stock'] ?? 0);
 
   echo '<div class="col-4 product-card" data-id="' . $productId . '" data-price="' . $price . '" data-name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">';
   echo '<img src="' . htmlspecialchars($image, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">';
@@ -61,7 +63,8 @@ function renderProductCard(array $product): void
   }
   echo '</div>';
   echo '<p class="price">' . number_format($price, 2, '.', '') . '€</p>';
-  echo '<button class="add-to-cart" onclick="addToCart(' . $productId . ')">Pridať do košíka</button>';
+  echo '<div class="stock ' . ($stock > 0 ? 'in-stock' : 'out-of-stock') . '">' . ($stock > 0 ? 'Na sklade: ' . $stock . ' ks' : 'Vypredané') . '</div>';
+  echo '<button class="add-to-cart" onclick="addToCart(' . $productId . ')" ' . ($stock <= 0 ? 'disabled' : '') . '>Pridať do košíka</button>';
   echo '</div>';
 }
 ?>

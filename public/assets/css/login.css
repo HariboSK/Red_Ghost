@@ -400,8 +400,8 @@ gap: 10px;
 }
 
 .error-message {
-  background-color: rgba(255, 0, 0, 0.8);
-  color: #fff;
+  background-color: rgb(255, 221, 0);
+  color: var(--primary-color);
   padding: 10px 14px;
   border-radius: 8px;
   margin-bottom: 12px;

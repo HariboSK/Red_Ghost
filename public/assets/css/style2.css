@@ -294,10 +294,10 @@ nav ul li{
 .product-card {
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--light-red-color);
   border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  background: #000000;
+  box-shadow: 0 10px 24px rgba(80, 1, 1, 0.568);
 }
 
 .product-card img {
@@ -310,7 +310,7 @@ nav ul li{
 .product-card h4 {
   min-height: 42px;
   font-size: 1.05rem;
-  color: #2f2f2f;
+  color: var(--white-color);
   margin-bottom: 6px;
 }
 
@@ -375,6 +375,25 @@ h4{
 .col-4:hover{
   transform: translateY(-5px);
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.14);
+}
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stock{
+  margin-top: 8px;
+  font-size: 1rem;
+  text-transform: bold;
+}
+
+.stock.in-stock{
+  color: #00ff3c;
+}
+
+.stock.out-of-stock{
+  color: #ff0000d3;
 }
 
 @media screen and (max-width: 980px) {
