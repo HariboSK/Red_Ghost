@@ -8,8 +8,18 @@ app_register_error_handlers();
 if (isset($_POST['register'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $passwordRaw = $_POST['password'] ?? '';
+    $repeatPassword = $_POST['repeat-password'] ?? '';
     $role = 'user';
+
+    if ($passwordRaw !== $repeatPassword) {
+        $_SESSION["register_error"] = 'Heslá sa nezhodujú';
+        $_SESSION['active_form'] = 'register';
+        header("Location: /login.php");
+        exit();
+    }
+
+    $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
 
     $checkEmail = $conn->query("SELECT email FROM users WHERE email = '$email'");
     if ($checkEmail->num_rows > 0) {

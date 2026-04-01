@@ -11,11 +11,13 @@ $activeForm = $_SESSION['active_form'] ?? 'login';
 
 session_unset();
 
-function showError($error) {
+function showError($error)
+{
     return !empty($error) ? '<p class="error-message">' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</p>' : '';
 }
 
-function isActiveForm($formName, $activeForm) {
+function isActiveForm($formName, $activeForm)
+{
     return $formName === $activeForm ? 'active' : '';
 }
 
@@ -62,17 +64,19 @@ function isActiveForm($formName, $activeForm) {
                 <div class="auth-tabs" role="tablist" aria-label="Prepnutie formulara">
                     <button type="button" class="auth-tab is-active" data-target="login"
                         aria-selected="true">Prihlásenie</button>
-                    <button type="button" class="auth-tab" data-target="register" aria-selected="false">Registrovať sa</button>
+                    <button type="button" class="auth-tab" data-target="register" aria-selected="false">Registrovať
+                        sa</button>
                     <span class="auth-tab-indicator" aria-hidden="true"></span>
                 </div>
 
                 <div class="auth-track" id="authTrack">
-                    <section class="auth-panel login-panel <?= isActiveForm('login', $activeForm); ?>" aria-labelledby="loginTitle">
+                    <section class="auth-panel login-panel <?= isActiveForm('login', $activeForm); ?>"
+                        aria-labelledby="loginTitle">
                         <h2 id="loginTitle">Prihlásenie</h2>
                         <p class="auth-helper">Nemáte účet?</p>
                         <button type="button" class="auth-inline-switch" data-target="register">Registrovať sa</button>
 
-                        <!-- FORM na LOGIN --> 
+                        <!-- FORM na LOGIN -->
                         <form action="/login-register.php" method="POST" class="auth-form">
                             <label for="login-email">E-mail:</label>
                             <div class="input-with-icon email-icon">
@@ -102,12 +106,13 @@ function isActiveForm($formName, $activeForm) {
 
                     </section>
 
-                    <section class="auth-panel register-panel <?= isActiveForm('register', $activeForm); ?>" aria-labelledby="registerTitle">
+                    <section class="auth-panel register-panel <?= isActiveForm('register', $activeForm); ?>"
+                        aria-labelledby="registerTitle">
                         <h2 id="registerTitle">Registrácia</h2>
 
                         <p class="auth-helper">Už máte účet?</p>
                         <button type="button" class="auth-inline-switch" data-target="login">Prihlásiť sa</button>
-                    
+
 
                         <!--FORM na REGISTER -->
                         <form action="/login-register.php" method="POST" class="auth-form">
@@ -150,7 +155,7 @@ function isActiveForm($formName, $activeForm) {
                             <label for="login-password-repe">Zopakuj heslo:</label>
                             <div class="input-with-icon password-icon">
                                 <span class="input-icon" aria-hidden="true"></span>
-                                <input type="password" id="login-password-repe" name="repaet-password"
+                                <input type="password" id="login-password-repe" name="repeat-password"
                                     placeholder="Heslo123" required>
                                 <button type="button" class="password-toggle" data-toggle-password="login-password-repe"
                                     aria-label="Zobraziť heslo" aria-pressed="false">
