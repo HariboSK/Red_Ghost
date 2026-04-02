@@ -172,16 +172,28 @@ include __DIR__ . '/header.php';
       <form action="<?php echo route('/send-message'); ?>" class="contact-form" method="POST">
         <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required>
         <input type="email" name="email" placeholder="Tvoj email" class="form-input" required>
+        <select name="subject" class="form-input" required>
+          <option value="" disabled selected>Vyber tému</option>
+          <option value="general">Všeobecný dotaz</option>
+          <option value="trouble">Niečo nefunguje</option>
+          <option value="order">Dotaz ohľadom objednávky</option>
+          <option value="feedback">Spätná väzba</option>
+          <option value="other">Iné</option>
+        </select>
         <textarea name="message" placeholder="Tvoja správa" class="form-input" required></textarea>
 
         <!-- Honeypot pole (skryté pre ľudí) -->
         <input type="text" name="robot" style="display:none">
 
+        <input type="checkbox" id="consent" name="consent" required="">
+        <label for="consent" class="checkbox-label">Súhlasím so spracovaním mojich osobných údajov</label>
+
         <!-- Google reCAPTCHA v2 -->
-        <div class="g-recaptcha" data-sitekey="6LcM2_0rAAAAAPCxV2J4TstOJOKV15GVPDnuJ3u8 "></div>
+        <div class="g-recaptcha" data-sitekey="6LcM2_0rAAAAAPCxV2J4TstOJOKV15GVPDnuJ3u8"></div>
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
         <button type="submit" class="submit-button">Poslať</button>
+        
       </form>
 
       <div id="confirmBox">✅ Správa bola odoslaná</div>

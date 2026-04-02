@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+config/config.env
+config/*.env
+
+storage/logs/*.log

@@ -25,8 +25,8 @@ class Router
             '/login' => 'app/views/partials/login.php',
             '/login-register' => 'app/core/login-register.php',
             '/login-register.php' => 'app/core/login-register.php',
-            '/send-message' => 'app/core/send-message.php',
-            '/send-message.php' => 'app/core/send-message.php',
+            '/send-message' => 'app/core/mail.php',
+            '/send-message.php' => 'app/core/mail.php',
             '/api/cart' => 'app/core/api/cart.php',
             '/api/cart.php' => 'app/core/api/cart.php',
             '/logout' => 'app/views/partials/logout.php'
