@@ -169,7 +169,7 @@ include __DIR__ . '/header.php';
             <p>Pondelok - Nedeľa 9:00 - 19:00</p>           
       </ul>
 
-      <form action="<?php echo route('/send-message.php'); ?>" class="contact-form" method="POST">
+      <form action="<?php echo route('/send-message'); ?>" class="contact-form" method="POST">
         <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required>
         <input type="email" name="email" placeholder="Tvoj email" class="form-input" required>
         <textarea name="message" placeholder="Tvoja správa" class="form-input" required></textarea>

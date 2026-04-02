@@ -12,15 +12,14 @@
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
-        href="./assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+        href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
 
 </head>
 
 <body>
     <div class="error-container">
         <h1>500 - Chyba Aplikacie</h1>
-        <p>Ospravedlňujeme sa, ale došlo k neočakávanej chybe. Naša technická podpora bola informována a pracuje na jej
-            odstránení.</p>
+        <p><?php echo isset($errorMessage) ? htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') : 'Ospravedlňujeme sa, ale došlo k neočakávanej chybe. Naša technická podpora bola informovana a pracuje na jej odstránení.'; ?></p>
         <p>Prosím skuste to neskôr.</p>
 
         <a href="<?php echo route('/home'); ?>" class="home-link">Späť na domovskú stránku</a>

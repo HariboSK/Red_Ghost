@@ -1,4 +1,3 @@
 <?php
-
-// Public API entrypoint; delegates logic to app-level backend API.
-require_once dirname(__DIR__, 2) . '/app/core/api/cart.php';
+// Backward-compatible entrypoint. Use index.php as the single front controller.
+require_once __DIR__ . '/../index.php';

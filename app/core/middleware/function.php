@@ -36,7 +36,7 @@ function app_log($uroven, $sprava, array $context = []) {
     $uroven = strtoupper((string) $uroven);
     $sprava = (string) $sprava;
 
-    $projectRoot = dirname(__DIR__, 2);
+    $projectRoot = dirname(__DIR__, 3);
     $logDir = $projectRoot . '/storage/logs';
     $logFile = $logDir . '/app-' . date('Y-m-d') . '.log';
 
@@ -70,7 +70,7 @@ function app_render_friendly_error($publicMessage = 'Prepacte, nieco sa pokazilo
 
     //error message vrati stranku s chybou 500
     $errorMessage = $publicMessage;
-    $errorPagePath = dirname(__DIR__) . '/views/partials/error500.php';
+    $errorPagePath = dirname(__DIR__, 2) . '/views/partials/error500.php';
 
     if (is_file($errorPagePath)) {
         include $errorPagePath;

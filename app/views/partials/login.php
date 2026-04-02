@@ -77,7 +77,7 @@ function isActiveForm($formName, $activeForm)
                         <button type="button" class="auth-inline-switch" data-target="register">Registrovať sa</button>
 
                         <!-- FORM na LOGIN -->
-                        <form action="/login-register.php" method="POST" class="auth-form">
+                        <form action="<?php echo route('/login-register'); ?>" method="POST" class="auth-form">
                             <label for="login-email">E-mail:</label>
                             <div class="input-with-icon email-icon">
                                 <span class="input-icon" aria-hidden="true"></span>
@@ -115,7 +115,7 @@ function isActiveForm($formName, $activeForm)
 
 
                         <!--FORM na REGISTER -->
-                        <form action="/login-register.php" method="POST" class="auth-form">
+                        <form action="<?php echo route('/login-register'); ?>" method="POST" class="auth-form">
                             <div class="name-row">
                                 <div class="name-col">
                                     <label for="register-name">Meno:</label>

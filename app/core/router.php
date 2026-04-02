@@ -23,6 +23,12 @@ class Router
             '/userprofile.php' => 'app/views/partials/userprofile.php',
             '/login.php' => 'app/views/partials/login.php',
             '/login' => 'app/views/partials/login.php',
+            '/login-register' => 'app/core/login-register.php',
+            '/login-register.php' => 'app/core/login-register.php',
+            '/send-message' => 'app/core/send-message.php',
+            '/send-message.php' => 'app/core/send-message.php',
+            '/api/cart' => 'app/core/api/cart.php',
+            '/api/cart.php' => 'app/core/api/cart.php',
             '/logout' => 'app/views/partials/logout.php'
         ];
     }

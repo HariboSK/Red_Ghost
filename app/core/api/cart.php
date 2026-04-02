@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__DIR__, 3) . '/app/core/function.php';
-app_register_error_handlers();
 require_once dirname(__DIR__, 3) . '/config/config.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {

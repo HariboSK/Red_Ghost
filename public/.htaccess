@@ -1,4 +1,4 @@
-DirectoryIndex home.php
+DirectoryIndex index.php
 
 RewriteEngine On
 
@@ -8,4 +8,4 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
 # Route all other requests through front controller.
-RewriteRule ^ home.php [L,QSA]
+RewriteRule ^ index.php [L,QSA]

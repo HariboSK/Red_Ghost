@@ -1,9 +1,7 @@
 <?php
 
 session_start();
-require_once __DIR__ . '/function.php';
 require_once dirname(__DIR__, 2) . '/config/config.php';
-app_register_error_handlers();
 
 if (isset($_POST['register'])) {
     $name = $_POST['name'];

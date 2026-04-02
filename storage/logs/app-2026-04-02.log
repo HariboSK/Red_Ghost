@@ -1,0 +1,2 @@
+[2026-04-02 12:36:35] ERROR: Uncaught exception {"type":"mysqli_sql_exception","message":"No connection could be made because the target machine actively refused it","file":"C:\\xampp\\htdocs\\Red_Ghost\\config\\config.php","line":8,"uri":"/"}
+[2026-04-02 12:36:40] ERROR: Uncaught exception {"type":"mysqli_sql_exception","message":"No connection could be made because the target machine actively refused it","file":"C:\\xampp\\htdocs\\Red_Ghost\\config\\config.php","line":8,"uri":"/"}
