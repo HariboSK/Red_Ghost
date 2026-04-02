@@ -189,7 +189,7 @@ include __DIR__ . '/header.php';
         <label for="consent" class="checkbox-label">Súhlasím so spracovaním mojich osobných údajov</label>
 
         <!-- Google reCAPTCHA v2 -->
-        <div class="g-recaptcha" data-sitekey="6LcM2_0rAAAAAPCxV2J4TstOJOKV15GVPDnuJ3u8"></div>
+        <div class="g-recaptcha" data-sitekey=""></div>
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
         <button type="submit" class="submit-button">Poslať</button>
