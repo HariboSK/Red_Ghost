@@ -34,13 +34,6 @@
         </a>
 
         <div class="shop-header-tools">
-          <div class="nav-bar-searchbar">
-            <div class="search-bar-container">
-              <input type="text" id="searchInput" placeholder="Hladaj produkty..." class="search-bar-input">
-              <a href="#" class="search_icon" aria-label="Vyhladat produkty"><i class="fas fa-search"></i></a>
-            </div>
-          </div>
-
           <a href="<?php echo route('/shopcart'); ?>" class="header-cart-summary" aria-label="Otvorit kosik">
             <i class="fa-solid fa-cart-shopping"></i>
             <span id="headerCartTotal">0.00 EUR</span>
