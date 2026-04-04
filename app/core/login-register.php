@@ -2,6 +2,7 @@
 
 session_start();
 require_once dirname(__DIR__, 2) . '/config/config.php';
+require_once __DIR__ . '/session_helper.php';
 
 if (isset($_POST['register'])) {
     $name = $_POST['name'];
@@ -40,8 +41,10 @@ if (isset($_POST['login'])) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['email'] = $user['email'];
+            session_regenerate_id(true);
+
+            $points = isset($user['loayalty_points']) ? (int) $user['loayalty_points'] : 0;
+            rg_session_store_user($user, $points);
 
             if ($user['role'] === 'admin') {
                 header("Location: /dashboard.php");

@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("searchInput");
   const headerCartTotal = document.getElementById("headerCartTotal");
   const cartApiUrl = document.body.dataset.cartApi || "api/cart.php";
+  const profileMenu = document.getElementById("profileMenu");
+  const profileIcon = document.getElementById("profileIcon");
+  const profilePopup = document.getElementById("profilePopup");
 
   if (
     typeof Swiper !== "undefined" &&
@@ -66,6 +69,68 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(function () {
         // Keep default value when API is unavailable.
       });
+  }
+
+  if (profileMenu && profileIcon && profilePopup) {
+    profileIcon.setAttribute("aria-expanded", "false");
+
+    profileIcon.addEventListener("click", function (event) {
+      if (window.matchMedia("(max-width: 800px)").matches) {
+        event.preventDefault();
+        profileMenu.classList.toggle("open");
+        const isOpen = profileMenu.classList.contains("open");
+        profilePopup.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        profileIcon.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!profileMenu.contains(event.target)) {
+        profileMenu.classList.remove("open");
+        profilePopup.setAttribute("aria-hidden", "true");
+        profileIcon.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    window.addEventListener("resize", function () {
+      if (!window.matchMedia("(max-width: 800px)").matches) {
+        profileMenu.classList.remove("open");
+        profilePopup.setAttribute("aria-hidden", "true");
+        profileIcon.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  // Image zoom funckie pre produktove karty
+  const zoomTrigger = document.getElementById("zoomTrigger");
+  const zoomModal = document.getElementById("zoomModal");
+  const closeModal = document.getElementById("closeModal");
+  const zoomedImage = document.getElementById("zoomedImage");
+
+  if (zoomTrigger && zoomModal && closeModal && zoomedImage) {
+    zoomTrigger.addEventListener("click", function () {
+      const sourceImage = zoomTrigger.querySelector("img");
+      if (!sourceImage) {
+        return;
+      }
+
+      zoomedImage.src = sourceImage.src;
+      zoomedImage.alt = sourceImage.alt;
+      zoomModal.classList.add("open");
+      zoomModal.setAttribute("aria-hidden", "false");
+    });
+
+    closeModal.addEventListener("click", function () {
+      zoomModal.classList.remove("open");
+      zoomModal.setAttribute("aria-hidden", "true");
+    });
+
+    zoomModal.addEventListener("click", function (event) {
+      if (event.target === zoomModal) {
+        zoomModal.classList.remove("open");
+        zoomModal.setAttribute("aria-hidden", "true");
+      }
+    });
   }
 });
 

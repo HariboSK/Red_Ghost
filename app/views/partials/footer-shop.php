@@ -28,8 +28,6 @@
     <p class="copyright">&copy; 2025 Red Ghost. Vsetky prava vyhradene.</p>
   </div>
 </div>
-
-</main>
 <?php
 $assetBaseLocal = (isset($assetBase) && is_string($assetBase) && $assetBase !== '') ? $assetBase : '/assets';
 ?>

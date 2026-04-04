@@ -9,7 +9,8 @@ $errors = [
 
 $activeForm = $_SESSION['active_form'] ?? 'login';
 
-session_unset();
+// Vymazat iba jednorazove chybove hlasky, nie celu session pouzivatela.
+unset($_SESSION['login_error'], $_SESSION['register_error'], $_SESSION['active_form']);
 
 function showError($error)
 {

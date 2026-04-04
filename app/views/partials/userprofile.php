@@ -1,6 +1,13 @@
 <?php
-session_start();
-if (!isset($_SESSION['email'])) {
+require_once dirname(__DIR__, 2) . '/core/session_helper.php';
+rg_session_bootstrap();
+
+$sessionUser = rg_session_user();
+$profileEmail = (string) ($sessionUser['email'] ?? '');
+$profileName = (string) ($sessionUser['name'] ?? '');
+$isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
+
+if (!$isLoggedIn) {
     header('Location: /login.php');
     exit();
 }
@@ -16,8 +23,8 @@ include __DIR__ . '/userprofile-header.php';
                 <div class="avatar-wrap">
                     <img src="/assets/icons/user-svgrepo-com.svg" alt="Avatar uzivatela" class="profile-avatar">
                 </div>
-                <h1>VITAJ, <span><?= $_SESSION['name']; ?></span></h1>
-                <p class="profile-email">jano@mrkvicka.com</p>
+                <h1>VITAJ, <span><?= htmlspecialchars($profileName !== '' ? $profileName : 'Zakaznik', ENT_QUOTES, 'UTF-8'); ?></span></h1>
+                <p class="profile-email"><?= htmlspecialchars($profileEmail !== '' ? $profileEmail : 'Neznamy e-mail', ENT_QUOTES, 'UTF-8'); ?></p>
                 <p class="profile-tag">Zakaznik od 2025</p>
 
                 <div class="profile-stats">
@@ -34,6 +41,11 @@ include __DIR__ . '/userprofile-header.php';
 
             <div class="profile-main">
                 <div class="profile-top-actions">
+                    <a href="<?php echo route('/e-shop'); ?>" class="profile-logout-icon" title="Spat do e-shopu"
+                        aria-label="Spat do e-shopu">
+                        <i class="fa-solid fa-store" aria-hidden="true"></i>
+                        <span>Spat do e-shopu</span>
+                    </a>
                     <a href="<?php echo route('/logout'); ?>" class="profile-logout-icon" title="Odhlasit sa"
                         aria-label="Odhlasit sa">
                         <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>

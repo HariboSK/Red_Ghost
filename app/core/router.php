@@ -15,6 +15,8 @@ class Router
             '/e_shop' => 'app/views/partials/e_shop.php',
             '/e_shop.php' => 'app/views/partials/e_shop.php',
             '/e-shop.php' => 'app/views/partials/e_shop.php',
+            '/product' => 'app/views/partials/product.php',
+            '/product.php' => 'app/views/partials/product.php',
             '/shopcart' => 'app/views/partials/shopcart.php',
             '/shopcart.php' => 'app/views/partials/shopcart.php',
             '/dashboard' => 'app/views/partials/dashboard.php',

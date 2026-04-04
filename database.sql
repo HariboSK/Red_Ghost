@@ -83,6 +83,7 @@ CREATE TABLE `users` (
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `loayalty_points` int(11) NOT NULL DEFAULT 0,
   `role` enum('user','admin') NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email_unique` (`email`)

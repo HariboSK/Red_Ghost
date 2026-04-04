@@ -1,5 +1,6 @@
 <?php
 $bodyClass = 'shopcart-page';
+require_once dirname(__DIR__, 3) . '/config/config.php';
 include __DIR__ . '/header-shop.php';
 ?>
 

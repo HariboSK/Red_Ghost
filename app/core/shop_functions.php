@@ -8,7 +8,7 @@ if (!function_exists('shop_collect_products')) {
 		$allProducts = [];
 
 		if (isset($conn) && $conn instanceof mysqli) {
-			$sql = 'SELECT id, name, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
+			$sql = 'SELECT id, name, description, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
 			$result = $conn->query($sql);
 
 			if ($result instanceof mysqli_result) {
@@ -16,6 +16,7 @@ if (!function_exists('shop_collect_products')) {
 					$product = [
 						'id' => (int) ($row['id'] ?? 0),
 						'name' => (string) ($row['name'] ?? ''),
+						'description' => (string) ($row['description'] ?? ''),
 						'image' => (string) ($row['image'] ?? ''),
 						'price' => (float) ($row['price'] ?? 0),
 						'rating' => (int) ($row['rating'] ?? 4),
@@ -55,18 +56,27 @@ if (!function_exists('shop_collect_products')) {
 			$newProducts = [
 				[
 					'name' => 'Nové chilli produkty',
+					'description' => 'Špeciálne chilli omáčky pripravené s láskou od našich pestovateľov.',
 					'image' => $assetBase . '/images/chilli-sol.jpg',
 					'price' => 0,
+					'stock' => 10,
+					'id' => 1,
 				],
 				[
 					'name' => 'Domáce omáčky',
+					'description' => 'Autentické receptúry tradičnej slovenskej kuchyne s chilli.',
 					'image' => $assetBase . '/images/omacky2.jpg',
 					'price' => 0,
+					'stock' => 10,
+					'id' => 2,
 				],
 				[
 					'name' => 'Sušené chilli',
+					'description' => 'Prírodne sušené chilli papriky bez chemických прідатків.',
 					'image' => $assetBase . '/images/susene-chilli-Picsart-AiImageEnhancer.jpg',
 					'price' => 0,
+					'stock' => 10,
+					'id' => 3,
 				],
 			];
 		}
@@ -88,10 +98,13 @@ if (!function_exists('shop_render_product_card')) {
 		$price = (float) ($product['price'] ?? 0);
 		$rating = max(0, min(5, (int) ($product['rating'] ?? 4)));
 		$stock = (int) ($product['stock'] ?? 0);
+		$productUrl = function_exists('route') ? route('/product?id=' . $productId) : '/product?id=' . $productId;
 
 		echo '<div class="col-4 product-card" data-id="' . $productId . '" data-price="' . $price . '" data-rating="' . $rating . '" data-stock="' . $stock . '" data-name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">';
+		echo '<a class="product-link" href="' . htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') . '">';
 		echo '<img src="' . htmlspecialchars($image, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">';
 		echo '<h4>' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</h4>';
+		echo '</a>';
 		echo '<div class="rating">';
 		for ($i = 0; $i < $rating; $i++) {
 			echo '<i class="fa fa-star"></i>';
@@ -107,6 +120,91 @@ if (!function_exists('shop_render_product_card')) {
 	}
 }
 
+if (!function_exists('shop_get_product_by_id')) {
+	function shop_get_product_by_id($conn, int $productId, string $assetBase): ?array
+	{
+		if (!($conn instanceof mysqli) || $productId <= 0) {
+			return null;
+		}
+
+		$stmt = $conn->prepare('SELECT id, name, description, image, price, rating, stock, category FROM products WHERE id = ? LIMIT 1');
+		if (!($stmt instanceof mysqli_stmt)) {
+			return null;
+		}
+
+		$stmt->bind_param('i', $productId);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$row = ($result instanceof mysqli_result) ? $result->fetch_assoc() : null;
+		$stmt->close();
+
+		if (!is_array($row)) {
+			return null;
+		}
+
+		$image = (string) ($row['image'] ?? '');
+		if ($image === '') {
+			$image = $assetBase . '/images/omacka3.jpg';
+		}
+
+		return [
+			'id' => (int) ($row['id'] ?? 0),
+			'name' => (string) ($row['name'] ?? 'Produkt'),
+			'description' => (string) ($row['description'] ?? ''),
+			'image' => $image,
+			'price' => (float) ($row['price'] ?? 0),
+			'rating' => max(0, min(5, (int) ($row['rating'] ?? 0))),
+			'stock' => (int) ($row['stock'] ?? 0),
+			'category' => (string) ($row['category'] ?? 'Chilli produkt'),
+		];
+	}
+}
+
+// Pomocné funkcie pre zobrazenie detailu produktu
+
+if (!function_exists('shop_product_spicy_label')) {
+	function shop_product_spicy_label(int $rating): array
+	{
+		if ($rating <= 1) {
+			return ['Jemna', 'mild'];
+		}
+		if ($rating <= 3) {
+			return ['Stredna', 'medium'];
+		}
+		return ['Extremna', 'hot'];
+	}
+}
+
+if (!function_exists('shop_product_reviews')) {
+	function shop_product_reviews(array $product): array
+	{
+		$rating = max(1, min(5, (int) ($product['rating'] ?? 3)));
+		return [
+			[
+				'name' => 'Marek K.',
+				'title' => 'Vyborna chut aj palivost',
+				'text' => 'Vyrazna chut paprik, dobra konzistencia a prijemny aftertaste. Urcite objednam znova.',
+				'rating' => $rating,
+				'date' => '12.03.2026',
+			],
+			[
+				'name' => 'Petra S.',
+				'title' => 'Kvalitny produkt',
+				'text' => 'Pouzivam do varenia aj ku grilovanemu masu. Chut je stabilna a produkt prisiel bez problemov.',
+				'rating' => max(1, $rating - 1),
+				'date' => '03.03.2026',
+			],
+			[
+				'name' => 'Roman T.',
+				'title' => 'Presne to, co som hladal',
+				'text' => 'Dobry pomer cena/kvalita. Ak mas rad chilli, tento produkt nesklame.',
+				'rating' => $rating,
+				'date' => '25.02.2026',
+			],
+		];
+	}
+}
+
 if (!function_exists('shop_render_main')) {
 	function shop_render_main(array $data): void
 	{
@@ -119,15 +217,30 @@ if (!function_exists('shop_render_main')) {
 		<div class="swiper shopBannerSwiper">
 			<div class="swiper-wrapper">
 				<?php foreach ($newProducts as $bannerProduct): ?>
-					<div class="swiper-slide">
-						<img src="<?php echo htmlspecialchars((string) ($bannerProduct['image'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string) ($bannerProduct['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?>">
-						<div class="banner-overlay">
-							<span class="banner-chip">Nové produkty</span>
+					<div class="swiper-slide product-showcase">
+						<!-- Diagonálny pás nalavo -->
+						<div class="diagonal-stripe diagonal-left"></div>
+						
+						<!-- Produktová fotka -->
+						<div class="showcase-image">
+							<img src="<?php echo htmlspecialchars((string) ($bannerProduct['image'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string) ($bannerProduct['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?>">
+						</div>
+						
+						<!-- Produktové info -->
+						<div class="showcase-info">
+							<span class="badge">Nové produkty</span>
 							<h2><?php echo htmlspecialchars((string) ($bannerProduct['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?></h2>
 							<?php if ((float) ($bannerProduct['price'] ?? 0) > 0): ?>
-								<p>Už od <?php echo number_format((float) $bannerProduct['price'], 2, '.', ''); ?> €</p>
+								<p class="price"><?php echo number_format((float) $bannerProduct['price'], 2, '.', ''); ?> €</p>
 							<?php endif; ?>
+							<?php if (!empty($bannerProduct['description'])): ?>
+								<p class="description"><?php echo htmlspecialchars((string) $bannerProduct['description'], ENT_QUOTES, 'UTF-8'); ?></p>
+							<?php endif; ?>
+							<button class="add-to-cart-btn" onclick="addToCart(<?php echo (int) ($bannerProduct['id'] ?? 0); ?>)"><?php echo ((int) ($bannerProduct['stock'] ?? 0) > 0) ? 'Pridať do košíka' : 'Vypredané'; ?></button>
 						</div>
+						
+						<!-- Diagonálny pás napravo -->
+						<div class="diagonal-stripe diagonal-right"></div>
 					</div>
 				<?php endforeach; ?>
 			</div>
