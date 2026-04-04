@@ -12,7 +12,7 @@ Red Ghost obsahuje:
 - kosik s API endpointmi
 - login/registraciu a uzivatelsky profil
 - admin vetvu (dashboard)
-- kontakt form s odosielanim emailu
+- kontakt form s odosielanim emailu /ESTE NEFUNGUJE
 
 Projekt bezi lokalne cez XAMPP a je navrhnuty tak, aby sa dal jednoducho rozsirovat.
 
@@ -69,38 +69,6 @@ Red_Ghost/
 |
 |-- database.sql
 |-- README.md
-```
-
-## Ako Spustit Projekt Lokalene
-
-1. Naklonuj alebo skopiruj projekt do XAMPP htdocs
-
-```bash
-cd c:/xampp/htdocs
-git clone <repo-url> Red_Ghost
-```
-
-2. Spusti Apache a MySQL v XAMPP
-
-3. Vytvor databazu a importuj schemu
-
-```sql
-CREATE DATABASE red_ghost;
-USE red_ghost;
-SOURCE database.sql;
-```
-
-4. Ak uz mas existujucu DB, pridaj vernostne body stlpec
-
-```sql
-ALTER TABLE users
-ADD COLUMN loayalty_points INT(11) NOT NULL DEFAULT 0;
-```
-
-5. Otvor projekt v browseri
-
-```text
-http://localhost/Red_Ghost/
 ```
 
 ## Routing
