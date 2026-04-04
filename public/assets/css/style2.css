@@ -22,6 +22,8 @@ html {
   --light-red-color: #fa6e17;
   --medium-gray-color: #ccc;
   --third-color: #4f0000;
+  --ok-color: #74f7a5;
+  --off-color: #ff0000d3;
 
   /*Font size*/
   --font-size-s: 0, 9rem;
@@ -671,11 +673,11 @@ button[disabled] {
 }
 
 .stock.in-stock {
-  color: #00ff3c;
+  color: var(--ok-color);
 }
 
 .stock.out-of-stock {
-  color: #ff0000d3;
+  color: var(--off-color);
 }
 
 /* Footer */

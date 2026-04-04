@@ -18,6 +18,7 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
+// Nacita jeden produkt z databazy, aby kosik pouzival aktualne data.
 function get_product_by_id(mysqli $conn, int $productId): ?array
 {
     $stmt = $conn->prepare('SELECT id, name, price FROM products WHERE id = ? LIMIT 1');
@@ -42,6 +43,7 @@ function get_product_by_id(mysqli $conn, int $productId): ?array
     ];
 }
 
+// Pred odpovedou obnovi nazvy a ceny poloziek v kosiku z databazy.
 function sync_cart_prices(mysqli $conn, array &$cart): void
 {
     foreach ($cart as $productId => $item) {
@@ -56,6 +58,7 @@ function sync_cart_prices(mysqli $conn, array &$cart): void
     }
 }
 
+// Vypocita pocet kusov a celkovu cenu aktualneho kosika.
 function cart_summary(array $cart): array
 {
     $count = 0;

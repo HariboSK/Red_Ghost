@@ -1,3 +1,4 @@
+// Inicializuje spravanie shop stranky po nacitani DOM.
 document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("searchInput");
   const headerCartTotal = document.getElementById("headerCartTotal");
@@ -28,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Aktualizuje sumu kosika zobrazenu v hlavicke.
   function updateHeaderTotal(summary) {
     if (!headerCartTotal || !summary) {
       return;
@@ -134,6 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+// Zoradi produktove karty vo viditelnych kontajneroch podla zvolenej moznosti.
 function sortProducts() {
   const sortBy = document.getElementById("sortBy").value;
   const targetContainers = ["featuredProductsContainer", "productsContainer"];
@@ -175,6 +178,7 @@ function sortProducts() {
   });
 }
 
+// Posle ID produktu do cart API a aktualizuje sumu v hlavicke.
 function addToCart(id) {
   const cartApiUrl = document.body.dataset.cartApi || "api/cart.php";
   fetch(cartApiUrl + "?action=add", {
