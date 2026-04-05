@@ -47,7 +47,7 @@ function get_product_by_id(mysqli $conn, int $productId): ?array
         'price' => (float) $product['price'],
         'stock' => (float) $product['stock'],
         'category'=> (float) $product['category'],
-        'image'=> (int) $product['image'],
+        'image'=> (string) $product['image'],
     ];
 }
 
@@ -97,16 +97,61 @@ if ($action === 'summary') {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+// kontrola GET a POST metod pre rozdielne akcie, summary a list su GET, add, update a clear su POST
+$allowedActions = ['summary', 'list', 'add', 'update', 'clear', 'remove'];
+
+if (!in_array($action, $allowedActions)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Neznama akcia']);
     exit;
 }
 
+$getActions = ['summary', 'list'];
+
+// Načítaj JSON payload pre POST requesty
 $rawBody = file_get_contents('php://input');
 $payload = json_decode($rawBody ?: '{}', true);
 if (!is_array($payload)) {
     $payload = [];
+}
+
+if (in_array($action, $getActions)) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'message' => 'Metoda neni povolena']);
+        exit;
+    }
+} else {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'message' => 'Metoda neni povolena']);
+        exit;
+    }
+}
+
+if ($action === 'list') {
+    $cartList = [];
+    foreach ($_SESSION['cart'] as $productId => $item) {
+        $product = get_product_by_id($conn, (int) $productId);
+        if ($product === null) {
+            unset($_SESSION['cart'][$productId]);
+            continue;
+        }
+
+        $cartList[] = [
+            'id' => (int) $productId,
+            'name' => (string) ($item['name'] ?? $product['name']),
+            'price' => (float) ($item['price'] ?? $product['price']),
+            'quantity' => (int) ($item['quantity'] ?? 0),
+            'image' => (string) ($product['image'] ?? ''),
+        ];
+    }
+
+    echo json_encode([
+        'success' => true,
+        'items' => $cartList,
+    ]);
+    exit;
 }
 
 if ($action === 'add') {
@@ -180,6 +225,31 @@ if ($action === 'clear') {
     $_SESSION['cart'] = [];
     echo json_encode([
         'success' => true,
+        'summary' => cart_summary($_SESSION['cart']),
+    ]);
+    exit;
+}
+
+if ($action === 'remove') {
+    $productId = isset($payload['id']) ? (int) $payload['id'] : 0;
+
+    if ($productId <= 0 || !isset($_SESSION['cart'][$productId])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Produkt v košiku neexistuje']);
+        exit;
+    }
+
+    // Znížit quantity o 1
+    $_SESSION['cart'][$productId]['quantity'] -= 1;
+
+    // Ak je quantity 0, odstránit produkt úplne
+    if ($_SESSION['cart'][$productId]['quantity'] <= 0) {
+        unset($_SESSION['cart'][$productId]);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Produkt bol aktualizovaný',
         'summary' => cart_summary($_SESSION['cart']),
     ]);
     exit;

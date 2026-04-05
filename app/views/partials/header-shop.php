@@ -65,6 +65,7 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
           <h2 class="logo-text">RED GHOST</h2>
         </a>
 
+        <!-- Search-bar -->
         <form class="shop-header-search" role="search" onsubmit="return false;">
           <label class="shop-header-search-field" for="searchInput">
             <input type="search" id="searchInput" class="shop-search-input" placeholder="Hľadaj produkty..." autocomplete="off">
@@ -72,9 +73,12 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
           <button type="button" class="shop-header-search-btn" aria-label="Hladat produkty">
             <i class="fa-solid fa-magnifying-glass"></i>
           </button>
+          <div id="searchSuggestions" class="search-suggestions" role="listbox" aria-label="Návrhy produktov" aria-hidden="true"></div>
         </form>
 
         <div class="shop-header-tools">
+
+          <!-- Icona v headeru profil -->
           <div class="profile-menu" id="profileMenu">
             <a href="<?php echo htmlspecialchars($profileHref, ENT_QUOTES, 'UTF-8'); ?>" class="profile-icon" aria-label="Profil pouzivatela" id="profileIcon">
               <i class="fa-solid fa-user"></i>
@@ -84,21 +88,31 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
 
               <?php if ($isLoggedIn): ?>
                 <p class="profile-popup-email"><?php echo htmlspecialchars($profileEmail !== '' ? $profileEmail : ($profileName !== '' ? $profileName : 'Prihlaseny pouzivatel'), ENT_QUOTES, 'UTF-8'); ?></p>
-                <p class="profile-popup-points">Body z nakupov: <strong><?php echo $profilePoints; ?></strong></p>
-                <a href="<?php echo htmlspecialchars(route('/userprofile'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prejst na profil</a>
+                <p class="profile-popup-points">Body z nákupov: <strong><?php echo $profilePoints; ?></strong></p>
+                <a href="<?php echo htmlspecialchars(route('/userprofile'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prejsť na profil</a>
               <?php else: ?>
-                <p class="profile-popup-email">Nie si prihlaseny.</p>
-                <a href="<?php echo htmlspecialchars(route('/login'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prihlas sa</a>
+                <p class="profile-popup-email">Neni si prihlásený.</p>
+                <a href="<?php echo htmlspecialchars(route('/login'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prihlás sa</a>
               <?php endif; ?>
               
             </div>
           </div>
 
-          <a href="<?php echo route('/shopcart'); ?>" class="header-cart-summary" aria-label="Otvorit kosik">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <span id="headerCartCount" class="header-cart-count">0</span>
-            <span id="headerCartTotal" class="sr-only">0.00 EUR</span>
-          </a>
+          <!-- Nakupny košik s popup v header -->
+          <div id="cartMenu" class="cart-menu">
+            <button id="cartIcon" aria-expanded="false" aria-label="Otvorit kosik">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <span id="headerCartCount" class="header-cart-count">0</span>
+              <span id="headerCartTotal" class="sr-only">0.00 EUR</span>
+            </button>
+  
+            <div id="cartPopup" class="cart-popup" aria-hidden="true">
+              <div class="cart-items-list" id="cartItemsList">
+                <!-- pridane produkty do košika sa pridaju sem -->
+              </div>
+              <a href="<?php echo route('/shopcart'); ?>" class="cart-view-btn">Zobraziť košík</a>
+            </div>
+          </div>
         </div>
 
       </div>

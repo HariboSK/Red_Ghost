@@ -1,6 +1,9 @@
 // Inicializuje spravanie shop stranky po nacitani DOM.
 document.addEventListener("DOMContentLoaded", function () {
   const searchInputs = document.querySelectorAll(".shop-search-input");
+  const headerSearchInput = document.getElementById("searchInput");
+  const searchSuggestions = document.getElementById("searchSuggestions");
+  const headerSearchForm = document.querySelector(".shop-header-search");
   const headerCartTotal = document.getElementById("headerCartTotal");
   const headerCartCount = document.getElementById("headerCartCount");
   const cartApiUrl = document.body.dataset.cartApi || "api/cart.php";
@@ -30,6 +33,139 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // CART HOVER POPUP
+  const cartIcon = document.getElementById("cartIcon");
+  const cartPopup = document.getElementById("cartPopup");
+  const cartItemsList = document.getElementById("cartItemsList");
+
+  function loadCartPopup() {
+    fetch(cartApiUrl + "?action=list", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (payload) {
+        if (payload && payload.success && payload.items) {
+          renderCartItems(payload.items);
+        } else {
+          cartItemsList.innerHTML =
+            "<p style='padding: 10px; text-align: center;'>Košík je prázdny</p>";
+        }
+      })
+      .catch(function () {
+        cartItemsList.innerHTML =
+          "<p style='padding: 10px; text-align: center; color: red;'>Chyba pri načítaní</p>";
+      });
+  }
+
+  function renderCartItems(items) {
+    if (!items || items.length === 0) {
+      cartItemsList.innerHTML =
+        "<p style='padding: 10px; text-align: center;'>Košík je prázdny</p>";
+      return;
+    }
+
+    cartItemsList.innerHTML = "";
+    items.forEach(function (item) {
+      const itemEl = document.createElement("div");
+      itemEl.className = "cart-item";
+
+      const img = document.createElement("img");
+      img.src = item.image || "/assets/images/omacka3.jpg";
+      img.alt = item.name;
+
+      const info = document.createElement("div");
+      info.className = "cart-item-info";
+
+      const nameP = document.createElement("p");
+      nameP.className = "cart-item-name";
+      nameP.textContent = item.name;
+
+      const priceP = document.createElement("p");
+      priceP.className = "cart-item-price";
+      priceP.textContent =
+        (item.price || 0).toFixed(2) + " EUR x " + (item.quantity || 1);
+
+      info.appendChild(nameP);
+      info.appendChild(priceP);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "cart-item-remove";
+      removeBtn.type = "button";
+      removeBtn.innerHTML = '<i class="fa fa-trash"></i>';
+      removeBtn.onclick = function (e) {
+        e.preventDefault();
+        removeFromCart(item.id);
+      };
+
+      itemEl.appendChild(img);
+      itemEl.appendChild(info);
+      itemEl.appendChild(removeBtn);
+      cartItemsList.appendChild(itemEl);
+    });
+  }
+
+  function removeFromCart(id) {
+    fetch(cartApiUrl + "?action=remove", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ id: id }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (payload) {
+        if (payload && payload.success) {
+          loadCartPopup();
+          updateHeaderSummary(payload.summary);
+          showCartToast("Produkt bol odstránený", "success");
+        } else {
+          showCartToast("Chyba pri odstraňovaní", "error");
+        }
+      })
+      .catch(function () {
+        showCartToast("Chyba spojenia", "error");
+      });
+  }
+
+  if (cartIcon && cartPopup) {
+    cartIcon.addEventListener("mouseenter", function () {
+      loadCartPopup();
+      cartPopup.classList.add("is-visible");
+      cartPopup.setAttribute("aria-hidden", "false");
+      cartIcon.setAttribute("aria-expanded", "true");
+    });
+
+    cartIcon.addEventListener("mouseleave", function () {
+      // Zopakuj po 200ms aby sa user dostal do popupu
+      setTimeout(function () {
+        if (!cartPopup.matches(":hover")) {
+          cartPopup.classList.remove("is-visible");
+          cartPopup.setAttribute("aria-hidden", "true");
+          cartIcon.setAttribute("aria-expanded", "false");
+        }
+      }, 200);
+    });
+
+    cartPopup.addEventListener("mouseenter", function () {
+      cartPopup.classList.add("is-visible");
+      cartPopup.setAttribute("aria-hidden", "false");
+    });
+
+    cartPopup.addEventListener("mouseleave", function () {
+      cartPopup.classList.remove("is-visible");
+      cartPopup.setAttribute("aria-hidden", "true");
+      cartIcon.setAttribute("aria-expanded", "false");
+    });
+  }
+
   // Aktualizuje sumu a pocet kusov v hlavicke.
   function updateHeaderSummary(summary) {
     if (!summary) {
@@ -48,10 +184,117 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (searchInputs.length > 0) {
+    const products = Array.from(document.querySelectorAll(".product-card"));
+
+    function collectSuggestionSource() {
+      const seen = new Set();
+
+      return products
+        .map(function (product) {
+          const id = String(product.dataset.id || "");
+          const name = String(product.dataset.name || "").trim();
+          const price = Number(product.dataset.price || 0);
+          const stock = Number(product.dataset.stock || 0);
+          const image = product.querySelector("img");
+          const imageUrl = image ? image.getAttribute("src") : "";
+          const link = product.querySelector(".product-link");
+          const url = link ? String(link.getAttribute("href") || "") : "";
+
+          if (!id || !name || seen.has(id)) {
+            return null;
+          }
+
+          seen.add(id);
+          return {
+            id: id,
+            name: name,
+            price: price,
+            stock: stock,
+            url: url || "/product?id=" + encodeURIComponent(id),
+            image: imageUrl,
+          };
+        })
+        .filter(function (item) {
+          return item !== null;
+        });
+    }
+
+    const suggestionSource = collectSuggestionSource();
+
+    function hideSuggestions() {
+      if (!searchSuggestions) {
+        return;
+      }
+
+      searchSuggestions.classList.remove("is-visible");
+      searchSuggestions.setAttribute("aria-hidden", "true");
+      searchSuggestions.innerHTML = "";
+    }
+
+    function showSuggestions(query) {
+      if (!searchSuggestions) {
+        return;
+      }
+
+      const normalized = String(query || "")
+        .trim()
+        .toLowerCase();
+      if (normalized.length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      const matches = suggestionSource
+        .filter(function (item) {
+          return item.name.toLowerCase().includes(normalized);
+        })
+        .slice(0, 6);
+
+      if (matches.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      matches.forEach(function (item) {
+        const suggestionButton = document.createElement("button");
+        suggestionButton.type = "button";
+        suggestionButton.className = "search-suggestion-item";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "search-suggestion-name";
+        nameSpan.textContent = item.name;
+
+        const metaSpan = document.createElement("span");
+        metaSpan.className = "search-suggestion-meta";
+        metaSpan.textContent = item.price.toFixed(2) + " EUR";
+
+        const img = document.createElement("img");
+        img.className = "search-suggestion-image";
+        img.src = item.image;
+        img.alt = item.name;
+
+        suggestionButton.appendChild(img);
+        suggestionButton.appendChild(nameSpan);
+        suggestionButton.appendChild(metaSpan);
+
+        suggestionButton.addEventListener("click", function () {
+          window.location.href = item.url;
+        });
+
+        fragment.appendChild(suggestionButton);
+      });
+
+      searchSuggestions.innerHTML = "";
+      searchSuggestions.appendChild(fragment);
+      searchSuggestions.classList.add("is-visible");
+      searchSuggestions.setAttribute("aria-hidden", "false");
+    }
+
     searchInputs.forEach(function (searchInput) {
-      searchInput.addEventListener("keyup", function () {
+      searchInput.addEventListener("input", function () {
         const searchValue = this.value.toLowerCase();
-        const products = document.querySelectorAll(".product-card");
 
         searchInputs.forEach(function (input) {
           if (input !== searchInput) {
@@ -65,8 +308,41 @@ document.addEventListener("DOMContentLoaded", function () {
             ? "block"
             : "none";
         });
+
+        if (searchInput === headerSearchInput) {
+          showSuggestions(searchInput.value);
+        }
       });
     });
+
+    if (headerSearchInput && searchSuggestions) {
+      headerSearchInput.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          hideSuggestions();
+          return;
+        }
+
+        if (event.key === "Enter") {
+          const firstSuggestion = searchSuggestions.querySelector(
+            ".search-suggestion-item",
+          );
+          if (firstSuggestion) {
+            event.preventDefault();
+            firstSuggestion.click();
+          }
+        }
+      });
+
+      document.addEventListener("click", function (event) {
+        if (
+          headerSearchForm &&
+          !headerSearchForm.contains(event.target) &&
+          searchSuggestions.contains(event.target) === false
+        ) {
+          hideSuggestions();
+        }
+      });
+    }
   }
 
   if (headerCartTotal || headerCartCount) {
@@ -237,9 +513,7 @@ function addToCart(id) {
         showCartToast(
           payload && payload.message
             ? payload.message
-            : "Nepodarilo sa pridat produkt do kosika.",
-          "error",
-        );
+            : "Nepodarilo sa pridat produkt do kosika.","error",);
         return;
       }
 
