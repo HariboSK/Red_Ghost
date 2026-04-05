@@ -20,15 +20,20 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
 
 // Nacita jeden produkt z databazy, aby kosik pouzival aktualne data.
 function get_product_by_id(mysqli $conn, int $productId): ?array
-{
-    $stmt = $conn->prepare('SELECT id, name, price FROM products WHERE id = ? LIMIT 1');
+{   
+    //stmt skratka pre statement, teda pripravený SQL dopyt
+    $stmt = $conn->prepare('SELECT id, name, price, image, stock, category FROM products WHERE id = ? LIMIT 1');
     if (!$stmt) {
         return null;
     }
 
+    //i znamená, že sa bude vkladať integer (celé číslo), v tomto prípade $productId do dopytu na miesto otazníka
     $stmt->bind_param('i', $productId);
+    //spustí ten pripravený dopyt na databáze.
     $stmt->execute();
+    //get_result() získá výsledky z dotazu a uloží ich do premennej $result. Ak dotaz vrati data, $result bude obsahovat tieto data, inak bude null.
     $result = $stmt->get_result();
+    //fetch_assoc() načita jeden riadok z výsledku ako asociativní teda napr. $arr['name'] pole, kde klúče sú názvy stĺpcu z databáze. Ak není žiadný riadok k načítaní, vrátí null.
     $product = $result ? $result->fetch_assoc() : null;
     $stmt->close();
 
@@ -40,6 +45,9 @@ function get_product_by_id(mysqli $conn, int $productId): ?array
         'id' => (int) $product['id'],
         'name' => (string) $product['name'],
         'price' => (float) $product['price'],
+        'stock' => (float) $product['stock'],
+        'category'=> (float) $product['category'],
+        'image'=> (int) $product['image'],
     ];
 }
 

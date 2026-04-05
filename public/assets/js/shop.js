@@ -1,7 +1,8 @@
 // Inicializuje spravanie shop stranky po nacitani DOM.
 document.addEventListener("DOMContentLoaded", function () {
-  const searchInput = document.getElementById("searchInput");
+  const searchInputs = document.querySelectorAll(".shop-search-input");
   const headerCartTotal = document.getElementById("headerCartTotal");
+  const headerCartCount = document.getElementById("headerCartCount");
   const cartApiUrl = document.body.dataset.cartApi || "api/cart.php";
   const profileMenu = document.getElementById("profileMenu");
   const profileIcon = document.getElementById("profileIcon");
@@ -29,31 +30,46 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Aktualizuje sumu kosika zobrazenu v hlavicke.
-  function updateHeaderTotal(summary) {
-    if (!headerCartTotal || !summary) {
+  // Aktualizuje sumu a pocet kusov v hlavicke.
+  function updateHeaderSummary(summary) {
+    if (!summary) {
       return;
     }
 
-    const total = Number(summary.total || 0);
-    headerCartTotal.textContent = total.toFixed(2) + " EUR";
+    if (headerCartTotal) {
+      const total = Number(summary.total || 0);
+      headerCartTotal.textContent = total.toFixed(2) + " EUR";
+    }
+
+    if (headerCartCount) {
+      const count = Math.max(0, Number(summary.count || 0));
+      headerCartCount.textContent = String(count);
+    }
   }
 
-  if (searchInput) {
-    searchInput.addEventListener("keyup", function () {
-      const searchValue = this.value.toLowerCase();
-      const products = document.querySelectorAll(".product-card");
+  if (searchInputs.length > 0) {
+    searchInputs.forEach(function (searchInput) {
+      searchInput.addEventListener("keyup", function () {
+        const searchValue = this.value.toLowerCase();
+        const products = document.querySelectorAll(".product-card");
 
-      products.forEach(function (product) {
-        const productName = (product.dataset.name || "").toLowerCase();
-        product.style.display = productName.includes(searchValue)
-          ? "block"
-          : "none";
+        searchInputs.forEach(function (input) {
+          if (input !== searchInput) {
+            input.value = searchInput.value;
+          }
+        });
+
+        products.forEach(function (product) {
+          const productName = (product.dataset.name || "").toLowerCase();
+          product.style.display = productName.includes(searchValue)
+            ? "block"
+            : "none";
+        });
       });
     });
   }
 
-  if (headerCartTotal) {
+  if (headerCartTotal || headerCartCount) {
     fetch(cartApiUrl + "?action=summary", {
       method: "GET",
       headers: {
@@ -65,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then(function (payload) {
         if (payload && payload.success && payload.summary) {
-          updateHeaderTotal(payload.summary);
+          updateHeaderSummary(payload.summary);
         }
       })
       .catch(function () {
@@ -178,6 +194,30 @@ function sortProducts() {
   });
 }
 
+function showCartToast(message, type) {
+  const toast = document.createElement("div");
+  toast.className =
+    "cart-toast " + (type === "error" ? "is-error" : "is-success");
+  toast.textContent = message || "Hotovo";
+
+  document.body.appendChild(toast);
+
+  // spusti animáciu
+  requestAnimationFrame(function () {
+    toast.classList.add("show");
+  });
+
+  // po 3s skry + odstráň
+  setTimeout(function () {
+    toast.classList.remove("show");
+    setTimeout(function () {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 250);
+  }, 3000);
+}
+
 // Posle ID produktu do cart API a aktualizuje sumu v hlavicke.
 function addToCart(id) {
   const cartApiUrl = document.body.dataset.cartApi || "api/cart.php";
@@ -194,7 +234,12 @@ function addToCart(id) {
     })
     .then(function (payload) {
       if (!payload || !payload.success) {
-        alert("Nepodarilo sa pridat produkt do kosika.");
+        showCartToast(
+          payload && payload.message
+            ? payload.message
+            : "Nepodarilo sa pridat produkt do kosika.",
+          "error",
+        );
         return;
       }
 
@@ -204,9 +249,18 @@ function addToCart(id) {
         headerCartTotal.textContent = total.toFixed(2) + " EUR";
       }
 
-      alert(payload.message || "Produkt bol pridany do kosika.");
+      const headerCartCount = document.getElementById("headerCartCount");
+      if (headerCartCount && payload.summary) {
+        const count = Math.max(0, Number(payload.summary.count || 0));
+        headerCartCount.textContent = String(count);
+      }
+
+      showCartToast(
+        payload.message || "Produkt bol pridany do kosika.",
+        "success",
+      );
     })
     .catch(function () {
-      alert("Chyba spojenia so serverom. Skus to znova.");
+      showCartToast("Chyba spojenia so serverom. Skus to znova.", "alert");
     });
 }

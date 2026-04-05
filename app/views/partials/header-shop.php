@@ -62,8 +62,17 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
       <div class="navbar">
         <a href="<?php echo route('/home'); ?>" class="nav-logo">
           <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo">
-          <h2 class="logo-text">Red Ghost</h2>
+          <h2 class="logo-text">RED GHOST</h2>
         </a>
+
+        <form class="shop-header-search" role="search" onsubmit="return false;">
+          <label class="shop-header-search-field" for="searchInput">
+            <input type="search" id="searchInput" class="shop-search-input" placeholder="Hľadaj produkty..." autocomplete="off">
+          </label>
+          <button type="button" class="shop-header-search-btn" aria-label="Hladat produkty">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </form>
 
         <div class="shop-header-tools">
           <div class="profile-menu" id="profileMenu">
@@ -87,7 +96,8 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
 
           <a href="<?php echo route('/shopcart'); ?>" class="header-cart-summary" aria-label="Otvorit kosik">
             <i class="fa-solid fa-cart-shopping"></i>
-            <span id="headerCartTotal">0.00 EUR</span>
+            <span id="headerCartCount" class="header-cart-count">0</span>
+            <span id="headerCartTotal" class="sr-only">0.00 EUR</span>
           </a>
         </div>
 

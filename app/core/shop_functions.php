@@ -253,9 +253,9 @@ if (!function_exists('shop_render_main')) {
 	<section class="small-container shop-controls">
 		<h2>Všetky produkty</h2>
 		<div class="controls-row">
-			<label class="shop-search" for="searchInput">
+			<label class="shop-search" for="productsSearchInput">
 				<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-				<input type="text" id="searchInput" placeholder="Hľadaj podľa názvu produktu...">
+				<input type="text" id="productsSearchInput" class="shop-search-input" placeholder="Hľadaj podľa názvu produktu...">
 			</label>
 
 			<select id="sortBy" onchange="sortProducts()" aria-label="Triedenie produktov">
