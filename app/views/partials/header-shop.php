@@ -14,7 +14,7 @@ $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
 $profilePoints = (int) ($sessionUser['points'] ?? 0);
 
-if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof mysqli) {
+if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO) {
   $profilePoints = rg_refresh_session_points($conn, $profileEmail);
 }
 

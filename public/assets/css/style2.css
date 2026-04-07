@@ -116,7 +116,6 @@ body {
 /* Posuvník (thumb) */
 ::-webkit-scrollbar-thumb {
   background-color: red; /* farba posuvníka */
-  border-radius: 5px; /* zaoblenie */
 }
 
 /* Pri hover */
@@ -316,7 +315,7 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 
 .profile-popup {
   position: absolute;
-  top: 100%;
+  top: 130%;
   right: 0;
   min-width: 230px;
   padding: 12px;

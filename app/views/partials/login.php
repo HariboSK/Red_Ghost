@@ -44,12 +44,19 @@ function isActiveForm($formName, $activeForm)
 
     <main>
 
+        <div class="bg-pulse-layer" aria-hidden="true">
+            <span class="bg-pulse-circle bg-pulse-1"></span>
+            <span class="bg-pulse-circle bg-pulse-2"></span>
+            <span class="bg-pulse-circle bg-pulse-3"></span>
+            <span class="bg-pulse-circle bg-pulse-4"></span>
+        </div>
+
         <div class="floating-chilli-layer" aria-hidden="true">
             <img src="/assets/images/chilli2.png" alt="chilli" class="floating-chilli chilli-1">
             <img src="/assets/images/chilli2.png" alt="chilli" class="floating-chilli chilli-2">
-            <img src="/assets/images/chilli.png" alt="chilli" class="floating-chilli chilli-3">
+            <img src="/assets/images/chilli2.png" alt="chilli" class="floating-chilli chilli-3">
             <img src="/assets/images/chilli2.png" alt="chilli" class="floating-chilli chilli-4">
-            <img src="/assets/images/chilli2.png" alt="chilli" class="floating-chilli chilli-5">
+            <img src="/assets/images/chilli.png" alt="chilli" class="floating-chilli chilli-5">
             <img src="/assets/images/chilli.png" alt="chilli" class="floating-chilli chilli-6">
             <img src="/assets/images/chilli.png" alt="chilli" class="floating-chilli chilli-7">
         </div>

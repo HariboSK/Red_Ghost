@@ -7,12 +7,12 @@ if (!function_exists('shop_collect_products')) {
 		$otherProducts = [];
 		$allProducts = [];
 
-		if (isset($conn) && $conn instanceof mysqli) {
+		if (isset($conn) && $conn instanceof PDO) {
 			$sql = 'SELECT id, name, description, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
-			$result = $conn->query($sql);
+			$stmt = $conn->query($sql);
+			$rows = ($stmt instanceof PDOStatement) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
-			if ($result instanceof mysqli_result) {
-				while ($row = $result->fetch_assoc()) {
+			foreach ($rows as $row) {
 					$product = [
 						'id' => (int) ($row['id'] ?? 0),
 						'name' => (string) ($row['name'] ?? ''),
@@ -35,9 +35,6 @@ if (!function_exists('shop_collect_products')) {
 					}
 
 					$allProducts[] = $product;
-				}
-
-				$result->free();
 			}
 		}
 
@@ -123,20 +120,17 @@ if (!function_exists('shop_render_product_card')) {
 if (!function_exists('shop_get_product_by_id')) {
 	function shop_get_product_by_id($conn, int $productId, string $assetBase): ?array
 	{
-		if (!($conn instanceof mysqli) || $productId <= 0) {
+		if (!($conn instanceof PDO) || $productId <= 0) {
 			return null;
 		}
 
-		$stmt = $conn->prepare('SELECT id, name, description, image, price, rating, stock, category FROM products WHERE id = ? LIMIT 1');
-		if (!($stmt instanceof mysqli_stmt)) {
+		$stmt = $conn->prepare('SELECT id, name, description, image, price, rating, stock, category FROM products WHERE id = :id LIMIT 1');
+		if (!($stmt instanceof PDOStatement)) {
 			return null;
 		}
 
-		$stmt->bind_param('i', $productId);
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = ($result instanceof mysqli_result) ? $result->fetch_assoc() : null;
-		$stmt->close();
+		$stmt->execute(['id' => $productId]);
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 		if (!is_array($row)) {
 			return null;

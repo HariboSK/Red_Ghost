@@ -91,20 +91,13 @@ if (!function_exists('rg_session_store_user')) {
 if (!function_exists('rg_calculate_loyalty_points')) {
     function rg_calculate_loyalty_points($conn, string $email): int
     {
-        if (!($conn instanceof mysqli) || $email === '') {
+        if (!($conn instanceof PDO) || $email === '') {
             return 0;
         }
 
-        $stmt = $conn->prepare('SELECT loayalty_points FROM users WHERE email = ? LIMIT 1');
-        if (!($stmt instanceof mysqli_stmt)) {
-            return 0;
-        }
-
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = ($result instanceof mysqli_result) ? $result->fetch_assoc() : null;
-        $stmt->close();
+        $stmt = $conn->prepare('SELECT loayalty_points FROM users WHERE email = :email LIMIT 1');
+        $stmt->execute(['email' => $email]);
+        $row = $stmt->fetch();
 
         return (int) ($row['loayalty_points'] ?? 0);
     }

@@ -8,7 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 header('Content-Type: application/json; charset=UTF-8');
 
-if (!isset($conn) || !($conn instanceof mysqli)) {
+if (!isset($conn) || !($conn instanceof PDO)) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Databazove spojenie nie je dostupne']);
     exit;
@@ -19,23 +19,12 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
 }
 
 // Nacita jeden produkt z databazy, aby kosik pouzival aktualne data.
-function get_product_by_id(mysqli $conn, int $productId): ?array
+function get_product_by_id(PDO $conn, int $productId): ?array
 {   
     //stmt skratka pre statement, teda pripravený SQL dopyt
-    $stmt = $conn->prepare('SELECT id, name, price, image, stock, category FROM products WHERE id = ? LIMIT 1');
-    if (!$stmt) {
-        return null;
-    }
-
-    //i znamená, že sa bude vkladať integer (celé číslo), v tomto prípade $productId do dopytu na miesto otazníka
-    $stmt->bind_param('i', $productId);
-    //spustí ten pripravený dopyt na databáze.
-    $stmt->execute();
-    //get_result() získá výsledky z dotazu a uloží ich do premennej $result. Ak dotaz vrati data, $result bude obsahovat tieto data, inak bude null.
-    $result = $stmt->get_result();
-    //fetch_assoc() načita jeden riadok z výsledku ako asociativní teda napr. $arr['name'] pole, kde klúče sú názvy stĺpcu z databáze. Ak není žiadný riadok k načítaní, vrátí null.
-    $product = $result ? $result->fetch_assoc() : null;
-    $stmt->close();
+    $stmt = $conn->prepare('SELECT id, name, price, image, stock, category FROM products WHERE id = :id LIMIT 1');
+    $stmt->execute(['id' => $productId]);
+    $product = $stmt->fetch();
 
     if (!is_array($product)) {
         return null;
@@ -52,7 +41,7 @@ function get_product_by_id(mysqli $conn, int $productId): ?array
 }
 
 // Pred odpovedou obnovi nazvy a ceny poloziek v kosiku z databazy.
-function sync_cart_prices(mysqli $conn, array &$cart): void
+function sync_cart_prices(PDO $conn, array &$cart): void
 {
     foreach ($cart as $productId => $item) {
         $dbProduct = get_product_by_id($conn, (int) $productId);
