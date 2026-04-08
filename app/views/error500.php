@@ -28,4 +28,4 @@
     </div>
 
     <!-- Footer section -->
-    <?php require __DIR__ . '/footer.php'; ?>
+    <?php require __DIR__ . '/partials/footer.php'; ?>

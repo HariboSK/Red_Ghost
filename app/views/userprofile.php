@@ -1,11 +1,6 @@
 <?php
-require_once dirname(__DIR__, 2) . '/core/session_helper.php';
-require_once dirname(__DIR__, 2) . '/core/Redirect.php';
-
-if (!$isLoggedIn) {
-    (new Redirect('/login.php'))->redirect();
-}
-include __DIR__ . '/partials/userprofile-header.php';
+require_once dirname(__DIR__, 2) . '/app/core/session_helper.php';
+require_once dirname(__DIR__, 2) . '/app/core/Redirect.php';
 
 rg_session_bootstrap();
 
@@ -13,6 +8,12 @@ $sessionUser = rg_session_user();
 $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
+
+
+if (!$isLoggedIn) {
+    (new Redirect('/login.php'))->redirect();
+}
+include __DIR__ . '/partials/userprofile-header.php';
 
 ?>
 

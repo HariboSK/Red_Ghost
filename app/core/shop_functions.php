@@ -110,7 +110,7 @@ if (!function_exists('shop_render_product_card')) {
 			echo '<i class="far fa-star"></i>';
 		}
 		echo '</div>';
-		echo '<p class="price">' . number_format($price, 2, '.', '') . '€</p>';
+		echo '<p class="price-example">' . number_format($price, 2, '.', '') . '€</p>';
 		echo '<div class="stock ' . ($stock > 0 ? 'in-stock' : 'out-of-stock') . '">' . ($stock > 0 ? 'Na sklade: ' . $stock . ' ks' : 'Vypredané') . '</div>';
 		echo '<button class="add-to-cart" onclick="addToCart(' . $productId . ')" ' . ($stock <= 0 ? 'disabled' : '') . '>Pridať do košíka</button>';
 		echo '</div>';
@@ -279,4 +279,3 @@ if (!function_exists('shop_render_main')) {
 <?php
 	}
 }
-

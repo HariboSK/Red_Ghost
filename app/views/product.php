@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/core/shop_functions.php';
+require_once dirname(__DIR__, 2) . '/app/core/shop_functions.php';
 // asset helpers available via middleware/function.php
 include __DIR__ . '/partials/header-shop.php';
 

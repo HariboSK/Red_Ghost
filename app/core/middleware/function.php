@@ -220,11 +220,30 @@ function asset_base(): string
         return rtrim($GLOBALS['assetBase'], '/');
     }
 
+    // Ensure assets work when the app is served from a subdirectory
+    $basePath = app_base_path();
+    if ($basePath !== '') {
+        return rtrim($basePath, '/') . '/assets';
+    }
+
     return '/assets';
 }
 
 function asset(string $path): string
 {
     $base = asset_base();
-    return $base . '/' . ltrim($path, '/');
+    $url = $base . '/' . ltrim($path, '/');
+
+    // try to add a cache-busting version query using the file modification time
+    $projectRoot = dirname(__DIR__, 3);
+    $publicAssetPath = $projectRoot . '/public/assets/' . ltrim($path, '/');
+    if (is_file($publicAssetPath)) {
+        $mtime = filemtime($publicAssetPath);
+        if ($mtime !== false) {
+            $sep = strpos($url, '?') === false ? '?' : '&';
+            $url .= $sep . 'v=' . $mtime;
+        }
+    }
+
+    return $url;
 }

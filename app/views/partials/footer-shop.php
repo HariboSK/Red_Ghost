@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="footer-col-1">
-        <img src="/assets/images/155555.jpg" alt="Red Ghost farma">
+        <img src="/assets/images/155555.webp" alt="Red Ghost farma">
         <p>Nasim cielom je priniest ludom kvalitne, poctivo pestovane chilli, ktore nielen rozohreje chutove pohariky,
           ale aj rozprudni vasen pre odvazne chute a autenticke zazitky.</p>
       </div>
