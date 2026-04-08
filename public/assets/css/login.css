@@ -243,6 +243,8 @@ body.login-page main {
   border: 3px solid var(--light-red-color);
   background: linear-gradient(rgb(40, 0, 0) 35%, var(--primary-color) 100%);
   backdrop-filter: blur(10px);
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 body.login-page .footer-section {

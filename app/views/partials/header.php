@@ -2,12 +2,14 @@
 <html lang="sk">
 
 <head>
+  <?php require_once dirname(__DIR__, 2) . '/core/middleware/function.php'; ?>
+  <?php require_once dirname(__DIR__, 2) . '/core/helper.php'; ?>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Jakub Chrkavý">
   <meta name="description"
     content="Objav našu ponuku chilli papričiek – klikni a ochutnaj pálivú vášeň zo slovenských záhrad! Vyber si svoju pálivosť – od jemného Jalapena po extrémne Carolina Reaper!">
-  <title>Red Ghost - O NÁS</title>
+  <title><?php echo htmlspecialchars(Helper::getPageTitle(), ENT_QUOTES, 'UTF-8'); ?></title>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -20,7 +22,7 @@
   <link rel="stylesheet" href="/assets/css/userprofile.css">
   <!-- Favicon -->
   <link rel="shortcut icon" type="image/x-icon"
-    href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+    href="/assets/images/favicon.webp">
 </head>
 
 <body>
@@ -28,7 +30,7 @@
   <header>
     <nav class="navbar section-content">
       <a href="<?php echo route('/home'); ?>" class="nav-logo">
-        <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo">
+        <img src="/assets/images/logo-text.webp" class="logo" alt="Red Ghost logo">
         <h2 class="logo-text">Red Ghost</h2>
       </a>
       <ul class="nav-menu">

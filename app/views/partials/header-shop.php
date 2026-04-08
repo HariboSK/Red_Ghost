@@ -1,7 +1,10 @@
 <?php
+require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
+require_once dirname(__DIR__, 2) . '/core/helper.php';
+
 $resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
   ? $pageTitle
-  : 'Red Ghost - E-shop';
+  : Helper::getPageTitle() . ' - E-shop';
 $resolvedExtraStyles = (isset($extraStyles) && is_array($extraStyles)) ? $extraStyles : [];
 
 require_once dirname(__DIR__, 2) . '/core/session_helper.php';
@@ -19,6 +22,7 @@ if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO)
 }
 
 $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
+
 ?>
 
 <!DOCTYPE html>
@@ -33,13 +37,13 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
   <title><?php echo htmlspecialchars($resolvedPageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
 
   <!-- CSS shopcart -->
-  <link rel="stylesheet" href="./assets/css/shopcart.css">
+  <link rel="stylesheet" href="<?php echo htmlspecialchars(asset('css/shopcart.css'), ENT_QUOTES, 'UTF-8'); ?>">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <!-- Swiper CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="/assets/css/style2.css">
+  <link rel="stylesheet" href="<?php echo htmlspecialchars(asset('css/style2.css'), ENT_QUOTES, 'UTF-8'); ?>">
 
 
   <?php foreach ($resolvedExtraStyles as $stylePath): ?>
@@ -51,7 +55,7 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
 
   <!-- Favicon -->
   <link rel="shortcut icon" type="image/x-icon"
-    href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+    href="<?php echo htmlspecialchars(asset('images/favicon.webp'), ENT_QUOTES, 'UTF-8'); ?>">
 </head>
 
 <body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>"
@@ -61,7 +65,7 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
     <div class="container">
       <div class="navbar">
         <a href="<?php echo route('/home'); ?>" class="nav-logo">
-          <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo">
+          <img src="<?php echo htmlspecialchars(asset('images/logo-text.webp'), ENT_QUOTES, 'UTF-8'); ?>" class="logo" alt="Red Ghost logo">
           <h2 class="logo-text">RED GHOST</h2>
         </a>
 

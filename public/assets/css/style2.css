@@ -994,23 +994,6 @@ button[disabled] {
   position: relative;
 }
 
-.footer::before {
-  content: "";
-  position: absolute;
-  top: -135px;
-  left: 0;
-  width: 100%;
-  height: 140px;
-  background-image: url("/assets/icons/flamefooter.svg");
-  background-size: 100% 140px;
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  filter: drop-shadow(0 0 4px rgba(255, 120, 40, 0.7))
-    drop-shadow(0 2px 4px rgba(255, 90, 20, 0.5))
-    drop-shadow(0 0 5px rgba(255, 70, 10, 0.35));
-  pointer-events: none;
-  z-index: 5;
-}
 .footer p {
   color: #c5bfbf;
 }

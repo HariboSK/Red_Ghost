@@ -29,7 +29,8 @@
   </div>
 </div>
 <?php
-$assetBaseLocal = (isset($assetBase) && is_string($assetBase) && $assetBase !== '') ? $assetBase : '/assets';
+// use asset helper
+$assetBaseLocal = asset_base();
 ?>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="<?php echo htmlspecialchars($assetBaseLocal, ENT_QUOTES, 'UTF-8'); ?>/js/shop.js"></script>

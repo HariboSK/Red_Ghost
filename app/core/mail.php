@@ -6,6 +6,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 require_once __DIR__ . '/../library/PHPMailer-7.0.2/src/Exception.php';
 require_once __DIR__ . '/../library/PHPMailer-7.0.2/src/PHPMailer.php';
 require_once __DIR__ . '/../library/PHPMailer-7.0.2/src/SMTP.php';
+require_once __DIR__ . '/Redirect.php';
 
 if (!function_exists('app_env')) {
     require_once __DIR__ . '/middleware/function.php';
@@ -180,8 +181,7 @@ try {
         $headers = "From: {$fromEmail}\r\nReply-To: {$email}\r\n";
         $plainSent = mail($mailTo, $mailSubject, $body, $headers);
         if ($plainSent) {
-            header('Location: ' . route('/home?success=1#contact'));
-            exit;
+            (new Redirect(route('/home?success=1#contact')))->redirect();
         }
     }
 
@@ -190,5 +190,4 @@ try {
     exit;
 }
 
-header('Location: ' . route('/home?success=1#contact'));
-exit;
+(new Redirect(route('/home?success=1#contact')))->redirect();

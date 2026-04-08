@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('shop_collect_products')) {
-	function shop_collect_products($conn, string $assetBase): array
+	function shop_collect_products($conn): array
 	{
 		$featuredProducts = [];
 		$otherProducts = [];
@@ -25,7 +25,7 @@ if (!function_exists('shop_collect_products')) {
 					];
 
 					if ($product['image'] === '') {
-						$product['image'] = $assetBase . '/images/omacka3.jpg';
+						$product['image'] = asset('images/omacka3.jpg');
 					}
 
 					if ($product['featured']) {
@@ -54,7 +54,7 @@ if (!function_exists('shop_collect_products')) {
 				[
 					'name' => 'Nové chilli produkty',
 					'description' => 'Špeciálne chilli omáčky pripravené s láskou od našich pestovateľov.',
-					'image' => $assetBase . '/images/chilli-sol.jpg',
+					'image' => asset('images/chilli-sol.jpg'),
 					'price' => 0,
 					'stock' => 10,
 					'id' => 1,
@@ -62,7 +62,7 @@ if (!function_exists('shop_collect_products')) {
 				[
 					'name' => 'Domáce omáčky',
 					'description' => 'Autentické receptúry tradičnej slovenskej kuchyne s chilli.',
-					'image' => $assetBase . '/images/omacky2.jpg',
+					'image' => asset('images/omacky2.jpg'),
 					'price' => 0,
 					'stock' => 10,
 					'id' => 2,
@@ -70,7 +70,7 @@ if (!function_exists('shop_collect_products')) {
 				[
 					'name' => 'Sušené chilli',
 					'description' => 'Prírodne sušené chilli papriky bez chemických прідатків.',
-					'image' => $assetBase . '/images/susene-chilli-Picsart-AiImageEnhancer.jpg',
+					'image' => asset('images/susene-chilli-Picsart-AiImageEnhancer.jpg'),
 					'price' => 0,
 					'stock' => 10,
 					'id' => 3,
@@ -118,7 +118,7 @@ if (!function_exists('shop_render_product_card')) {
 }
 
 if (!function_exists('shop_get_product_by_id')) {
-	function shop_get_product_by_id($conn, int $productId, string $assetBase): ?array
+	function shop_get_product_by_id($conn, int $productId): ?array
 	{
 		if (!($conn instanceof PDO) || $productId <= 0) {
 			return null;
@@ -138,7 +138,7 @@ if (!function_exists('shop_get_product_by_id')) {
 
 		$image = (string) ($row['image'] ?? '');
 		if ($image === '') {
-			$image = $assetBase . '/images/omacka3.jpg';
+			$image = asset('images/omacka3.jpg');
 		}
 
 		return [

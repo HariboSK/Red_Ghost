@@ -8,30 +8,34 @@ class Router
     public function __construct()
     {
         $this->routes = [
-            '/' => 'app/views/partials/home.php',
-            '/home' => 'app/views/partials/home.php',
-            '/home.php' => 'app/views/partials/home.php',
-            '/e-shop' => 'app/views/partials/e_shop.php',
-            '/e_shop' => 'app/views/partials/e_shop.php',
-            '/e_shop.php' => 'app/views/partials/e_shop.php',
-            '/e-shop.php' => 'app/views/partials/e_shop.php',
-            '/product' => 'app/views/partials/product.php',
-            '/product.php' => 'app/views/partials/product.php',
-            '/shopcart' => 'app/views/partials/shopcart.php',
-            '/shopcart.php' => 'app/views/partials/shopcart.php',
-            '/dashboard' => 'app/views/partials/dashboard.php',
-            '/dashboard.php' => 'app/views/partials/dashboard.php',
-            '/userprofile' => 'app/views/partials/userprofile.php',
-            '/userprofile.php' => 'app/views/partials/userprofile.php',
-            '/login.php' => 'app/views/partials/login.php',
-            '/login' => 'app/views/partials/login.php',
-            '/login-register' => 'app/core/login-register.php',
-            '/login-register.php' => 'app/core/login-register.php',
+            '/' => 'app/views/home.php',
+            '/home' => 'app/views/home.php',
+            '/home.php' => 'app/views/home.php',
+            '/e-shop' => 'app/views/e_shop.php',
+            '/e_shop' => 'app/views/e_shop.php',
+            '/e_shop.php' => 'app/views/e_shop.php',
+            '/e-shop.php' => 'app/views/e_shop.php',
+            '/product' => 'app/views/product.php',
+            '/product.php' => 'app/views/product.php',
+            '/shopcart' => 'app/views/shopcart.php',
+            '/shopcart.php' => 'app/views/shopcart.php',
+            '/dashboard' => 'app/views/dashboard.php',
+            '/dashboard.php' => 'app/views/dashboard.php',
+            '/userprofile' => 'app/views/userprofile.php',
+            '/userprofile.php' => 'app/views/userprofile.php',
+            '/login.php' => 'app/views/login.php',
+            '/login' => 'app/views/login.php',
+            '/login-register' => 'app/core/login_register.php',
+            '/login-register.php' => 'app/core/login_register.php',
+            '/login_register' => 'app/core/login_register.php',
+            '/login_register.php' => 'app/core/login_register.php',
             '/send-message' => 'app/core/mail.php',
             '/send-message.php' => 'app/core/mail.php',
+            '/send_message' => 'app/core/mail.php',
+            '/send_message.php' => 'app/core/mail.php',
             '/api/cart' => 'app/core/api/cart.php',
             '/api/cart.php' => 'app/core/api/cart.php',
-            '/logout' => 'app/views/partials/logout.php'
+            '/logout' => 'app/views/logout.php'
         ];
     }
 
@@ -60,7 +64,7 @@ class Router
 
         http_response_code(404);
         $projectRoot = dirname(__DIR__, 2);
-        $notFoundViewPath = $projectRoot . '/app/views/partials/404.php';
+        $notFoundViewPath = $projectRoot . '/app/views/404.php';
 
         if (file_exists($notFoundViewPath)) {
             include $notFoundViewPath;

@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="/assets/css/userprofile.css">
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
-        href="/assets/images/305036798_501410268657650_7493754093765322046_n-modified.png">
+        href="/assets/images/favicon.webp">
 </head>
 
 <body>
@@ -27,7 +27,7 @@
     <header>
         <nav class="navbar section-content">
             <a href="<?php echo route('/userprofile'); ?>" class="nav-logo">
-                <img src="/assets/images/logo-text.png" class="logo" alt="Red Ghost logo">
+                <img src="/assets/images/logo-text.webp" class="logo" alt="Red Ghost logo">
                 <h2 class="logo-text">Red Ghost</h2>
             </a>
 

@@ -1,4 +1,6 @@
 {
   "editor.formatOnSave": true,
-  "php.validate.executablePath": "C:/xampp/php/php.exe"
+  "php.validate.executablePath": "C:/xampp/php/php.exe",
+  "php.validate.enable": true,
+  "editor.semanticHighlighting.enabled": true
 }

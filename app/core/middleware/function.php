@@ -212,3 +212,19 @@ route('/login');     // '/Red_Ghost/login'
 
 
 */
+
+// Asset helpers
+function asset_base(): string
+{
+    if (isset($GLOBALS['assetBase']) && is_string($GLOBALS['assetBase']) && $GLOBALS['assetBase'] !== '') {
+        return rtrim($GLOBALS['assetBase'], '/');
+    }
+
+    return '/assets';
+}
+
+function asset(string $path): string
+{
+    $base = asset_base();
+    return $base . '/' . ltrim($path, '/');
+}
