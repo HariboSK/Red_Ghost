@@ -1,3 +1,8 @@
+<?php
+require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
+require_once dirname(__DIR__, 2) . '/core/assetHelper.php';
+?>
+
 <!DOCTYPE html>
 <html lang="sk">
 
@@ -13,10 +18,9 @@
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/animation.css">
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
-    <link rel="stylesheet" href="/assets/css/userprofile.css">
+    <?php foreach (AssetHelper::current_page_assets() as $css): ?>
+        <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">
+    <?php endforeach; ?>
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
         href="/assets/images/favicon.webp">

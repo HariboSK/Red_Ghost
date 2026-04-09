@@ -81,10 +81,17 @@ function app_base_path() {
 
 //kompletne cesty pre odkay v aplikacii
 function route($path) {
+    // If an absolute URL was provided, return it unchanged (safe-escaped)
     if (preg_match('#^(https?:)?//#i', (string) $path) === 1) {
         return htmlspecialchars((string) $path, ENT_QUOTES, 'UTF-8');
     }
 
+    // Prefer centralized Router::url when available so URL logic is in one place
+    if (class_exists('Router') && method_exists('Router', 'url')) {
+        return Router::url($path);
+    }
+
+    // Fallback to previous behavior when Router::url isn't available
     $basePath = app_base_path();
     $normalizedPath = '/' . ltrim((string) $path, '/');
 
@@ -94,6 +101,15 @@ function route($path) {
 //skratka pre app_base_path
 function baseUrl() {
     return app_base_path();
+}
+
+// Helper na tvorbu URL pre assety v public/assets
+function asset(string $path): string
+{
+    $basePath = app_base_path();
+    $assetPath = '/assets/' . ltrim($path, '/');
+
+    return htmlspecialchars($basePath . $assetPath, ENT_QUOTES, 'UTF-8');
 }
 
 //Funckie na zachytenie chyb ktore nastanu pri prevadzke aplikacie a ich logovanie do suboru. 
@@ -212,38 +228,3 @@ route('/login');     // '/Red_Ghost/login'
 
 
 */
-
-// Asset helpers
-function asset_base(): string
-{
-    if (isset($GLOBALS['assetBase']) && is_string($GLOBALS['assetBase']) && $GLOBALS['assetBase'] !== '') {
-        return rtrim($GLOBALS['assetBase'], '/');
-    }
-
-    // Ensure assets work when the app is served from a subdirectory
-    $basePath = app_base_path();
-    if ($basePath !== '') {
-        return rtrim($basePath, '/') . '/assets';
-    }
-
-    return '/assets';
-}
-
-function asset(string $path): string
-{
-    $base = asset_base();
-    $url = $base . '/' . ltrim($path, '/');
-
-    // try to add a cache-busting version query using the file modification time
-    $projectRoot = dirname(__DIR__, 3);
-    $publicAssetPath = $projectRoot . '/public/assets/' . ltrim($path, '/');
-    if (is_file($publicAssetPath)) {
-        $mtime = filemtime($publicAssetPath);
-        if ($mtime !== false) {
-            $sep = strpos($url, '?') === false ? '?' : '&';
-            $url .= $sep . 'v=' . $mtime;
-        }
-    }
-
-    return $url;
-}

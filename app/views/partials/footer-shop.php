@@ -28,12 +28,8 @@
     <p class="copyright">&copy; 2025 Red Ghost. Vsetky prava vyhradene.</p>
   </div>
 </div>
-<?php
-// use asset helper
-$assetBaseLocal = asset_base();
-?>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="<?php echo htmlspecialchars($assetBaseLocal, ENT_QUOTES, 'UTF-8'); ?>/js/shop.js"></script>
+<script src="<?php echo asset('js/shop.js'); ?>"></script>
 </body>
 
 </html>

@@ -4,6 +4,29 @@
 class Router
 {
     private $routes = [];
+    private static $page_assets = [
+        '/' => ['style.css', 'animation.css'],
+        '/home' => ['style.css', 'animation.css'],
+        '/home.php' => ['style.css', 'animation.css'],
+        '/e-shop' => ['style2.css', ],
+        '/e_shop' => ['style2.css'],
+        '/e_shop.php' => ['style2.css'],
+        '/e-shop.php' => ['style2.css'],
+        '/product' => ['style2.css', 'productview.css'],
+        '/product.php' => ['style2.css', 'productview.css'],
+        '/shopcart' => ['style2.css', 'shopcart.css'],
+        '/shopcart.php' => ['style2.css', 'shopcart.css'],
+        '/dashboard' => ['style.css','dashboard.css'],
+        '/dashboard.php' => ['style.css','dashboard.css'],
+        '/userprofile' => ['style.css','userprofile.css'],
+        '/userprofile.php' => ['style.css','userprofile.css'],
+        '/login.php' => ['style2.css', 'login.css'],
+        '/login' => ['style2.css', 'login.css'],
+        '/404' => ['errors.css', 'style.css'],
+        '/404.php' => ['errors.css', 'style.css'],
+        '/error500' => ['errors.css', 'style.css'],
+        '/error500.php' => ['errors.css', 'style.css'],
+    ];
 
     public function __construct()
     {
@@ -37,6 +60,37 @@ class Router
             '/api/cart.php' => 'app/core/api/cart.php',
             '/logout' => 'app/views/logout.php'
         ];
+
+    }
+
+    public static function assetsFor(string $path): array
+    {
+        $basePath = function_exists('app_base_path') ? app_base_path() : '';
+        $normalizedPath = parse_url((string) $path, PHP_URL_PATH);
+        $normalizedPath = is_string($normalizedPath) ? $normalizedPath : '/';
+
+        if ($basePath !== '' && strpos($normalizedPath, $basePath) === 0) {
+            $normalizedPath = substr($normalizedPath, strlen($basePath));
+        }
+
+        $normalizedPath = '/' . ltrim($normalizedPath, '/');
+        $normalizedPath = rtrim($normalizedPath, '/');
+        $normalizedPath = ($normalizedPath === '') ? '/' : $normalizedPath;
+
+        if (isset(self::$page_assets[$normalizedPath])) {
+            return self::$page_assets[$normalizedPath];
+        }
+
+        $statusCode = http_response_code();
+        if ($statusCode === 404 && isset(self::$page_assets['/404'])) {
+            return self::$page_assets['/404'];
+        }
+
+        if ($statusCode === 500 && isset(self::$page_assets['/error500'])) {
+            return self::$page_assets['/error500'];
+        }
+
+        return [];
     }
 
     public function dispatch()
@@ -73,5 +127,14 @@ class Router
 
         echo '404 - Stranka nenajdena';
         exit;
+    }
+
+    // helper to generate normalized application URLs
+    public static function url($path)
+    {
+        $basePath = function_exists('app_base_path') ? app_base_path() : '';
+        $normalizedPath = '/' . ltrim((string) $path, '/');
+
+        return htmlspecialchars($basePath . $normalizedPath, ENT_QUOTES, 'UTF-8');
     }
 }

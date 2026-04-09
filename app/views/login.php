@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 require_once dirname(__DIR__) . '/core/authView.php';
+require_once dirname(__DIR__) . '/core/middleware/function.php';
+require_once dirname(__DIR__) . '/core/assetHelper.php';
 $auth = new AuthView();
 $errors = $auth->getErrors();
 $activeForm = $auth->getActiveForm();
@@ -15,8 +17,9 @@ $activeForm = $auth->getActiveForm();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Ghost Log-in</title>
     <!-- Pridanie odkazu na CSS súbor -->
-    <link rel="stylesheet" href="../assets/css/style2.css">
-    <link rel="stylesheet" href="../assets/css/login.css">
+    <?php foreach (AssetHelper::current_page_assets() as $css): ?>
+        <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">
+    <?php endforeach; ?>
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
         href="./assets/images/favicon.webp">

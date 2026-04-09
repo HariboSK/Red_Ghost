@@ -1,48 +1,45 @@
 <?php
 
-if (!function_exists('rg_session_bootstrap')) {
-    function rg_session_bootstrap(): void
+class SessionHelper
+{
+    public static function bootstrap(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
-}
 
-if (!function_exists('rg_session_get_string')) {
-    function rg_session_get_string(array $keys): string
+    public static function getString(array $keys): string
     {
         foreach ($keys as $key) {
             if (isset($_SESSION[$key]) && is_string($_SESSION[$key]) && trim($_SESSION[$key]) !== '') {
                 return trim((string) $_SESSION[$key]);
             }
         }
+
         return '';
     }
-}
 
-if (!function_exists('rg_session_get_int')) {
-    function rg_session_get_int(array $keys): int
+    public static function getInt(array $keys): int
     {
         foreach ($keys as $key) {
             if (isset($_SESSION[$key]) && is_numeric($_SESSION[$key])) {
                 return (int) $_SESSION[$key];
             }
         }
+
         return 0;
     }
-}
 
-if (!function_exists('rg_session_user')) {
-    function rg_session_user(): array
+    public static function user(): array
     {
-        rg_session_bootstrap();
+        self::bootstrap();
 
-        $email = rg_session_get_string(['user_email', 'email', 'userEmail', 'mail']);
-        $name = rg_session_get_string(['user_name', 'name', 'username', 'full_name']);
-        $role = rg_session_get_string(['user_role', 'role']);
-        $id = rg_session_get_int(['user_id', 'id']);
-        $points = rg_session_get_int(['user_points', 'loayalty_points', 'loyalty_points', 'points', 'loyaltyPoints']);
+        $email = self::getString(['user_email', 'email', 'userEmail', 'mail']);
+        $name = self::getString(['user_name', 'name', 'username', 'full_name']);
+        $role = self::getString(['user_role', 'role']);
+        $id = self::getInt(['user_id', 'id']);
+        $points = self::getInt(['user_points', 'loayalty_points', 'loyalty_points', 'points', 'loyaltyPoints']);
         $flag = (!empty($_SESSION['is_logged_in']) && $_SESSION['is_logged_in']) ||
             (!empty($_SESSION['logged_in']) && $_SESSION['logged_in']);
 
@@ -57,19 +54,16 @@ if (!function_exists('rg_session_user')) {
             'is_logged_in' => $isLoggedIn,
         ];
     }
-}
 
-if (!function_exists('rg_session_store_user')) {
-    function rg_session_store_user(array $user, int $points = 0): void
+    public static function storeUser(array $user, int $points = 0): void
     {
-        rg_session_bootstrap();
+        self::bootstrap();
 
         $id = (int) ($user['id'] ?? 0);
         $name = (string) ($user['name'] ?? '');
         $email = (string) ($user['email'] ?? '');
         $role = (string) ($user['role'] ?? 'user');
 
-        // Canonical keys
         $_SESSION['user_id'] = $id;
         $_SESSION['user_name'] = $name;
         $_SESSION['user_email'] = $email;
@@ -77,7 +71,6 @@ if (!function_exists('rg_session_store_user')) {
         $_SESSION['user_points'] = $points;
         $_SESSION['is_logged_in'] = true;
 
-        // Legacy compatibility keys used in existing views.
         $_SESSION['id'] = $id;
         $_SESSION['name'] = $name;
         $_SESSION['email'] = $email;
@@ -86,10 +79,8 @@ if (!function_exists('rg_session_store_user')) {
         $_SESSION['loyalty_points'] = $points;
         $_SESSION['logged_in'] = true;
     }
-}
 
-if (!function_exists('rg_calculate_loyalty_points')) {
-    function rg_calculate_loyalty_points($conn, string $email): int
+    public static function calculateLoyaltyPoints($conn, string $email): int
     {
         if (!($conn instanceof PDO) || $email === '') {
             return 0;
@@ -101,12 +92,10 @@ if (!function_exists('rg_calculate_loyalty_points')) {
 
         return (int) ($row['loayalty_points'] ?? 0);
     }
-}
 
-if (!function_exists('rg_refresh_session_points')) {
-    function rg_refresh_session_points($conn, string $email): int
+    public static function refreshSessionPoints($conn, string $email): int
     {
-        $points = rg_calculate_loyalty_points($conn, $email);
+        $points = self::calculateLoyaltyPoints($conn, $email);
 
         $_SESSION['user_points'] = $points;
         $_SESSION['loayalty_points'] = $points;
@@ -114,5 +103,55 @@ if (!function_exists('rg_refresh_session_points')) {
         $_SESSION['points'] = $points;
 
         return $points;
+    }
+}
+
+// Backward-compatible wrappers for existing function-based calls.
+if (!function_exists('rg_session_bootstrap')) {
+    function rg_session_bootstrap(): void
+    {
+        SessionHelper::bootstrap();
+    }
+}
+
+if (!function_exists('rg_session_get_string')) {
+    function rg_session_get_string(array $keys): string
+    {
+        return SessionHelper::getString($keys);
+    }
+}
+
+if (!function_exists('rg_session_get_int')) {
+    function rg_session_get_int(array $keys): int
+    {
+        return SessionHelper::getInt($keys);
+    }
+}
+
+if (!function_exists('rg_session_user')) {
+    function rg_session_user(): array
+    {
+        return SessionHelper::user();
+    }
+}
+
+if (!function_exists('rg_session_store_user')) {
+    function rg_session_store_user(array $user, int $points = 0): void
+    {
+        SessionHelper::storeUser($user, $points);
+    }
+}
+
+if (!function_exists('rg_calculate_loyalty_points')) {
+    function rg_calculate_loyalty_points($conn, string $email): int
+    {
+        return SessionHelper::calculateLoyaltyPoints($conn, $email);
+    }
+}
+
+if (!function_exists('rg_refresh_session_points')) {
+    function rg_refresh_session_points($conn, string $email): int
+    {
+        return SessionHelper::refreshSessionPoints($conn, $email);
     }
 }

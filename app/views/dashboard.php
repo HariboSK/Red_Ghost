@@ -1,8 +1,13 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+require_once dirname(__DIR__) . '/core/session_helper.php';
 require_once dirname(__DIR__) . '/core/Redirect.php';
-if (!isset($_SESSION['email'])) {
+
+
+$sessionUser = SessionHelper::user();
+
+if (!($sessionUser['is_logged_in'] ?? false)) {
     (new Redirect('/login.php'))->redirect();
 }
 
@@ -15,7 +20,7 @@ include __DIR__ . '/partials/dashboard-header.php';
         <div>
             <p class="dash-eyebrow">Admin panel</p>
             <h1>Dashboard</h1>
-            <p class="dash-title">Vitaj,<span><?= $_SESSION['name']; ?></span> v sprave tvojho e-shopu</p>
+            <p class="dash-title">Vitaj,<span><?= htmlspecialchars((string) ($sessionUser['name'] ?? 'Pouzivatel'), ENT_QUOTES, 'UTF-8'); ?></span> v sprave tvojho e-shopu</p>
             <p class="dash-subtitle">Prehlad objednavok, predaja a stavu produktov na jednom mieste.</p>
         </div>
         <div class="dash-actions">

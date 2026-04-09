@@ -1,16 +1,16 @@
 <?php
 require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
 require_once dirname(__DIR__, 2) . '/core/helper.php';
+require_once dirname(__DIR__, 2) . '/core/assetHelper.php';
 
 $resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
   ? $pageTitle
   : Helper::getPageTitle() . ' - E-shop';
-$resolvedExtraStyles = (isset($extraStyles) && is_array($extraStyles)) ? $extraStyles : [];
 
 require_once dirname(__DIR__, 2) . '/core/session_helper.php';
-rg_session_bootstrap();
+SessionHelper::bootstrap();
 
-$sessionUser = rg_session_user();
+$sessionUser = SessionHelper::user();
 
 $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
@@ -18,7 +18,7 @@ $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
 $profilePoints = (int) ($sessionUser['points'] ?? 0);
 
 if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO) {
-  $profilePoints = rg_refresh_session_points($conn, $profileEmail);
+  $profilePoints = SessionHelper::refreshSessionPoints($conn, $profileEmail);
 }
 
 $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
@@ -36,24 +36,14 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
     content="Objav nasu ponuku chilli papriciek - klikni a ochutnaj palivu vasen zo slovenskych zahrad! Vyber si svoju palivost - od jemneho Jalapena po extremne Carolina Reaper!">
   <title><?php echo htmlspecialchars($resolvedPageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
 
-  <!-- CSS shopcart -->
-  <link rel="stylesheet" href="/assets/css/shopcart.css">
-  <!-- CSS produkt-info -->
-  <link rel="stylesheet" href="/assets/css/productview.css">
+  <!-- Custom CSS -->
+  <?php foreach (AssetHelper::current_page_assets() as $css): ?>
+    <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">
+  <?php endforeach; ?>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <!-- Swiper CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="/assets/css/style2.css">
-
-
-  <?php foreach ($resolvedExtraStyles as $stylePath): ?>
-    <?php if (is_string($stylePath) && $stylePath !== ''): ?>
-      <link rel="stylesheet" href="<?php echo htmlspecialchars($stylePath, ENT_QUOTES, 'UTF-8'); ?>">
-    <?php endif; ?>
-  <?php endforeach; ?>
-
 
   <!-- Favicon -->
   <link rel="shortcut icon" type="image/x-icon"

@@ -2,9 +2,9 @@
 require_once dirname(__DIR__, 2) . '/app/core/session_helper.php';
 require_once dirname(__DIR__, 2) . '/app/core/Redirect.php';
 
-rg_session_bootstrap();
+SessionHelper::bootstrap();
 
-$sessionUser = rg_session_user();
+$sessionUser = SessionHelper::user();
 $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);

@@ -1,12 +1,11 @@
 <?php
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/app/core/shop_functions.php';
+require_once dirname(__DIR__, 2) . '/app/core/shopService.php';
 // asset helpers available via middleware/function.php
 include __DIR__ . '/partials/header-shop.php';
 
-$assetBase = asset_base();
 $productId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-$product = shop_get_product_by_id($conn ?? null, $productId);
+$product = ShopService::getProductById($conn ?? null, $productId);
 
 if (!$product) {
     http_response_code(404);
@@ -31,14 +30,10 @@ $extraStyles = ['/assets/css/productview.css'];
       </section>
     <?php else: ?>
       <?php
-      $spicyResult = function_exists('shop_product_spicy_label')
-        ? call_user_func('shop_product_spicy_label', (int) $product['rating'])
-        : ['Stredna', 'medium'];
+      $spicyResult = ShopService::productSpicyLabel((int) $product['rating']);
       [$spicyText, $spicyClass] = $spicyResult;
 
-      $reviews = function_exists('shop_product_reviews')
-        ? call_user_func('shop_product_reviews', $product)
-        : [];
+      $reviews = ShopService::productReviews($product);
       ?>
       <section class="product-detail">
         <div class="image-panel">

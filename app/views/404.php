@@ -1,3 +1,8 @@
+<?php
+require_once dirname(__DIR__) . '/core/middleware/function.php';
+require_once dirname(__DIR__) . '/core/assetHelper.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,8 +12,9 @@
     <title>Chyba 404</title>
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/errors.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <?php foreach (AssetHelper::current_page_assets() as $css): ?>
+        <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">
+    <?php endforeach; ?>
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
