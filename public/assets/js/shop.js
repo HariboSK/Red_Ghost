@@ -428,9 +428,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Zoradi produktove karty vo viditelnych kontajneroch podla zvolenej moznosti.
-function sortProducts() {
-  const sortBy = document.getElementById("sortBy").value;
+function applyProductFilters() {
+  const sortByElement = document.getElementById("sortBy");
+  const priceFromElement = document.getElementById("priceFrom");
+  const sortBy = sortByElement ? sortByElement.value : "price-asc";
+  const minPrice = priceFromElement ? Number(priceFromElement.value || 0) : 0;
   const targetContainers = ["featuredProductsContainer", "productsContainer"];
 
   targetContainers.forEach(function (containerId) {
@@ -465,9 +467,20 @@ function sortProducts() {
 
     container.innerHTML = "";
     products.forEach(function (product) {
+      const price = Number(product.dataset.price || 0);
+      product.style.display = price >= minPrice ? "" : "none";
       container.appendChild(product);
     });
   });
+}
+
+// Zoradi produktove karty vo viditelnych kontajneroch podla zvolenej moznosti.
+function sortProducts() {
+  applyProductFilters();
+}
+
+function filterProducts() {
+  applyProductFilters();
 }
 
 function showCartToast(message, type) {
@@ -513,7 +526,9 @@ function addToCart(id) {
         showCartToast(
           payload && payload.message
             ? payload.message
-            : "Nepodarilo sa pridat produkt do kosika.","error",);
+            : "Nepodarilo sa pridat produkt do kosika.",
+          "error",
+        );
         return;
       }
 

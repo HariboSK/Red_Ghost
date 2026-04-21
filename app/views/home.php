@@ -1,4 +1,70 @@
 <?php
+require_once dirname(__DIR__, 2) . '/config/config.php';
+
+$pdo = (isset($pdo) && $pdo instanceof PDO) ? $pdo : ((isset($conn) && $conn instanceof PDO) ? $conn : null);
+$contactFormErrors = [];
+$contactFormSuccess = '';
+$contactFormData = [
+  'name' => '',
+  'email' => '',
+  'subject' => '',
+  'message' => '',
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? '') === 'contact_message') {
+  $contactFormData['name'] = trim((string) ($_POST['name'] ?? ''));
+  $contactFormData['email'] = trim((string) ($_POST['email'] ?? ''));
+  $contactFormData['subject'] = trim((string) ($_POST['subject'] ?? ''));
+  $contactFormData['message'] = trim((string) ($_POST['message'] ?? ''));
+
+  $nameLength = function_exists('mb_strlen') ? mb_strlen($contactFormData['name']) : strlen($contactFormData['name']);
+  $subjectLength = function_exists('mb_strlen') ? mb_strlen($contactFormData['subject']) : strlen($contactFormData['subject']);
+  $messageLength = function_exists('mb_strlen') ? mb_strlen($contactFormData['message']) : strlen($contactFormData['message']);
+
+  if ($contactFormData['name'] === '' || $nameLength < 2 || $nameLength > 100) {
+    $contactFormErrors[] = 'Meno musí mať aspoň 2 znaky a najviac 100 znakov.';
+  }
+
+  if (!filter_var($contactFormData['email'], FILTER_VALIDATE_EMAIL)) {
+    $contactFormErrors[] = 'Zadajte platnú emailovú adresu.';
+  }
+
+  if ($contactFormData['subject'] === '' || $subjectLength < 3 || $subjectLength > 150) {
+    $contactFormErrors[] = 'Predmet musí mať aspoň 3 znaky a najviac 150 znakov.';
+  }
+
+  if ($contactFormData['message'] === '' || $messageLength < 10 || $messageLength > 5000) {
+    $contactFormErrors[] = 'Správa musí mať aspoň 10 znakov a najviac 5000 znakov.';
+  }
+
+  if (!$pdo instanceof PDO) {
+    $contactFormErrors[] = 'Databázové pripojenie nie je dostupné.';
+  }
+
+  if (empty($contactFormErrors) && $pdo instanceof PDO) {
+    try {
+      $stmt = $pdo->prepare('INSERT INTO contact_messages (sender_name, sender_email, subject, message_text, status) VALUES (:sender_name, :sender_email, :subject, :message_text, :status)');
+      $stmt->execute([
+        ':sender_name' => $contactFormData['name'],
+        ':sender_email' => $contactFormData['email'],
+        ':subject' => $contactFormData['subject'],
+        ':message_text' => $contactFormData['message'],
+        ':status' => 'unread',
+      ]);
+
+      $contactFormSuccess = 'Správa bola úspešne odoslaná.';
+      $contactFormData = [
+        'name' => '',
+        'email' => '',
+        'subject' => '',
+        'message' => '',
+      ];
+    } catch (PDOException $exception) {
+      $contactFormErrors[] = 'Správu sa nepodarilo uložiť. Skúste to prosím neskôr.';
+    }
+  }
+}
+
 include __DIR__ . '/partials/header.php';
 ?>
 
@@ -169,35 +235,27 @@ include __DIR__ . '/partials/header.php';
             <p>Pondelok - Nedeľa 9:00 - 19:00</p>           
       </ul>
 
-      <form action="<?php echo route('/send-message'); ?>" class="contact-form" method="POST">
-        <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required>
-        <input type="email" name="email" placeholder="Tvoj email" class="form-input" required>
-        <select name="subject" class="form-input" required>
-          <option value="" disabled selected>Vyber tému</option>
-          <option value="general">Všeobecný dotaz</option>
-          <option value="trouble">Niečo nefunguje</option>
-          <option value="order">Dotaz ohľadom objednávky</option>
-          <option value="feedback">Spätná väzba</option>
-          <option value="other">Iné</option>
-        </select>
-        <textarea name="message" placeholder="Tvoja správa" class="form-input" required></textarea>
+      <?php if (!empty($contactFormSuccess)): ?>
+        <p class="form-success"><?php echo htmlspecialchars($contactFormSuccess, ENT_QUOTES, 'UTF-8'); ?></p>
+      <?php endif; ?>
 
-        <!-- Honeypot pole (skryté pre ľudí) -->
-        <input type="text" name="robot" style="display:none">
+      <?php if (!empty($contactFormErrors)): ?>
+        <div class="form-error" role="alert">
+          <?php foreach ($contactFormErrors as $contactFormError): ?>
+            <p><?php echo htmlspecialchars((string) $contactFormError, ENT_QUOTES, 'UTF-8'); ?></p>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
 
-        <input type="checkbox" id="consent" name="consent" required="">
-        <label for="consent" class="checkbox-label">Súhlasím so spracovaním mojich osobných údajov</label>
+      <form action="<?php echo route('/home#contact'); ?>" class="contact-form" method="POST">
+        <input type="hidden" name="form_type" value="contact_message">
+        <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required value="<?php echo htmlspecialchars($contactFormData['name'], ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="email" name="email" placeholder="Tvoj email" class="form-input" required value="<?php echo htmlspecialchars($contactFormData['email'], ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="text" name="subject" placeholder="Predmet" class="form-input" required value="<?php echo htmlspecialchars($contactFormData['subject'], ENT_QUOTES, 'UTF-8'); ?>">
+        <textarea name="message" placeholder="Tvoja správa" class="form-input" required><?php echo htmlspecialchars($contactFormData['message'], ENT_QUOTES, 'UTF-8'); ?></textarea>
 
-        <!-- Google reCAPTCHA v2 
-        <div class="g-recaptcha" data-sitekey=""></div>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        -->
-        
         <button type="submit" class="submit-button">Poslať</button>
-        
       </form>
-
-      <div id="confirmBox">✅ Správa bola odoslaná</div>
     
     </div>
     </section>

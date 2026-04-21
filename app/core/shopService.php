@@ -9,8 +9,13 @@ class ShopService
         $allProducts = [];
 
         if ($conn instanceof PDO) {
-            $sql = 'SELECT id, name, description, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
+            $hasDiscountPercent = self::hasDiscountPercentColumn($conn);
+            $sql = $hasDiscountPercent
+                ? 'SELECT id, name, description, price, discount_percent, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC'
+                : 'SELECT id, name, description, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
+
             $stmt = $conn->query($sql);
+
             $rows = ($stmt instanceof PDOStatement) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
             foreach ($rows as $row) {
@@ -56,12 +61,18 @@ class ShopService
             $image = asset('images/omacka3.jpg');
         }
 
+        $price = (float) ($row['price'] ?? 0);
+        $discountPercent = max(0, min(100, (float) ($row['discount_percent'] ?? 0)));
+        $finalPrice = $discountPercent > 0 ? max(0, $price * (1 - ($discountPercent / 100))) : $price;
+
         return [
             'id' => (int) ($row['id'] ?? 0),
             'name' => (string) ($row['name'] ?? ''),
             'description' => (string) ($row['description'] ?? ''),
             'image' => $image,
-            'price' => (float) ($row['price'] ?? 0),
+            'price' => $finalPrice,
+            'basePrice' => $price,
+            'discountPercent' => $discountPercent,
             'rating' => (int) ($row['rating'] ?? 4),
             'featured' => (int) ($row['featured'] ?? 0) === 1,
             'stock' => (int) ($row['stock'] ?? 0),
@@ -104,6 +115,8 @@ class ShopService
         $name = (string) ($product['name'] ?? 'Produkt');
         $image = (string) ($product['image'] ?? '');
         $price = (float) ($product['price'] ?? 0);
+        $basePrice = (float) ($product['basePrice'] ?? $price);
+        $discountPercent = max(0, (float) ($product['discountPercent'] ?? 0));
         $rating = max(0, min(5, (int) ($product['rating'] ?? 4)));
         $stock = (int) ($product['stock'] ?? 0);
         $productUrl = function_exists('route') ? route('/product?id=' . $productId) : '/product?id=' . $productId;
@@ -121,7 +134,12 @@ class ShopService
             echo '<i class="far fa-star"></i>';
         }
         echo '</div>';
-        echo '<p class="price-example">' . number_format($price, 2, '.', '') . '€</p>';
+        if ($discountPercent > 0) {
+            echo '<p class="price-example"><span class="price-old">' . number_format($basePrice, 2, '.', '') . '€</span> ' . number_format($price, 2, '.', '') . '€</p>';
+            echo '<div class="discount-badge">-' . number_format($discountPercent, 0, '.', '') . '%</div>';
+        } else {
+            echo '<p class="price-example">' . number_format($price, 2, '.', '') . '€</p>';
+        }
         echo '<div class="stock ' . ($stock > 0 ? 'in-stock' : 'out-of-stock') . '">' . ($stock > 0 ? 'Na sklade: ' . $stock . ' ks' : 'Vypredane') . '</div>';
         echo '<button class="add-to-cart" onclick="addToCart(' . $productId . ')" ' . ($stock <= 0 ? 'disabled' : '') . '>Pridat do kosika</button>';
         echo '</div>';
@@ -133,7 +151,12 @@ class ShopService
             return null;
         }
 
-        $stmt = $conn->prepare('SELECT id, name, description, image, price, rating, stock, category FROM products WHERE id = :id LIMIT 1');
+        $hasDiscountPercent = self::hasDiscountPercentColumn($conn);
+        $sql = $hasDiscountPercent
+            ? 'SELECT id, name, description, image, price, discount_percent, rating, stock, category FROM products WHERE id = :id LIMIT 1'
+            : 'SELECT id, name, description, image, price, rating, stock, category FROM products WHERE id = :id LIMIT 1';
+
+        $stmt = $conn->prepare($sql);
         if (!($stmt instanceof PDOStatement)) {
             return null;
         }
@@ -149,12 +172,18 @@ class ShopService
             $image = asset('images/omacka3.jpg');
         }
 
+        $price = (float) ($row['price'] ?? 0);
+        $discountPercent = max(0, min(100, (float) ($row['discount_percent'] ?? 0)));
+        $finalPrice = $discountPercent > 0 ? max(0, $price * (1 - ($discountPercent / 100))) : $price;
+
         return [
             'id' => (int) ($row['id'] ?? 0),
             'name' => (string) ($row['name'] ?? 'Produkt'),
             'description' => (string) ($row['description'] ?? ''),
             'image' => $image,
-            'price' => (float) ($row['price'] ?? 0),
+            'price' => $finalPrice,
+            'basePrice' => $price,
+            'discountPercent' => $discountPercent,
             'rating' => max(0, min(5, (int) ($row['rating'] ?? 0))),
             'stock' => (int) ($row['stock'] ?? 0),
             'category' => (string) ($row['category'] ?? 'Chilli produkt'),
@@ -201,6 +230,20 @@ class ShopService
         ];
     }
 
+    private static function hasDiscountPercentColumn(PDO $conn): bool
+    {
+        try {
+            $stmt = $conn->query("SHOW COLUMNS FROM products LIKE 'discount_percent'");
+            if (!($stmt instanceof PDOStatement)) {
+                return false;
+            }
+
+            return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $exception) {
+            return false;
+        }
+    }
+
     public static function renderMain(array $data): void
     {
         $featuredProducts = $data['featuredProducts'] ?? [];
@@ -238,29 +281,47 @@ class ShopService
         </div>
     </section>
 
-    <section class="small-container shop-controls">
-        <h2>Všetky produkty</h2>
-        <div class="controls-row">
-            <select id="sortBy" onchange="sortProducts()" aria-label="Triedenie produktov">
-                <option value="price-asc">Cena: od najnižšej</option>
-                <option value="price-desc">Cena: od najvyššej</option>
-                <option value="rating">Podľa hodnotenia</option>
-                <option value="stock">Najviac skladom</option>
-            </select>
+    <section class="shop-catalog">
+        <aside class="shop-filter-panel" aria-label="Filter produktov">
+            <h2>Filter produktov</h2>
+
+            <div class="filter-field">
+                <label for="priceFrom">Cena od</label>
+                <select id="priceFrom" onchange="filterProducts()" aria-label="Cena od">
+                    <option value="0">Všetky ceny</option>
+                    <option value="5">Od 5 €</option>
+                    <option value="10">Od 10 €</option>
+                    <option value="15">Od 15 €</option>
+                    <option value="20">Od 20 €</option>
+                    <option value="30">Od 30 €</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="sortBy">Zoradiť podľa</label>
+                <select id="sortBy" onchange="sortProducts()" aria-label="Triedenie produktov">
+                    <option value="price-asc">Cena: od najnižšej</option>
+                    <option value="price-desc">Cena: od najvyššej</option>
+                    <option value="rating">Podľa hodnotenia</option>
+                    <option value="stock">Najviac skladom</option>
+                </select>
+            </div>
+        </aside>
+
+        <div class="shop-catalog-content">
+            <div class="shop-sections">
+                <h2 class="title">Odporúčané produkty</h2>
+                <div class="row product-grid" id="featuredProductsContainer">
+                    <?php foreach ($featuredProducts as $product) { self::renderProductCard($product); } ?>
+                </div>
+
+                <h2 class="title">Ostatné produkty</h2>
+                <div class="row product-grid" id="productsContainer">
+                    <?php foreach ($otherProducts as $product) { self::renderProductCard($product); } ?>
+                </div>
+            </div>
         </div>
     </section>
-
-    <div class="small-container shop-sections">
-        <h2 class="title">Odporúčané produkty</h2>
-        <div class="row product-grid" id="featuredProductsContainer">
-            <?php foreach ($featuredProducts as $product) { self::renderProductCard($product); } ?>
-        </div>
-
-        <h2 class="title">Ostatné produkty</h2>
-        <div class="row product-grid" id="productsContainer">
-            <?php foreach ($otherProducts as $product) { self::renderProductCard($product); } ?>
-        </div>
-    </div>
 </main>
 <?php
     }
