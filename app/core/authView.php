@@ -14,7 +14,6 @@ class AuthView
 
         $this->activeForm = $_SESSION['active_form'] ?? 'login';
 
-        // Clear only one-time flash errors/state
         unset($_SESSION['login_error'], $_SESSION['register_error'], $_SESSION['active_form']);
     }
 
@@ -28,9 +27,9 @@ class AuthView
         return $this->activeForm;
     }
 
-    public function showError(string $error): string
+    public function showError(string $input_error): string
     {
-        return $error !== '' ? '<p class="error-message">' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</p>' : '';
+        return $input_error !== '' ? '<p class="error-message">' . htmlspecialchars($input_error, ENT_QUOTES, 'UTF-8') . '</p>' : '';
     }
 
     public function isActiveForm(string $formName): string

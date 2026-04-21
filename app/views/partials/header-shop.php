@@ -16,6 +16,7 @@ $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
 $profilePoints = (int) ($sessionUser['points'] ?? 0);
+$userRole = (string) ($sessionUser['role'] ?? 'guest');
 
 if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO) {
   $profilePoints = SessionHelper::refreshSessionPoints($conn, $profileEmail);
@@ -85,7 +86,7 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
               <?php if ($isLoggedIn): ?>
                 <p class="profile-popup-email"><?php echo htmlspecialchars($profileEmail !== '' ? $profileEmail : ($profileName !== '' ? $profileName : 'Prihlaseny pouzivatel'), ENT_QUOTES, 'UTF-8'); ?></p>
                 <p class="profile-popup-points">Body z nákupov: <strong><?php echo $profilePoints; ?></strong></p>
-                <a href="<?php echo htmlspecialchars(route('/userprofile'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prejsť na profil</a>
+                <a href="<?php echo htmlspecialchars($userRole === 'admin' ? htmlspecialchars(route('/dashboard')) : htmlspecialchars(route('/userprofile')), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prejsť na profil</a>
               <?php else: ?>
                 <p class="profile-popup-email">Neni si prihlásený.</p>
                 <a href="<?php echo htmlspecialchars(route('/login'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prihlás sa</a>
