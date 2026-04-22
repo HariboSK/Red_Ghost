@@ -247,12 +247,12 @@ include __DIR__ . '/partials/dashboard-header.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($unreadMessages)): ?>
+                            <?php if (empty($contactMessages)): ?>
                                 <tr>
-                                    <td colspan="6" class="empty-cell">Žiadne neprečítané správy nie sú k dispozícii.</td>
+                                    <td colspan="6" class="empty-cell">Žiadne správy nie sú k dispozícii.</td>
                                 </tr>
                             <?php else: ?>
-                                <?php foreach ($unreadMessages as $message): ?>
+                                <?php foreach ($contactMessages as $message): ?>
                                     <tr>
                                         <td><?php echo dash_h($message['sender_name'] ?? ''); ?></td>
                                         <td><?php echo dash_h($message['sender_email'] ?? ''); ?></td>
@@ -262,14 +262,28 @@ include __DIR__ . '/partials/dashboard-header.php';
                                             <details class="message-detail">
                                                 <summary>Zobraziť správu</summary>
                                                 <p><?php echo nl2br(dash_h($message['message_text'] ?? '')); ?></p>
+                                                <form method="POST" action="<?php echo route('/dashboard'); ?>" class="message-reply-form">
+                                                    <input type="hidden" name="form_type" value="reply_message">
+                                                    <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
+                                                    <textarea name="reply_text" rows="4" placeholder="Napíš reakciu pre zákazníka" required></textarea>
+                                                    <button type="submit" class="management-submit message-reply-btn">Uložiť reakciu</button>
+                                                </form>
                                             </details>
                                         </td>
                                         <td>
-                                            <form method="POST" action="<?php echo route('/dashboard'); ?>" class="message-status-form">
-                                                <input type="hidden" name="form_type" value="mark_message_read">
-                                                <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
-                                                <button type="submit" class="management-submit message-done-btn">Označiť ako vybavené</button>
-                                            </form>
+                                            <div class="message-status-cell">
+                                                <span class="message-status-badge message-status-<?php echo dash_h((string) ($message['status'] ?? 'unread')); ?>">
+                                                    <?php echo dash_h((string) ($message['status'] ?? 'unread')); ?>
+                                                </span>
+
+                                                <?php if (($message['status'] ?? 'unread') === 'unread'): ?>
+                                                    <form method="POST" action="<?php echo route('/dashboard'); ?>" class="message-status-form">
+                                                        <input type="hidden" name="form_type" value="mark_message_read">
+                                                        <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
+                                                        <button type="submit" class="management-submit message-done-btn">Označiť ako vybavené</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -298,37 +312,8 @@ include __DIR__ . '/partials/dashboard-header.php';
                 <div class="management-grid">
                     <article class="management-card new-product-card">
                         <h3>Nový produkt</h3>
-                        <form action="#products" method="POST" class="management-form">
-                            <input type="hidden" name="form_type" value="create_product">
-
-                            <label for="new-product-name">Názov produktu</label>
-                            <input id="new-product-name" name="name" type="text" placeholder="Napríklad chilli omáčka" required>
-
-                            <label for="new-product-description">Popis</label>
-                            <textarea id="new-product-description" name="description" rows="3" placeholder="Krátky popis produktu"></textarea>
-
-                            <label for="new-product-price">Cena (EUR)</label>
-                            <input id="new-product-price" name="price" type="number" step="0.01" min="0" placeholder="12.99" required>
-
-                            <label for="new-product-discount">Zľava produktu (%)</label>
-                            <input id="new-product-discount" name="discount_percent" type="number" min="0" max="100" step="0.01" value="0">
-
-                            <label for="new-product-stock">Skladom (ks)</label>
-                            <input id="new-product-stock" name="stock" type="number" min="0" placeholder="25" required>
-
-                            <label for="new-product-category">Kategória</label>
-                            <input id="new-product-category" name="category" type="text" placeholder="Omáčky" required>
-
-                            <label for="new-product-image">Obrázok</label>
-                            <input id="new-product-image" name="image" type="text" placeholder="/assets/images/omacka3.webp">
-
-                            <label for="new-product-rating">Hodnotenie</label>
-                            <input id="new-product-rating" name="rating" type="number" min="1" max="5" value="4">
-
-                            <label class="checkbox-field"><input type="checkbox" name="featured" value="1"> Odporúčaný produkt</label>
-
-                            <button type="submit" class="management-submit">Pridať produkt</button>
-                        </form>
+                        <p class="card-subtitle">Nový produkt vytvoríš na samostatnej stránke create.php.</p>
+                        <a class="management-submit" href="<?php echo route('/create.php'); ?>">Otvoriť create.php</a>
                     </article>
 
                     <article class="management-card product-overview-card">
@@ -374,42 +359,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                 </td>
                                                 <td><span class="product-stock-chip <?php echo ((int) ($product['stock'] ?? 0) > 0) ? 'in-stock' : 'out-of-stock'; ?>"><?php echo dash_h($product['stock'] ?? 0); ?> ks</span></td>
                                                 <td class="product-actions-cell">
-                                                    <span class="product-action-link">Podrobnosti</span>
-                                                    <details class="product-actions-detail">
-                                                        <summary>Upraviť</summary>
-                                                        <form action="#products" method="POST" class="management-form product-inline-form">
-                                                            <input type="hidden" name="form_type" value="update_product">
-                                                            <input type="hidden" name="product_id" value="<?php echo dash_h($product['id'] ?? ''); ?>">
-
-                                                            <label>Názov</label>
-                                                            <input name="name" type="text" value="<?php echo dash_h($product['name'] ?? ''); ?>" required>
-
-                                                            <label>Popis</label>
-                                                            <textarea name="description" rows="2"><?php echo dash_h($product['description'] ?? ''); ?></textarea>
-
-                                                            <label>Cena</label>
-                                                            <input name="price" type="number" step="0.01" min="0" value="<?php echo dash_h($product['price'] ?? 0); ?>" required>
-
-                                                            <label>Zľava (%)</label>
-                                                            <input name="discount_percent" type="number" min="0" max="100" step="0.01" value="<?php echo dash_h($product['discount_percent'] ?? 0); ?>">
-
-                                                            <label>Sklad</label>
-                                                            <input name="stock" type="number" min="0" value="<?php echo dash_h($product['stock'] ?? 0); ?>" required>
-
-                                                            <label>Kategória</label>
-                                                            <input name="category" type="text" value="<?php echo dash_h($product['category'] ?? ''); ?>" required>
-
-                                                            <label>Obrázok</label>
-                                                            <input name="image" type="text" value="<?php echo dash_h($product['image'] ?? ''); ?>">
-
-                                                            <label>Hodnotenie</label>
-                                                            <input name="rating" type="number" min="1" max="5" value="<?php echo dash_h($product['rating'] ?? 4); ?>">
-
-                                                            <label class="checkbox-field"><input type="checkbox" name="featured" value="1" <?php echo ((int) ($product['featured'] ?? 0) === 1) ? 'checked' : ''; ?>> Odporúčaný produkt</label>
-
-                                                            <button type="submit" class="management-submit">Uložiť</button>
-                                                        </form>
-                                                    </details>
+                                                    <a class="product-action-link" href="<?php echo route('/edit.php?id=' . urlencode((string) ($product['id'] ?? ''))); ?>">Upraviť v edit.php</a>
                                                     <form action="#products" method="POST" class="delete-form">
                                                         <input type="hidden" name="form_type" value="delete_product">
                                                         <input type="hidden" name="product_id" value="<?php echo dash_h($product['id'] ?? ''); ?>">

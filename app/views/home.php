@@ -233,6 +233,7 @@ include __DIR__ . '/partials/header.php';
         <li class="contact-info">
           <i class="fa-regular fa-clock"></i>
             <p>Pondelok - Nedeľa 9:00 - 19:00</p>           
+        </li>
       </ul>
 
       <?php if (!empty($contactFormSuccess)): ?>

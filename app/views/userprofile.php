@@ -4,10 +4,15 @@ require_once dirname(__DIR__, 2) . '/app/core/Redirect.php';
 
 SessionHelper::bootstrap();
 
+require_once dirname(__DIR__, 2) . '/config/config.php';
+require_once dirname(__DIR__) . '/models/contact_message.model.php';
 $sessionUser = SessionHelper::user();
 $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
+$pdo = (isset($pdo) && $pdo instanceof PDO) ? $pdo : ((isset($conn) && $conn instanceof PDO) ? $conn : null);
+$profileMessages = [];
+$profileMessagesError = '';
 
 
 if (!$isLoggedIn) {
@@ -15,6 +20,17 @@ if (!$isLoggedIn) {
 }
 include __DIR__ . '/partials/userprofile-header.php';
 
+
+if ($pdo instanceof PDO && $profileEmail !== '') {
+    try {
+        $contactMessageModel = new ContactMessageModel($pdo);
+        $profileMessages = $contactMessageModel->getByEmail($profileEmail);
+    } catch (PDOException $exception) {
+        $profileMessagesError = 'Správy sa nepodarilo načítať.';
+    }
+} elseif ($profileEmail !== '') {
+    $profileMessagesError = 'Databázové pripojenie nie je dostupné.';
+}
 ?>
 
 <main>
@@ -114,6 +130,52 @@ include __DIR__ . '/partials/userprofile-header.php';
                             <strong>9.00 EUR</strong>
                         </article>
                     </div>
+                </section>
+
+                <section class="messages-card">
+                    <div class="section-head">
+                        <h2>Správy a reakcie</h2>
+                        <span class="edit-link">Načítané podľa tvojho emailu</span>
+                    </div>
+
+                    <?php if ($profileMessagesError !== ''): ?>
+                        <p class="message-empty"><?= htmlspecialchars($profileMessagesError, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php elseif (empty($profileMessages)): ?>
+                        <p class="message-empty">Zatiaľ nemáš žiadnu správu z kontaktného formulára.</p>
+                    <?php else: ?>
+                        <div class="messages-list">
+                            <?php foreach ($profileMessages as $profileMessage): ?>
+                                <article class="message-entry">
+                                    <div class="message-entry-head">
+                                        <div>
+                                            <h3><?= htmlspecialchars((string) ($profileMessage['subject'] ?? 'Bez predmetu'), ENT_QUOTES, 'UTF-8'); ?></h3>
+                                            <p><?= htmlspecialchars((string) ($profileMessage['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+                                        </div>
+                                        <span class="message-badge <?= htmlspecialchars((string) ($profileMessage['status'] ?? 'unread'), ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?= htmlspecialchars((string) ($profileMessage['status'] ?? 'unread'), ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
+                                    </div>
+
+                                    <div class="message-body">
+                                        <strong>Tvoja správa</strong>
+                                        <p><?= nl2br(htmlspecialchars((string) ($profileMessage['message_text'] ?? ''), ENT_QUOTES, 'UTF-8')); ?></p>
+                                    </div>
+
+                                    <div class="message-reply">
+                                        <strong>Reakcia od Red Ghost</strong>
+                                        <?php if (!empty($profileMessage['reply_text'])): ?>
+                                            <p><?= nl2br(htmlspecialchars((string) $profileMessage['reply_text'], ENT_QUOTES, 'UTF-8')); ?></p>
+                                            <?php if (!empty($profileMessage['reply_at'])): ?>
+                                                <small>Odpoveď: <?= htmlspecialchars((string) $profileMessage['reply_at'], ENT_QUOTES, 'UTF-8'); ?></small>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <p class="message-reply-empty">Na túto správu ešte neprišla reakcia.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </section>
             </div>
         </div>

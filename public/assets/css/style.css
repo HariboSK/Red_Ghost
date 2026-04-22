@@ -12,6 +12,27 @@ html {
   scroll-padding-top: 30px;
 }
 
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px; /* šírka scrollbar-u */
+}
+
+/* Pozadie scrollbar-u */
+::-webkit-scrollbar-track {
+  background: var(--primary-color); /* farba pozadia */
+}
+
+/* Posuvník (thumb) */
+::-webkit-scrollbar-thumb {
+  background-color: red; /* farba posuvníka */
+}
+
+/* Pri hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--light-red-color);
+}
+
 :root {
   /*Farby*/
   --white-color: #fff;
@@ -682,27 +703,6 @@ header .navbar {
 .footer-section .policy-text .separator {
   margin: 0 5px;
   color: var(--white-color);
-}
-
-/* Celý scrollbar */
-::-webkit-scrollbar {
-  width: 10px; /* šírka scrollbar-u */
-}
-
-/* Pozadie scrollbar-u */
-::-webkit-scrollbar-track {
-  background: var(--primary-color); /* farba pozadia */
-}
-
-/* Posuvník (thumb) */
-::-webkit-scrollbar-thumb {
-  background-color: red; /* farba posuvníka */
-  border-radius: 5px; /* zaoblenie */
-}
-
-/* Pri hover */
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--light-red-color);
 }
 
 /* Responsive media query code for max width 1024px */

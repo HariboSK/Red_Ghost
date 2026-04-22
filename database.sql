@@ -22,10 +22,16 @@ CREATE TABLE `contact_messages` (
   `sender_email` varchar(255) NOT NULL,
   `subject` varchar(255) NOT NULL,
   `message_text` text NOT NULL,
+  `reply_text` text DEFAULT NULL,
+  `reply_at` timestamp NULL DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'unread',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ALTER TABLE `contact_messages`
+--   ADD COLUMN `reply_text` text DEFAULT NULL AFTER `message_text`,
+--   ADD COLUMN `reply_at` timestamp NULL DEFAULT NULL AFTER `reply_text`;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `orders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -18,7 +18,7 @@ require_once dirname(__DIR__) . '/core/assetHelper.php';
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
-        href="./assets/images/favicon.webp">
+    href="/assets/images/favicon.webp">
 
 </head>
 

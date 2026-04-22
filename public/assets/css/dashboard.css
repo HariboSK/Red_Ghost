@@ -470,6 +470,38 @@ html {
   max-width: 440px;
 }
 
+.message-reply-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.message-reply-form textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--dash-text);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.message-reply-form textarea::placeholder {
+  color: rgba(248, 245, 242, 0.5);
+}
+
+.message-reply-form textarea:focus {
+  outline: none;
+  border-color: rgba(255, 138, 38, 0.44);
+  box-shadow: 0 0 0 3px rgba(255, 138, 38, 0.14);
+}
+
+.message-reply-btn {
+  width: 100%;
+}
+
 .message-status-form {
   margin: 0;
 }
@@ -477,6 +509,42 @@ html {
 .message-done-btn {
   width: 100%;
   min-width: 160px;
+}
+
+.message-status-cell {
+  display: grid;
+  gap: 8px;
+  align-items: start;
+}
+
+.message-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--dash-text);
+}
+
+.message-status-unread {
+  background: rgba(255, 138, 38, 0.16);
+  color: #ffd8b2;
+}
+
+.message-status-read {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e6e0da;
+}
+
+.message-status-replied {
+  background: rgba(74, 186, 110, 0.14);
+  color: #c9f6d6;
 }
 
 .quick-tools-buttons {

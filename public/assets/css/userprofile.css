@@ -73,8 +73,8 @@
   font-size: 1.35rem;
 }
 
-.profile-card span{
-	color: var(--light-red-color);
+.profile-card span {
+  color: var(--light-red-color);
 }
 
 .profile-email,
@@ -211,6 +211,105 @@
   gap: 9px;
 }
 
+.messages-card {
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.03)
+  );
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.messages-list {
+  display: grid;
+  gap: 12px;
+}
+
+.message-entry {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.message-entry-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.message-entry-head h3 {
+  margin: 0 0 4px;
+  color: var(--white-color);
+  font-size: 1rem;
+}
+
+.message-entry-head p,
+.message-body p,
+.message-reply p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.message-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffe1cd;
+}
+
+.message-badge.replied {
+  background: rgba(41, 130, 52, 0.38);
+  color: #e7ffe5;
+}
+
+.message-badge.read {
+  background: rgba(199, 108, 18, 0.38);
+  color: #fff0dc;
+}
+
+.message-badge.unread {
+  background: rgba(162, 49, 27, 0.42);
+  color: #fff0ec;
+}
+
+.message-body,
+.message-reply {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.message-body strong,
+.message-reply strong {
+  color: var(--light-red-color);
+}
+
+.message-reply small {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.message-reply-empty,
+.message-empty {
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .order-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -261,6 +360,10 @@
   .account-grid {
     grid-template-columns: 1fr;
   }
+
+  .message-entry-head {
+    flex-direction: column;
+  }
 }
 
 @media screen and (max-width: 640px) {
@@ -271,5 +374,12 @@
   .order-row {
     grid-template-columns: 1fr;
     gap: 7px;
+  }
+
+  .messages-card,
+  .account-card,
+  .orders-card,
+  .profile-card {
+    padding: 14px;
   }
 }
