@@ -10,11 +10,7 @@ $sessionUser = SessionHelper::user();
 $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
-$pdo = (isset($pdo) && $pdo instanceof PDO)
-    ? $pdo
-    : ((isset($conn) && $conn instanceof PDO)
-        ? $conn
-        : ((isset($GLOBALS['conn']) && $GLOBALS['conn'] instanceof PDO) ? $GLOBALS['conn'] : null));
+$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 $profileMessages = [];
 $profileMessagesError = '';
 

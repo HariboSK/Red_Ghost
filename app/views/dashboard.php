@@ -5,12 +5,9 @@ require_once dirname(__DIR__) . '/core/session_helper.php';
 require_once dirname(__DIR__) . '/core/Redirect.php';
 require_once dirname(__DIR__) . '/core/dashboard_helper.php';
 require_once dirname(__DIR__, 2) . '/config/config.php';
+
 $sessionUser = SessionHelper::user();
-$pdo = (isset($pdo) && $pdo instanceof PDO)
-    ? $pdo
-    : ((isset($conn) && $conn instanceof PDO)
-        ? $conn
-        : ((isset($GLOBALS['conn']) && $GLOBALS['conn'] instanceof PDO) ? $GLOBALS['conn'] : null));
+$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 
 $dashboardState = DashboardHelper::buildDashboardState($pdo, $sessionUser, $_SERVER, $_POST);
 if (($dashboardState['redirectTo'] ?? '') !== '') {

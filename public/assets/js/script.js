@@ -66,13 +66,6 @@ function showConfirmation() {
   }, 3000);
 }
 
-const sendStatusOverlay = document.getElementById("sendStatusOverlay");
-if (sendStatusOverlay) {
-  setTimeout(() => {
-    sendStatusOverlay.style.display = "none";
-  }, 5000);
-}
-
 const dashboardPanels = document.querySelectorAll("[data-dashboard-panel]");
 const dashboardSidebarLinks = document.querySelectorAll(
   '.admin-sidebar .sidebar-link[href^="#"]',

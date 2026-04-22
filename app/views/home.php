@@ -1,11 +1,9 @@
 <?php
 require_once dirname(__DIR__, 2) . '/config/config.php';
 
-$pdo = (isset($pdo) && $pdo instanceof PDO)
-  ? $pdo
-  : ((isset($conn) && $conn instanceof PDO)
-    ? $conn
-    : ((isset($GLOBALS['conn']) && $GLOBALS['conn'] instanceof PDO) ? $GLOBALS['conn'] : null));
+$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
+
+
 $contactFormErrors = [];
 $contactFormSuccess = '';
 $contactFormData = [
@@ -47,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? ''
 
   if (empty($contactFormErrors) && $pdo instanceof PDO) {
     try {
-      $stmt = $pdo->prepare('INSERT INTO contact_messages (sender_name, sender_email, subject, message_text, status) VALUES (:sender_name, :sender_email, :subject, :message_text, :status)');
+      $stmt = $pdo->prepare('INSERT INTO contact_messages (sender_name, sender_email, subject, message_text, status) 
+                                                  VALUES (:sender_name, :sender_email, :subject, :message_text, :status)');
       $stmt->execute([
         ':sender_name' => $contactFormData['name'],
         ':sender_email' => $contactFormData['email'],
@@ -240,27 +239,37 @@ include __DIR__ . '/partials/header.php';
         </li>
       </ul>
 
+      <form action="<?php echo route('/home#contact'); ?>" class="contact-form" method="POST">
+        <input type="hidden" name="form_type" value="contact_message">
+        
+        <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required 
+        value="<?php echo htmlspecialchars($contactFormData['name'], ENT_QUOTES, 'UTF-8'); ?>">
+
+        <input type="email" name="email" placeholder="Tvoj email" class="form-input" required 
+        value="<?php echo htmlspecialchars($contactFormData['email'], ENT_QUOTES, 'UTF-8'); ?>">
+
+        <input type="text" name="subject" placeholder="Predmet" class="form-input" required 
+        value="<?php echo htmlspecialchars($contactFormData['subject'], ENT_QUOTES, 'UTF-8'); ?>">
+
+        <textarea name="message" placeholder="Tvoja správa" class="form-input" required 
+        value="<?php echo htmlspecialchars($contactFormData['message'], ENT_QUOTES, 'UTF-8'); ?>" ></textarea>
+
+        <button type="submit" class="submit-button">Poslať</button>
+      </form>
+
       <?php if (!empty($contactFormSuccess)): ?>
-        <p class="form-success"><?php echo htmlspecialchars($contactFormSuccess, ENT_QUOTES, 'UTF-8'); ?></p>
+        <p class="form-feedback form-feedback--success">
+          <?php echo htmlspecialchars($contactFormSuccess, ENT_QUOTES, 'UTF-8'); ?>
+        </p>
       <?php endif; ?>
 
       <?php if (!empty($contactFormErrors)): ?>
-        <div class="form-error" role="alert">
+        <div class="form-feedback form-feedback--error" role="alert">
           <?php foreach ($contactFormErrors as $contactFormError): ?>
             <p><?php echo htmlspecialchars((string) $contactFormError, ENT_QUOTES, 'UTF-8'); ?></p>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
-
-      <form action="<?php echo route('/home#contact'); ?>" class="contact-form" method="POST">
-        <input type="hidden" name="form_type" value="contact_message">
-        <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required value="<?php echo htmlspecialchars($contactFormData['name'], ENT_QUOTES, 'UTF-8'); ?>">
-        <input type="email" name="email" placeholder="Tvoj email" class="form-input" required value="<?php echo htmlspecialchars($contactFormData['email'], ENT_QUOTES, 'UTF-8'); ?>">
-        <input type="text" name="subject" placeholder="Predmet" class="form-input" required value="<?php echo htmlspecialchars($contactFormData['subject'], ENT_QUOTES, 'UTF-8'); ?>">
-        <textarea name="message" placeholder="Tvoja správa" class="form-input" required><?php echo htmlspecialchars($contactFormData['message'], ENT_QUOTES, 'UTF-8'); ?></textarea>
-
-        <button type="submit" class="submit-button">Poslať</button>
-      </form>
     
     </div>
     </section>
