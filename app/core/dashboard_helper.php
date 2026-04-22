@@ -282,7 +282,7 @@ class DashboardHelper
         try {
             $state['products'] = $productModel->findAll();
         } catch (PDOException $exception) {
-            $state['productError'] = 'Nepodarilo sa načítať produkty.';
+            $state['productError'] = 'Nepodarilo sa načítať produkty: ' . $exception->getMessage();
         }
 
         try {

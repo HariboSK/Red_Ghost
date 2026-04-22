@@ -6,17 +6,29 @@ class ProductModel extends BaseModel
 {
     public function findAll(): array
     {
-        $stmt = $this->pdo->query('SELECT id, name, description, price, discount_percent, image, category, stock, featured, rating, created_at, updated_at FROM products ORDER BY id DESC');
-        $rows = $stmt instanceof PDOStatement ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        try {
+            $stmt = $this->pdo->query('SELECT id, name, description, price, discount_percent, image, category, stock, featured, rating, created_at, updated_at FROM products ORDER BY id DESC');
+            $rows = $stmt instanceof PDOStatement ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        } catch (PDOException $exception) {
+            // Fallback for older/local schemas with different product columns.
+            $fallbackStmt = $this->pdo->query('SELECT * FROM products ORDER BY id DESC');
+            $rows = $fallbackStmt instanceof PDOStatement ? $fallbackStmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        }
 
         return is_array($rows) ? $rows : [];
     }
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT id, name, description, price, discount_percent, image, category, stock, featured, rating, created_at, updated_at FROM products WHERE id = :id LIMIT 1');
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $this->pdo->prepare('SELECT id, name, description, price, discount_percent, image, category, stock, featured, rating, created_at, updated_at FROM products WHERE id = :id LIMIT 1');
+            $stmt->execute([':id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $exception) {
+            $fallbackStmt = $this->pdo->prepare('SELECT * FROM products WHERE id = :id LIMIT 1');
+            $fallbackStmt->execute([':id' => $id]);
+            $row = $fallbackStmt->fetch(PDO::FETCH_ASSOC);
+        }
 
         return is_array($row) ? $row : null;
     }

@@ -24,6 +24,9 @@ class App
 
     private static function loadCore(string $projectRoot): void
     {
+        // Load database configuration FIRST
+        require_once $projectRoot . '/config/config.php';
+
         $coreFiles = [
             '/app/core/middleware/function.php',
             '/app/core/SessionManager.php',

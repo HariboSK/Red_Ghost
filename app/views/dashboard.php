@@ -6,7 +6,11 @@ require_once dirname(__DIR__) . '/core/Redirect.php';
 require_once dirname(__DIR__) . '/core/dashboard_helper.php';
 require_once dirname(__DIR__, 2) . '/config/config.php';
 $sessionUser = SessionHelper::user();
-$pdo = (isset($pdo) && $pdo instanceof PDO) ? $pdo : ((isset($conn) && $conn instanceof PDO) ? $conn : null);
+$pdo = (isset($pdo) && $pdo instanceof PDO)
+    ? $pdo
+    : ((isset($conn) && $conn instanceof PDO)
+        ? $conn
+        : ((isset($GLOBALS['conn']) && $GLOBALS['conn'] instanceof PDO) ? $GLOBALS['conn'] : null));
 
 $dashboardState = DashboardHelper::buildDashboardState($pdo, $sessionUser, $_SERVER, $_POST);
 if (($dashboardState['redirectTo'] ?? '') !== '') {
@@ -312,13 +316,45 @@ include __DIR__ . '/partials/dashboard-header.php';
                 <div class="management-grid">
                     <article class="management-card new-product-card">
                         <h3>Nový produkt</h3>
-                        <p class="card-subtitle">Nový produkt vytvoríš na samostatnej stránke create.php.</p>
-                        <a class="management-submit" href="<?php echo route('/create.php'); ?>">Otvoriť create.php</a>
+                        <p class="card-subtitle">Klikni na NOVÝ PRODUKT a pridaj nový produkt do databázy.</p>
+                        <button type="button" class="management-submit" onclick="document.getElementById('create-product-form').style.display = document.getElementById('create-product-form').style.display === 'none' ? 'block' : 'none'; this.textContent = this.textContent === 'Nový produkt' ? 'Zrušiť' : 'Nový produkt';">Nový produkt</button>
+                        
+                        <form id="create-product-form" method="POST" action="#products" class="management-form" style="display: none; margin-top: 15px;">
+                            <input type="hidden" name="form_type" value="create_product">
+                            
+                            <label for="quick-product-name">Názov produktu *</label>
+                            <input id="quick-product-name" name="name" type="text" required>
+
+                            <label for="quick-product-description">Popis produktu</label>
+                            <textarea id="quick-product-description" name="description" rows="3" placeholder="Podrobný popis produktu"></textarea>
+
+                            <label for="quick-product-price">Cena (EUR) *</label>
+                            <input id="quick-product-price" name="price" type="number" step="0.01" min="0" required>
+
+                            <label for="quick-product-discount">Zľava (%)</label>
+                            <input id="quick-product-discount" name="discount_percent" type="number" min="0" max="100" step="0.01" value="0">
+
+                            <label for="quick-product-stock">Skladom (ks) *</label>
+                            <input id="quick-product-stock" name="stock" type="number" min="0" required>
+
+                            <label for="quick-product-category">Kategória *</label>
+                            <input id="quick-product-category" name="category" type="text" value="uncategorized" required>
+
+                            <label for="quick-product-image">Obrázok (URL)</label>
+                            <input id="quick-product-image" name="image" type="text" placeholder="https://example.com/image.jpg">
+
+                            <label for="quick-product-rating">Hodnotenie (1-5)</label>
+                            <input id="quick-product-rating" name="rating" type="number" min="1" max="5" value="4">
+
+                            <label><input type="checkbox" name="featured"> Odporúčaný produkt</label>
+
+                            <button type="submit" class="management-submit">Uložiť produkt</button>
+                        </form>
                     </article>
 
                     <article class="management-card product-overview-card">
                         <h3>Prehľad produktov</h3>
-                        <p class="card-subtitle">Prehľad produktov v shope. Úprava cien, akcií a skladu priamo tu.</p>
+                        <p class="card-subtitle">Klikni EDIT na zmenu údajov priamo v tabuľke. VYMAZAŤ zmaže produkt.</p>
 
                         <div class="table-wrap product-table-wrap">
                             <table class="admin-table product-table">
@@ -339,31 +375,100 @@ include __DIR__ . '/partials/dashboard-header.php';
                                     <?php else: ?>
                                         <?php foreach ($products as $product): ?>
                                             <?php
+                                            $productId = (int) ($product['id'] ?? 0);
                                             $basePrice = (float) ($product['price'] ?? 0);
                                             $discountPercent = (float) ($product['discount_percent'] ?? 0);
                                             $finalPrice = $discountPercent > 0 ? max(0, $basePrice * (1 - ($discountPercent / 100))) : $basePrice;
                                             ?>
-                                            <tr>
-                                                <td><?php echo dash_h($product['id'] ?? ''); ?></td>
-                                                <td>
-                                                    <strong><?php echo dash_h($product['name'] ?? ''); ?></strong>
-                                                    <div class="product-meta product-category-pill"><?php echo dash_h($product['category'] ?? ''); ?></div>
+                                            <tr class="product-row" data-product-id="<?php echo dash_h($productId); ?>">
+                                                <!-- VIEW MODE -->
+                                                <td class="product-view-mode" colspan="5" style="padding: 0;">
+                                                    <div style="display: flex; gap: 15px; padding: 12px; align-items: center;">
+                                                        <div style="flex: 0 0 40px; text-align: center;">
+                                                            <strong><?php echo dash_h($productId); ?></strong>
+                                                        </div>
+                                                        <div style="flex: 1;">
+                                                            <strong><?php echo dash_h($product['name'] ?? ''); ?></strong>
+                                                            <div class="product-meta product-category-pill"><?php echo dash_h($product['category'] ?? 'uncategorized'); ?></div>
+                                                        </div>
+                                                        <div style="flex: 0 0 100px; text-align: right;">
+                                                            <?php if ($discountPercent > 0): ?>
+                                                                <span class="product-price-old"><?php echo dash_h(number_format($basePrice, 2, '.', '')); ?></span><br>
+                                                                <span class="product-price-chip"><?php echo dash_h(number_format($finalPrice, 2, '.', '')); ?> €</span>
+                                                            <?php else: ?>
+                                                                <span class="product-price-chip"><?php echo dash_h(number_format($basePrice, 2, '.', '')); ?> €</span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div style="flex: 0 0 60px; text-align: center;">
+                                                            <span class="product-stock-chip <?php echo ((int) ($product['stock'] ?? 0) > 0) ? 'in-stock' : 'out-of-stock'; ?>"><?php echo dash_h($product['stock'] ?? 0); ?> ks</span>
+                                                        </div>
+                                                        <div style="flex: 0 0 150px; display: flex; gap: 8px;">
+                                                            <button type="button" class="product-action-link edit-btn" onclick="toggleProductEditMode(<?php echo dash_h($productId); ?>)">EDIT</button>
+                                                            <form method="POST" action="#products" style="margin: 0;">
+                                                                <input type="hidden" name="form_type" value="delete_product">
+                                                                <input type="hidden" name="product_id" value="<?php echo dash_h($productId); ?>">
+                                                                <button type="submit" class="delete-btn" onclick="return confirm('Naozaj chceš zmazať produkt &quot;<?php echo dash_h($product['name'] ?? ''); ?>&quot;?');">VYMAZAŤ</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </td>
-                                                <td>
-                                                    <?php if ($discountPercent > 0): ?>
-                                                        <span class="product-price-old"><?php echo dash_h(number_format($basePrice, 2, '.', '')); ?> EUR</span>
-                                                        <span class="product-price-chip"><?php echo dash_h(number_format($finalPrice, 2, '.', '')); ?> EUR</span>
-                                                    <?php else: ?>
-                                                        <span class="product-price-chip"><?php echo dash_h(number_format($basePrice, 2, '.', '')); ?> EUR</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><span class="product-stock-chip <?php echo ((int) ($product['stock'] ?? 0) > 0) ? 'in-stock' : 'out-of-stock'; ?>"><?php echo dash_h($product['stock'] ?? 0); ?> ks</span></td>
-                                                <td class="product-actions-cell">
-                                                    <a class="product-action-link" href="<?php echo route('/edit.php?id=' . urlencode((string) ($product['id'] ?? ''))); ?>">Upraviť v edit.php</a>
-                                                    <form action="#products" method="POST" class="delete-form">
-                                                        <input type="hidden" name="form_type" value="delete_product">
-                                                        <input type="hidden" name="product_id" value="<?php echo dash_h($product['id'] ?? ''); ?>">
-                                                        <button type="submit" class="delete-btn" onclick="return confirm('Naozaj chceš zmazať tento produkt?');">Odstrániť</button>
+                                            </tr>
+
+                                            <!-- EDIT MODE (hidden by default) -->
+                                            <tr class="product-edit-mode" id="edit-row-<?php echo dash_h($productId); ?>" style="display: none; background-color: #f5f5f5;">
+                                                <td colspan="5" style="padding: 15px;">
+                                                    <form method="POST" action="#products" class="product-inline-edit-form">
+                                                        <input type="hidden" name="form_type" value="update_product">
+                                                        <input type="hidden" name="product_id" value="<?php echo dash_h($productId); ?>">
+                                                        
+                                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; align-items: end;">
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Názov</label>
+                                                                <input type="text" name="name" value="<?php echo dash_h($product['name'] ?? ''); ?>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Cena (EUR)</label>
+                                                                <input type="number" name="price" step="0.01" min="0" value="<?php echo dash_h(number_format($basePrice, 2, '.', '')); ?>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Zľava (%)</label>
+                                                                <input type="number" name="discount_percent" min="0" max="100" step="0.01" value="<?php echo dash_h(number_format($discountPercent, 2, '.', '')); ?>" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Skladom (ks)</label>
+                                                                <input type="number" name="stock" min="0" value="<?php echo dash_h($product['stock'] ?? 0); ?>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                        </div>
+
+                                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; align-items: end;">
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Kategória</label>
+                                                                <input type="text" name="category" value="<?php echo dash_h($product['category'] ?? 'uncategorized'); ?>" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Popis</label>
+                                                                <textarea name="description" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><?php echo dash_h($product['description'] ?? ''); ?></textarea>
+                                                            </div>
+                                                        </div>
+
+                                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; align-items: end;">
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Obrázok (URL)</label>
+                                                                <input type="text" name="image" value="<?php echo dash_h($product['image'] ?? ''); ?>" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;">Hodnotenie (1-5)</label>
+                                                                <input type="number" name="rating" min="1" max="5" value="<?php echo dash_h($product['rating'] ?? '4'); ?>" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                                            </div>
+                                                            <div>
+                                                                <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 12px;"><input type="checkbox" name="featured" <?php echo ((int) ($product['featured'] ?? 0) === 1) ? 'checked' : ''; ?>> Odporúčaný</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                                            <button type="submit" class="management-submit" style="flex: 1;">ULOŽIŤ ZMENY</button>
+                                                            <button type="button" class="management-submit" style="flex: 1; background-color: #999;" onclick="toggleProductEditMode(<?php echo dash_h($productId); ?>)">ZRUŠIŤ</button>
+                                                        </div>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -494,6 +599,21 @@ include __DIR__ . '/partials/dashboard-header.php';
         </section>
     </section>
 </main>
+
+<script>
+function toggleProductEditMode(productId) {
+    const viewRow = document.querySelector(`tr[data-product-id="${productId}"] .product-view-mode`).closest('tr');
+    const editRow = document.getElementById(`edit-row-${productId}`);
+    
+    if (editRow.style.display === 'none') {
+        editRow.style.display = 'table-row';
+        viewRow.style.display = 'none';
+    } else {
+        editRow.style.display = 'none';
+        viewRow.style.display = 'table-row';
+    }
+}
+</script>
 
 <?php
 include __DIR__ . '/partials/footer.php';

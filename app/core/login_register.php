@@ -5,6 +5,11 @@ require_once dirname(__DIR__, 2) . '/config/config.php';
 require_once __DIR__ . '/session_helper.php';
 require_once __DIR__ . '/Redirect.php';
 
+
+$conn = (isset($conn) && $conn instanceof PDO)
+    ? $conn
+    : ((isset($GLOBALS['conn']) && $GLOBALS['conn'] instanceof PDO) ? $GLOBALS['conn'] : null);
+
 class LoginRegister
 {
     private PDO $conn;
@@ -93,6 +98,16 @@ class LoginRegister
         $_SESSION['active_form'] = 'login';
         (new Redirect('/login.php'))->redirect();
     }
+}
+
+if (!($conn instanceof PDO)) {
+    if (function_exists('app_render_friendly_error')) {
+        app_render_friendly_error('Databázové pripojenie nie je dostupné. Skúste neskôr.');
+    }
+
+    http_response_code(500);
+    echo 'Chyba aplikacie\nPrepacte, nieco sa pokazilo. Skuste to prosim znova o chvilu.';
+    exit(1);
 }
 
 $loginRegister = new LoginRegister($conn);

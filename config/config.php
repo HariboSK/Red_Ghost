@@ -34,6 +34,7 @@ class Database
 try {
     $database = new Database();
     $conn = $database->getConnection();
+    $GLOBALS['conn'] = $conn;
 } catch (PDOException $e) {
     if (function_exists('app_render_friendly_error')) {
         app_render_friendly_error("Databáza nie je dostupná. Pravdepodobne nie je zapnutá.\nChybová správa: " . $e->getMessage());
