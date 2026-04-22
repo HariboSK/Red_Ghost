@@ -30,6 +30,25 @@ class ContactMessageModel extends BaseModel
         ]);
     }
 
+    public function delete(int $messageId): bool
+    {
+        try {
+            $this->pdo->beginTransaction();
+            $stmt = $this->pdo->prepare('DELETE FROM contact_messages WHERE id = :id');
+            $stmt->execute([':id' => $messageId]);
+            $this->pdo->commit();
+            return true;
+        }
+        
+        catch (PDOException $e) {
+            if($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return false;
+            
+        }
+    }
+
     public function getUnread(): array
     {
         $stmt = $this->pdo->prepare('SELECT id, sender_name, sender_email, subject, message_text, reply_text, reply_at, created_at FROM contact_messages WHERE status = :status ORDER BY created_at DESC');

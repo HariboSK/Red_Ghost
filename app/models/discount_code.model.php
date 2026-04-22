@@ -32,9 +32,19 @@ class DiscountCodeModel extends BaseModel
         ]);
     }
 
-    public function delete(int $discountCodeId): void
+    public function delete(int $discountCodeId): bool
     {
-        $stmt = $this->pdo->prepare('DELETE FROM discount_codes WHERE id = :id');
-        $stmt->execute([':id' => $discountCodeId]);
+        try {
+            $this->pdo->beginTransaction();
+            $stmt = $this->pdo->prepare('DELETE FROM discount_codes WHERE id = :id');
+            $stmt->execute([':id' => $discountCodeId]);
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return false;
+        }
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../models/contact_message.model.php';
 require_once __DIR__ . '/../models/discount_code.model.php';
 require_once __DIR__ . '/../models/order.model.php';
@@ -157,6 +156,21 @@ class DashboardHelper
             }
         }
 
+        if($formType === 'delete_message') {
+            $messageId = filter_var($post['message_id'] ?? null, FILTER_VALIDATE_INT);
+
+            if (!$messageId || $messageId < 1) {
+                $state['adminMailerError'] = 'Neplatné ID správy.';
+            } else {
+                try {
+                    $contactMessageModel->delete((int) $messageId);
+                    $state['adminMailerNotice'] = 'Správa bola odstranena.';
+                } catch (PDOException $exception) {
+                    $state['adminMailerError'] = 'Správu sa nepodarilo odstrániť.';
+                }
+            }
+        }
+
         if ($formType === 'create_discount_code') {
             $code = strtoupper(trim((string) ($post['code'] ?? '')));
             $title = trim((string) ($post['title'] ?? ''));
@@ -225,10 +239,9 @@ class DashboardHelper
             if (!$productId || $productId < 1) {
                 $state['productError'] = 'Neplatné ID produktu.';
             } else {
-                try {
-                    $productModel->delete((int) $productId);
+                if ($productModel->delete((int) $productId)) {
                     $state['productNotice'] = 'Produkt bol odstránený.';
-                } catch (PDOException $exception) {
+                } else {
                     $state['productError'] = 'Produkt sa nepodarilo odstrániť.';
                 }
             }
@@ -240,10 +253,9 @@ class DashboardHelper
             if (!$discountCodeId || $discountCodeId < 1) {
                 $state['discountCodeError'] = 'Neplatné ID zľavového kódu.';
             } else {
-                try {
-                    $discountCodeModel->delete((int) $discountCodeId);
+                if ($discountCodeModel->delete((int) $discountCodeId)) {
                     $state['discountCodeNotice'] = 'Zľavový kód bol odstránený.';
-                } catch (PDOException $exception) {
+                } else {
                     $state['discountCodeError'] = 'Zľavový kód sa nepodarilo odstrániť.';
                 }
             }
@@ -325,6 +337,11 @@ function dashboard_get_contact_messages(PDO $pdo): array
 function dashboard_reply_to_message(PDO $pdo, int $messageId, string $replyText): bool
 {
     return (new ContactMessageModel($pdo))->reply($messageId, $replyText);
+}
+
+function dashboard_delete_message(PDO $pdo, int $messageId): bool
+{
+    return (new ContactMessageModel($pdo))->delete($messageId);
 }
 
 function dashboard_get_messages_by_email(PDO $pdo, string $email): array

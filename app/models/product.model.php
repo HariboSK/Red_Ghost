@@ -72,10 +72,20 @@ class ProductModel extends BaseModel
         ]);
     }
 
-    public function delete(int $productId): void
+    public function delete(int $productId): bool
     {
-        $stmt = $this->pdo->prepare('DELETE FROM products WHERE id = :id');
-        $stmt->execute([':id' => $productId]);
+        try {
+            $this->pdo->beginTransaction();
+            $stmt = $this->pdo->prepare('DELETE FROM products WHERE id = :id');
+            $stmt->execute([':id' => $productId]);
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return false;
+        }
     }
 
     public static function validateAndBuildPayload(array $post): array
