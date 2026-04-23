@@ -171,6 +171,15 @@ class DashboardHelper
             }
         }
 
+        if ($formType === 'delete_all_messages') {
+            try {
+                $contactMessageModel->deleteAll();
+                $state['adminMailerNotice'] = 'Všetky správy boli odstránené.';
+            } catch (PDOException $exception) {
+                $state['adminMailerError'] = 'Správy sa nepodarilo hromadne odstrániť.';
+            }
+        }
+
         if ($formType === 'create_discount_code') {
             $code = strtoupper(trim((string) ($post['code'] ?? '')));
             $title = trim((string) ($post['title'] ?? ''));
@@ -342,6 +351,11 @@ function dashboard_reply_to_message(PDO $pdo, int $messageId, string $replyText)
 function dashboard_delete_message(PDO $pdo, int $messageId): bool
 {
     return (new ContactMessageModel($pdo))->delete($messageId);
+}
+
+function dashboard_delete_all_messages(PDO $pdo): bool
+{
+    return (new ContactMessageModel($pdo))->deleteAll();
 }
 
 function dashboard_get_messages_by_email(PDO $pdo, string $email): array

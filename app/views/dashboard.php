@@ -53,49 +53,64 @@ include __DIR__ . '/partials/dashboard-header.php';
 
     <section class="admin-main dashboard-tabs-ready">
         <section class="dashboard-panel is-active" id="overview" data-dashboard-panel="overview">
-            <section class="admin-metrics">
-            <article class="metric-card metric-card-wide">
-                <p>Informácie o administrátorovi</p>
-                <h2><?php echo dash_h($adminDisplayName ?: 'Admin'); ?></h2>
-                <small><?php echo dash_h($adminDisplayEmail !== '' ? $adminDisplayEmail : $adminDisplayRole); ?></small>
-            </article>
+            <div class="overview-intro-layout">
+                <section class="admin-metrics admin-metrics-overview">
+                <article class="metric-card">
+                    <p>Počet adminov</p>
+                    <h2><?php echo dash_h($totalAdmins); ?></h2>
+                    <small>Zaregistrovaní administrátori</small>
+                </article>
 
-            <article class="metric-card">
-                <p>Počet adminov</p>
-                <h2><?php echo dash_h($totalAdmins); ?></h2>
-                <small>Zaregistrovaní administrátori</small>
-            </article>
+                <article class="metric-card is-accent">
+                    <p>Dnešné objednávky</p>
+                    <h2><?php echo dash_h($todayOrderCount); ?></h2>
+                    <small>Objednávky vytvorené dnes</small>
+                </article>
 
-            <article class="metric-card is-accent">
-                <p>Dnešné objednávky</p>
-                <h2><?php echo dash_h($todayOrderCount); ?></h2>
-                <small>Objednávky vytvorené dnes</small>
-            </article>
+                <article class="metric-card metric-card-wide">
+                    <p>Dnešné tržby</p>
+                    <h2><?php echo dash_h(number_format($todayRevenue, 2, '.', ',')); ?> €</h2>
+                    <small>Súčet dnešných objednávok</small>
+                </article>
 
-            <article class="metric-card metric-card-wide">
-                <p>Dnešné tržby</p>
-                <h2><?php echo dash_h(number_format($todayRevenue, 2, '.', ',')); ?> €</h2>
-                <small>Súčet dnešných objednávok</small>
-            </article>
+                <article class="metric-card">
+                    <p>Prijaté správy</p>
+                    <h2><?php echo dash_h($unreadQuestionsCount); ?></h2>
+                    <small>Neprečítané správy z kontaktného formulára</small>
+                </article>
 
-            <article class="metric-card">
-                <p>Prijaté správy</p>
-                <h2><?php echo dash_h($unreadQuestionsCount); ?></h2>
-                <small>Neprečítané správy z kontaktného formulára</small>
-            </article>
+                <article class="metric-card">
+                    <p>Aktívne kupóny</p>
+                    <h2><?php echo dash_h(count($discountCodes)); ?></h2>
+                    <small>Zľavové kódy pripravené na použitie</small>
+                </article>
 
-            <article class="metric-card">
-                <p>Aktívne kupóny</p>
-                <h2><?php echo dash_h(count($discountCodes)); ?></h2>
-                <small>Zľavové kódy pripravené na použitie</small>
-            </article>
+                <article class="metric-card">
+                    <p>Aktívne relácie</p>
+                    <h2><?php echo dash_h($activeSessions); ?></h2>
+                    <small>Aktívny monitoring prihlásených používateľov</small>
+                </article>
+                </section>
 
-            <article class="metric-card">
-                <p>Aktívne relácie</p>
-                <h2><?php echo dash_h($activeSessions); ?></h2>
-                <small>Aktívny monitoring prihlásených používateľov</small>
-            </article>
-            </section>
+                <aside class="admin-card user-avatar-side-card" aria-label="Sekcia používateľa">
+                    <div class="user-avatar-frame">
+                        <?php if (!empty($sessionUser['avatar'])): ?>
+                            <img src="<?php echo dash_h((string) $sessionUser['avatar']); ?>" alt="Avatar používateľa">
+                        <?php else: ?>
+                            <span><?php echo strtoupper(substr((string) ($sessionUser['name'] ?? 'U'), 0, 1)); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <p class="user-avatar-name"><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></p>
+                    <label for="user-avatar-file" class="management-submit user-avatar-edit-btn">Edit avatara</label>
+                    <input type="file" id="user-avatar-file" class="user-avatar-input" accept="image/*">
+
+                    <div class="user-avatar-meta">
+                        <p>Informácie o administrátorovi</p>
+                        <h3><?php echo dash_h($adminDisplayName ?: 'Admin'); ?></h3>
+                        <small><?php echo dash_h($adminDisplayEmail !== '' ? $adminDisplayEmail : $adminDisplayRole); ?></small>
+                    </div>
+                </aside>
+            </div>
 
             <div class="overview-grid">
                 <article class="admin-card overview-info-card">
@@ -223,8 +238,10 @@ include __DIR__ . '/partials/dashboard-header.php';
         <section class="dashboard-panel" id="mailer" data-dashboard-panel="mailer">
             <section class="admin-card contact-mailer-section">
                 <div class="admin-card-head">
-                    <h2>Správy z kontaktného formulára</h2>
-                    <span>Načítané priamo z tabuľky contact_messages</span>
+                    <div>
+                        <h2>Správy z kontaktného formulára</h2>
+                        <span>Načítané priamo z tabuľky contact_messages</span>
+                    </div>
                 </div>
 
                 <?php if ($adminMailerNotice !== ''): ?>
@@ -264,14 +281,14 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                 <summary>Reagovať</summary>
                                                 <p><?php echo nl2br(dash_h($message['message_text'] ?? '')); ?></p>
 
-                                                <form method="POST" action="<?php echo route('/dashboard'); ?>" class="message-reply-form">
+                                                <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-reply-form">
                                                     <input type="hidden" name="form_type" value="reply_message">
                                                     <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
                                                     <textarea name="reply_text" rows="4" placeholder="Napíš reakciu pre zákazníka" required></textarea>
                                                     <button type="submit" class="management-submit message-reply-btn">Uložiť reakciu</button>
                                                 </form>
 
-                                                <form method="POST" action="<?php echo route('/dashboard'); ?>" class="message-reply-form">
+                                                <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-reply-form">
                                                     <input type="hidden" name="form_type" value="delete_message">
                                                     <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
                                                     <button type="submit" class="delete-btn">Vymazať</button>
@@ -287,7 +304,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                 </span>
 
                                                 <?php if (($message['status'] ?? 'unread') === 'unread'): ?>
-                                                    <form method="POST" action="<?php echo route('/dashboard'); ?>" class="message-status-form">
+                                                    <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-status-form">
                                                         <input type="hidden" name="form_type" value="mark_message_read">
                                                         <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
                                                         <button type="submit" class="management-submit message-done-btn">Označiť ako vybavené</button>
@@ -301,6 +318,16 @@ include __DIR__ . '/partials/dashboard-header.php';
                         </tbody>
                     </table>
                 </div>
+
+                <?php if (!empty($contactMessages)): ?>
+                    <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="mailer-bulk-delete-form mailer-bulk-delete-form-bottom" onsubmit="return confirm('Naozaj chceš vymazať všetky správy?');">
+                        <input type="hidden" name="form_type" value="delete_all_messages">
+                        <button type="submit" class="delete-btn mailer-bulk-delete-btn" title="Vymazať všetky správy" aria-label="Vymazať všetky správy">
+                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                            Vymazať všetky správy
+                        </button>
+                    </form>
+                <?php endif; ?>
             </section>
         </section>
 

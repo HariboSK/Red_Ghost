@@ -543,9 +543,8 @@ header .navbar {
 }
 
 .contact-section .form-feedback {
-  width: 100%;
-  max-width: 50%;
-  margin-top: 16px;
+  display: flex;
+  width: 30%;
   padding: 12px 16px;
   border-radius: var(--border-radius-s);
   font-size: var(--font-size-n);
@@ -553,6 +552,9 @@ header .navbar {
   line-height: 1.4;
   border: 1px solid transparent;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  margin-left: 50%;
+  margin-top: 330px;
 }
 
 .contact-section .form-feedback--success {
