@@ -6,77 +6,155 @@ class ProductModel extends BaseModel
 {
     public function findAll(): array
     {
-        try {
-            $stmt = $this->pdo->query('SELECT id, name, description, price, discount_percent, image, category, stock, featured, rating, created_at, updated_at FROM products ORDER BY id DESC');
-            $rows = $stmt instanceof PDOStatement ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
-        } catch (PDOException $exception) {
-            // Fallback for older/local schemas with different product columns.
-            $fallbackStmt = $this->pdo->query('SELECT * FROM products ORDER BY id DESC');
-            $rows = $fallbackStmt instanceof PDOStatement ? $fallbackStmt->fetchAll(PDO::FETCH_ASSOC) : [];
-        }
+        $stmt = $this->pdo->query(
+            'SELECT p.id_product AS id,
+                    p.name,
+                    p.description,
+                    p.price,
+                    0 AS discount_percent,
+                    p.image,
+                    MIN(c.name) AS category,
+                    p.stock,
+                    p.featured,
+                    p.rating,
+                    p.created_at,
+                    p.updated_at
+             FROM product p
+               LEFT JOIN product_category pc ON pc.id_product = p.id_product
+               LEFT JOIN category c ON c.id_category = pc.id_category
+               GROUP BY p.id_product,
+                      p.name,
+                      p.description,
+                      p.price,
+                      p.image,
+                      p.stock,
+                      p.featured,
+                      p.rating,
+                      p.created_at,
+                      p.updated_at
+             ORDER BY p.id_product DESC'
+        );
+        $rows = $stmt instanceof PDOStatement ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
         return is_array($rows) ? $rows : [];
     }
 
     public function findById(int $id): ?array
     {
-        try {
-            $stmt = $this->pdo->prepare('SELECT id, name, description, price, discount_percent, image, category, stock, featured, rating, created_at, updated_at FROM products WHERE id = :id LIMIT 1');
-            $stmt->execute([':id' => $id]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $exception) {
-            $fallbackStmt = $this->pdo->prepare('SELECT * FROM products WHERE id = :id LIMIT 1');
-            $fallbackStmt->execute([':id' => $id]);
-            $row = $fallbackStmt->fetch(PDO::FETCH_ASSOC);
-        }
+        $stmt = $this->pdo->prepare(
+            'SELECT p.id_product AS id,
+                    p.name,
+                    p.description,
+                    p.price,
+                    0 AS discount_percent,
+                    p.image,
+                    MIN(c.name) AS category,
+                    p.stock,
+                    p.featured,
+                    p.rating,
+                    p.created_at,
+                    p.updated_at
+             FROM product p
+               LEFT JOIN product_category pc ON pc.id_product = p.id_product
+               LEFT JOIN category c ON c.id_category = pc.id_category
+             WHERE p.id_product = :id
+               GROUP BY p.id_product,
+                      p.name,
+                      p.description,
+                      p.price,
+                      p.image,
+                      p.stock,
+                      p.featured,
+                      p.rating,
+                      p.created_at,
+                      p.updated_at
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return is_array($row) ? $row : null;
     }
 
     public function create(array $data): void
     {
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO products (name, description, price, discount_percent, image, category, stock, featured, rating) VALUES (:name, :description, :price, :discount_percent, :image, :category, :stock, :featured, :rating)'
-        );
+        try {
+            $this->pdo->beginTransaction();
 
-        $stmt->execute([
-            ':name' => $data['name'],
-            ':description' => $data['description'],
-            ':price' => $data['price'],
-            ':discount_percent' => $data['discount_percent'],
-            ':image' => $data['image'],
-            ':category' => $data['category'],
-            ':stock' => $data['stock'],
-            ':featured' => $data['featured'],
-            ':rating' => $data['rating'],
-        ]);
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO product (name, description, price, image, stock, featured, rating)
+                 VALUES (:name, :description, :price, :image, :stock, :featured, :rating)'
+            );
+
+            $stmt->execute([
+                ':name' => $data['name'],
+                ':description' => $data['description'],
+                ':price' => $data['price'],
+                ':image' => $data['image'],
+                ':stock' => $data['stock'],
+                ':featured' => $data['featured'],
+                ':rating' => $data['rating'],
+            ]);
+
+            $productId = (int) $this->pdo->lastInsertId();
+            $this->syncProductCategory($productId, (string) ($data['category'] ?? ''));
+
+            $this->pdo->commit();
+        } catch (PDOException $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $exception;
+        }
     }
 
     public function update(int $productId, array $data): void
     {
-        $stmt = $this->pdo->prepare(
-            'UPDATE products SET name = :name, description = :description, price = :price, discount_percent = :discount_percent, image = :image, category = :category, stock = :stock, featured = :featured, rating = :rating WHERE id = :id'
-        );
+        try {
+            $this->pdo->beginTransaction();
 
-        $stmt->execute([
-            ':id' => $productId,
-            ':name' => $data['name'],
-            ':description' => $data['description'],
-            ':price' => $data['price'],
-            ':discount_percent' => $data['discount_percent'],
-            ':image' => $data['image'],
-            ':category' => $data['category'],
-            ':stock' => $data['stock'],
-            ':featured' => $data['featured'],
-            ':rating' => $data['rating'],
-        ]);
+            $stmt = $this->pdo->prepare(
+                'UPDATE product
+                 SET name = :name,
+                     description = :description,
+                     price = :price,
+                     image = :image,
+                     stock = :stock,
+                     featured = :featured,
+                     rating = :rating
+                 WHERE id_product = :id'
+            );
+
+            $stmt->execute([
+                ':id' => $productId,
+                ':name' => $data['name'],
+                ':description' => $data['description'],
+                ':price' => $data['price'],
+                ':image' => $data['image'],
+                ':stock' => $data['stock'],
+                ':featured' => $data['featured'],
+                ':rating' => $data['rating'],
+            ]);
+
+            $this->syncProductCategory($productId, (string) ($data['category'] ?? ''));
+
+            $this->pdo->commit();
+        } catch (PDOException $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $exception;
+        }
     }
 
     public function delete(int $productId): bool
     {
         try {
             $this->pdo->beginTransaction();
-            $stmt = $this->pdo->prepare('DELETE FROM products WHERE id = :id');
+            $stmt = $this->pdo->prepare('DELETE FROM product_category WHERE id_product = :id');
+            $stmt->execute([':id' => $productId]);
+
+            $stmt = $this->pdo->prepare('DELETE FROM product WHERE id_product = :id');
             $stmt->execute([':id' => $productId]);
             $this->pdo->commit();
             return true;
@@ -98,7 +176,6 @@ class ProductModel extends BaseModel
         $image = trim((string) ($post['image'] ?? ''));
         $featured = isset($post['featured']) ? 1 : 0;
         $rating = filter_var($post['rating'] ?? 4, FILTER_VALIDATE_INT);
-        $discountPercent = filter_var($post['discount_percent'] ?? 0, FILTER_VALIDATE_FLOAT);
 
         if ($name === '' || strlen($name) < 2) {
             return ['ok' => false, 'error' => 'Názov produktu je povinný.', 'payload' => []];
@@ -112,10 +189,6 @@ class ProductModel extends BaseModel
             return ['ok' => false, 'error' => 'Zadaj platný počet skladom.', 'payload' => []];
         }
 
-        if ($discountPercent === false || $discountPercent === null || $discountPercent < 0 || $discountPercent > 100) {
-            return ['ok' => false, 'error' => 'Zľava produktu musí byť medzi 0 a 100.', 'payload' => []];
-        }
-
         if ($category === '') {
             return ['ok' => false, 'error' => 'Kategória je povinná.', 'payload' => []];
         }
@@ -127,7 +200,6 @@ class ProductModel extends BaseModel
                 'name' => $name,
                 'description' => $description,
                 'price' => (float) $price,
-                'discount_percent' => max(0, min(100, (float) $discountPercent)),
                 'image' => $image,
                 'category' => $category,
                 'stock' => (int) $stock,
@@ -135,5 +207,45 @@ class ProductModel extends BaseModel
                 'rating' => max(1, min(5, (int) ($rating ?: 4))),
             ],
         ];
+    }
+
+    private function syncProductCategory(int $productId, string $categoryName): void
+    {
+        $categoryName = trim($categoryName);
+        if ($categoryName === '') {
+            return;
+        }
+
+        $categoryId = $this->getOrCreateCategoryId($categoryName);
+        if ($categoryId === null) {
+            return;
+        }
+
+        $stmt = $this->pdo->prepare('DELETE FROM product_category WHERE id_product = :product_id');
+        $stmt->execute([':product_id' => $productId]);
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO product_category (id_product, id_category) VALUES (:product_id, :category_id)'
+        );
+        $stmt->execute([
+            ':product_id' => $productId,
+            ':category_id' => $categoryId,
+        ]);
+    }
+
+    private function getOrCreateCategoryId(string $categoryName): ?int
+    {
+        $stmt = $this->pdo->prepare('SELECT id_category FROM category WHERE name = :name LIMIT 1');
+        $stmt->execute([':name' => $categoryName]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (is_array($row) && isset($row['id_category'])) {
+            return (int) $row['id_category'];
+        }
+
+        $stmt = $this->pdo->prepare('INSERT INTO category (name) VALUES (:name)');
+        $stmt->execute([':name' => $categoryName]);
+
+        $id = (int) $this->pdo->lastInsertId();
+        return $id > 0 ? $id : null;
     }
 }

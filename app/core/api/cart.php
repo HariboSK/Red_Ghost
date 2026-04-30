@@ -22,7 +22,7 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
 function get_product_by_id(PDO $conn, int $productId): ?array
 {   
     //stmt skratka pre statement, teda pripravený SQL dopyt
-    $stmt = $conn->prepare('SELECT id, name, price, image, stock, category FROM products WHERE id = :id LIMIT 1');
+    $stmt = $conn->prepare('SELECT id_product AS id, name, price, image, stock FROM product WHERE id_product = :id LIMIT 1');
     $stmt->execute(['id' => $productId]);
     $product = $stmt->fetch();
 
@@ -35,8 +35,7 @@ function get_product_by_id(PDO $conn, int $productId): ?array
         'name' => (string) $product['name'],
         'price' => (float) $product['price'],
         'stock' => (float) $product['stock'],
-        'category'=> (float) $product['category'],
-        'image'=> (string) $product['image'],
+        'image' => (string) $product['image'],
     ];
 }
 

@@ -37,9 +37,10 @@ class SessionHelper
 
         $email = self::getString(['user_email', 'email', 'userEmail', 'mail']);
         $name = self::getString(['user_name', 'name', 'username', 'full_name']);
+        $image = self::getString(['image']);
         $role = self::getString(['user_role', 'role']);
         $id = self::getInt(['user_id', 'id']);
-        $points = self::getInt(['user_points', 'loayalty_points', 'loyalty_points', 'points', 'loyaltyPoints']);
+        $points = self::getInt(['loyalty_points']);
         $flag = (!empty($_SESSION['is_logged_in']) && $_SESSION['is_logged_in']) ||
             (!empty($_SESSION['logged_in']) && $_SESSION['logged_in']);
 
@@ -50,6 +51,7 @@ class SessionHelper
             'name' => $name,
             'email' => $email,
             'role' => $role,
+            'image' => $image,
             'points' => $points,
             'is_logged_in' => $isLoggedIn,
         ];
@@ -62,21 +64,15 @@ class SessionHelper
         $id = (int) ($user['id'] ?? 0);
         $name = (string) ($user['name'] ?? '');
         $email = (string) ($user['email'] ?? '');
+        $image = (string) ($user['image'] ?? '');
         $role = (string) ($user['role'] ?? 'user');
 
         $_SESSION['user_id'] = $id;
-        $_SESSION['user_name'] = $name;
-        $_SESSION['user_email'] = $email;
-        $_SESSION['user_role'] = $role;
-        $_SESSION['user_points'] = $points;
-        $_SESSION['is_logged_in'] = true;
-
-        $_SESSION['id'] = $id;
         $_SESSION['name'] = $name;
         $_SESSION['email'] = $email;
         $_SESSION['role'] = $role;
+        $_SESSION['image'] = $image;
         $_SESSION['loayalty_points'] = $points;
-        $_SESSION['loyalty_points'] = $points;
         $_SESSION['logged_in'] = true;
     }
 
@@ -86,21 +82,18 @@ class SessionHelper
             return 0;
         }
 
-        $stmt = $conn->prepare('SELECT loayalty_points FROM users WHERE email = :email LIMIT 1');
+        $stmt = $conn->prepare('SELECT loyalty_points FROM `user` WHERE email = :email LIMIT 1');
         $stmt->execute(['email' => $email]);
         $row = $stmt->fetch();
 
-        return (int) ($row['loayalty_points'] ?? 0);
+        return (int) ($row['loyalty_points'] ?? 0);
     }
 
     public static function refreshSessionPoints($conn, string $email): int
     {
         $points = self::calculateLoyaltyPoints($conn, $email);
 
-        $_SESSION['user_points'] = $points;
         $_SESSION['loayalty_points'] = $points;
-        $_SESSION['loyalty_points'] = $points;
-        $_SESSION['points'] = $points;
 
         return $points;
     }

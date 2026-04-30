@@ -42,7 +42,7 @@ class LoginRegister
         $email = trim((string) ($_POST['email'] ?? ''));
         $passwordRaw = (string) ($_POST['password'] ?? '');
         $repeatPassword = (string) ($_POST['repeat-password'] ?? '');
-        $role = 'user';
+        $role = 'customer';
 
         if ($passwordRaw !== $repeatPassword) {
             $_SESSION['register_error'] = 'Hesla sa nezhoduju';
@@ -52,7 +52,7 @@ class LoginRegister
 
         $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
 
-        $checkEmail = $this->conn->prepare('SELECT 1 FROM users WHERE email = :email LIMIT 1');
+        $checkEmail = $this->conn->prepare('SELECT 1 FROM `user` WHERE email = :email LIMIT 1');
         $checkEmail->execute([':email' => $email]);
 
         if ($checkEmail->fetchColumn()) {
@@ -61,7 +61,7 @@ class LoginRegister
             (new Redirect('/login.php'))->redirect();
         }
 
-        $insertUser = $this->conn->prepare('INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)');
+        $insertUser = $this->conn->prepare('INSERT INTO `user` (name, email, password, role) VALUES (:name, :email, :password, :role)');
         $insertUser->execute([
             ':name' => $name,
             ':email' => $email,
@@ -77,17 +77,17 @@ class LoginRegister
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
 
-        $result = $this->conn->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
+        $result = $this->conn->prepare('SELECT * FROM `user` WHERE email = :email LIMIT 1');
         $result->execute([':email' => $email]);
         $user = $result->fetch();
 
         if ($user && password_verify($password, (string) ($user['password'] ?? ''))) {
             SessionManager::regenerate(true);
 
-            $points = isset($user['loayalty_points']) ? (int) $user['loayalty_points'] : 0;
+            $points = isset($user['loyalty_points']) ? (int) $user['loyalty_points'] : 0;
             SessionHelper::storeUser($user, $points);
 
-            if (($user['role'] ?? 'user') === 'admin') {
+            if (($user['role'] ?? 'customer') === 'admin') {
                 (new Redirect('/dashboard.php'))->redirect();
             }
 

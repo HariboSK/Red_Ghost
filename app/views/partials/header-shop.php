@@ -1,4 +1,6 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
 require_once dirname(__DIR__, 2) . '/core/helper.php';
 require_once dirname(__DIR__, 2) . '/core/assetHelper.php';

@@ -1,130 +1,266 @@
-﻿
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+﻿-- MySQL Workbench Forward Engineering
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `red_ghost` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+-- -----------------------------------------------------
+-- Schema red_ghost
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `red_ghost` DEFAULT CHARACTER SET utf8mb4 ;
+USE `red_ghost` ;
 
-USE `red_ghost`;
-DROP TABLE IF EXISTS `contact_messages`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `contact_messages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sender_name` varchar(255) NOT NULL,
-  `sender_email` varchar(255) NOT NULL,
-  `subject` varchar(255) NOT NULL,
-  `message_text` text NOT NULL,
-  `reply_text` text DEFAULT NULL,
-  `reply_at` timestamp NULL DEFAULT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'unread',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ALTER TABLE `contact_messages`
---   ADD COLUMN `reply_text` text DEFAULT NULL AFTER `message_text`,
---   ADD COLUMN `reply_at` timestamp NULL DEFAULT NULL AFTER `reply_text`;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `orders`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `orders` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_name` varchar(255) NOT NULL,
-  `customer_email` varchar(255) NOT NULL,
-  `customer_phone` varchar(20) DEFAULT NULL,
-  `total_price` decimal(10,2) NOT NULL,
-  `status` varchar(50) DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `products`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `products` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `discount_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
-  `image` varchar(255) DEFAULT NULL,
-  `category` varchar(100) DEFAULT NULL,
-  `rating` int(11) DEFAULT 4,
-  `featured` tinyint(1) DEFAULT 0,
-  `stock` int(11) DEFAULT 10,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `discount_codes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `discount_codes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(80) NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `discount_type` enum('percent','fixed') NOT NULL DEFAULT 'percent',
-  `discount_value` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `min_order_total` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `usage_limit` int(11) DEFAULT NULL,
-  `used_count` int(11) NOT NULL DEFAULT 0,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
-  `starts_at` datetime DEFAULT NULL,
-  `ends_at` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+-- -----------------------------------------------------
+-- Table `red_ghost`.`user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`user` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NULL DEFAULT NULL,
+  `email` VARCHAR(50) NULL DEFAULT NULL,
+  `password` VARCHAR(255) NULL DEFAULT NULL,
+  `image` VARCHAR(255) NULL DEFAULT NULL,
+  `loyalty_points` INT(11) NULL DEFAULT 0,
+  `role` ENUM('customer', 'admin') NULL DEFAULT 'customer',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `discount_code_unique` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `order_items`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `order_items` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `order_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `price` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `order_id` (`order_id`),
-  KEY `product_id` (`product_id`),
-  CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `loayalty_points` int(11) NOT NULL DEFAULT 0,
-  `role` enum('user','admin') NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+  UNIQUE INDEX `email` (`email` ASC)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+-- -----------------------------------------------------
+-- Table `red_ghost`.`discount_code`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`discount_code` (
+  `id_discount_code` INT(11) NOT NULL AUTO_INCREMENT,
+  `code` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(255) NULL DEFAULT NULL,
+  `discount_type` ENUM('percent', 'fixed') NOT NULL,
+  `value` DECIMAL(10,2) NOT NULL,
+  `min_order_value` DECIMAL(10,2) NULL DEFAULT NULL,
+  `valid_from` DATETIME NULL DEFAULT NULL,
+  `valid_to` DATETIME NULL DEFAULT NULL,
+  `is_active` TINYINT(1) NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id_discount_code`),
+  UNIQUE INDEX `uq_discount_code` (`code` ASC) 
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
+-- -----------------------------------------------------
+-- Table `red_ghost`.`order`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`order` (
+  `id_order` INT(11) NOT NULL AUTO_INCREMENT,
+  `customer_name` VARCHAR(255) NULL DEFAULT NULL,
+  `customer_email` VARCHAR(255) NULL DEFAULT NULL,
+  `customer_phone` VARCHAR(20) NULL DEFAULT NULL,
+  `total_price` DECIMAL(10,2) NULL DEFAULT NULL,
+  `status` ENUM('pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded') NULL DEFAULT 'pending',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  `user_id` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_order`),
+  INDEX `idx_order_user` (`user_id` ASC),
+  INDEX `idx_order_status` (`status` ASC),
+  CONSTRAINT `order_ibfk_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `red_ghost`.`user` (`id`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`discount_code_redemption`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`discount_code_redemption` (
+  `id_redemption` INT NOT NULL AUTO_INCREMENT,
+  `id_discount_code` INT NOT NULL,
+  `id_user` INT NOT NULL,
+  `id_order` INT NULL,
+  `used_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id_redemption`),
+  UNIQUE (`id_user`, `id_discount_code`),
+  INDEX (`id_user`),
+  INDEX (`id_discount_code`),
+  CONSTRAINT `fk_redemption_user`
+    FOREIGN KEY (`id_user`)
+    REFERENCES `red_ghost`.`user` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_redemption_code`
+    FOREIGN KEY (`id_discount_code`)
+    REFERENCES `red_ghost`.`discount_code` (`id_discount_code`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`address`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`address` (
+  `id_address` INT(11) NOT NULL AUTO_INCREMENT,
+  `street` VARCHAR(100) NULL DEFAULT NULL,
+  `city` VARCHAR(60) NULL DEFAULT NULL,
+  `zip` VARCHAR(30) NULL DEFAULT NULL,
+  `country` VARCHAR(60) NULL DEFAULT NULL,
+  `is_default` TINYINT(4) NULL DEFAULT 0,
+  `id_user` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_address`),
+  INDEX `idx_address_user` (`id_user` ASC),
+  CONSTRAINT `address_ibfk_1`
+    FOREIGN KEY (`id_user`)
+    REFERENCES `red_ghost`.`user` (`id`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`category`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`category` (
+  `id_category` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_category`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`contact_messages`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`contact_messages` (
+  `id_contact_msg` INT(11) NOT NULL AUTO_INCREMENT,
+  `sender_name` VARCHAR(255) NULL DEFAULT NULL,
+  `sender_email` VARCHAR(80) NULL DEFAULT NULL,
+  `subject` VARCHAR(255) NULL DEFAULT NULL,
+  `status` ENUM('new', 'read', 'replied', 'closed') NULL DEFAULT 'new',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `id_user` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_contact_msg`),
+  INDEX `idx_contact_user` (`id_user` ASC),
+  INDEX `idx_contact_status` (`status` ASC),
+  CONSTRAINT `contact_messages_ibfk_1`
+    FOREIGN KEY (`id_user`)
+    REFERENCES `red_ghost`.`user` (`id`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`contact_replies`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`contact_replies` (
+  `id_replies` INT(11) NOT NULL AUTO_INCREMENT,
+  `sender_type` ENUM('user', 'admin') NULL DEFAULT NULL,
+  `message_text` TEXT NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `id_message` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_replies`),
+  INDEX `idx_reply_message` (`id_message` ASC),
+  CONSTRAINT `contact_replies_ibfk_1`
+    FOREIGN KEY (`id_message`)
+    REFERENCES `red_ghost`.`contact_messages` (`id_contact_msg`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`order_address`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`order_address` (
+  `id_order_address` INT(11) NOT NULL AUTO_INCREMENT,
+  `type` ENUM('billing', 'shipping') NULL DEFAULT NULL,
+  `street` VARCHAR(100) NULL DEFAULT NULL,
+  `city` VARCHAR(100) NULL DEFAULT NULL,
+  `zip` VARCHAR(30) NULL DEFAULT NULL,
+  `country` VARCHAR(60) NULL DEFAULT NULL,
+  `id_order` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_order_address`),
+  INDEX `id_order` (`id_order` ASC),
+  CONSTRAINT `order_address_ibfk_1`
+    FOREIGN KEY (`id_order`)
+    REFERENCES `red_ghost`.`order` (`id_order`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`product`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`product` (
+  `id_product` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL DEFAULT NULL,
+  `description` TEXT NULL DEFAULT NULL,
+  `price` DECIMAL(10,2) NULL DEFAULT NULL,
+  `image` VARCHAR(255) NULL DEFAULT NULL,
+  `rating` INT(11) NULL DEFAULT 0,
+  `featured` TINYINT(4) NULL DEFAULT 0,
+  `stock` INT(11) NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id_product`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`order_item`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`order_item` (
+  `id_order_item` INT(11) NOT NULL AUTO_INCREMENT,
+  `quantity` INT(11) NULL DEFAULT NULL,
+  `price` DECIMAL(10,2) NULL DEFAULT NULL,
+  `id_order` INT(11) NULL DEFAULT NULL,
+  `id_product` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_order_item`),
+  INDEX `idx_order_item_order` (`id_order` ASC),
+  INDEX `idx_order_item_product` (`id_product` ASC),
+  CONSTRAINT `order_item_ibfk_1`
+    FOREIGN KEY (`id_order`)
+    REFERENCES `red_ghost`.`order` (`id_order`),
+  CONSTRAINT `order_item_ibfk_2`
+    FOREIGN KEY (`id_product`)
+    REFERENCES `red_ghost`.`product` (`id_product`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`order_status_history`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`order_status_history` (
+  `id_status` INT(11) NOT NULL AUTO_INCREMENT,
+  `status` VARCHAR(50) NULL DEFAULT NULL,
+  `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `id_order` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_status`),
+  INDEX `id_order` (`id_order` ASC),
+  CONSTRAINT `order_status_history_ibfk_1`
+    FOREIGN KEY (`id_order`)
+    REFERENCES `red_ghost`.`order` (`id_order`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`payment`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`payment` (
+  `id_payment` INT(11) NOT NULL AUTO_INCREMENT,
+  `payment_method` VARCHAR(50) NULL DEFAULT NULL,
+  `amount` DECIMAL(10,2) NULL DEFAULT NULL,
+  `status` ENUM('pending', 'paid', 'failed', 'cancelled', 'refunded') NULL DEFAULT 'pending',
+  `paid_at` TIMESTAMP NULL DEFAULT NULL,
+  `id_order` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_payment`),
+  INDEX `idx_payment_order` (`id_order` ASC),
+  INDEX `idx_payment_status` (`status` ASC),
+  CONSTRAINT `payment_ibfk_1`
+    FOREIGN KEY (`id_order`)
+    REFERENCES `red_ghost`.`order` (`id_order`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`product_category`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`product_category` (
+  `id_product` INT(11) NOT NULL,
+  `id_category` INT(11) NOT NULL,
+  PRIMARY KEY (`id_product`, `id_category`),
+  INDEX `id_category` (`id_category` ASC),
+  CONSTRAINT `product_category_ibfk_1`
+    FOREIGN KEY (`id_product`)
+    REFERENCES `red_ghost`.`product` (`id_product`),
+  CONSTRAINT `product_category_ibfk_2`
+    FOREIGN KEY (`id_category`)
+    REFERENCES `red_ghost`.`category` (`id_category`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Deferred foreign keys
+-- -----------------------------------------------------
+ALTER TABLE `red_ghost`.`discount_code_redemption`
+  ADD CONSTRAINT `fk_redemption_order`
+  FOREIGN KEY (`id_order`)
+  REFERENCES `red_ghost`.`order` (`id_order`);
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

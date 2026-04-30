@@ -13,11 +13,40 @@ $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 $profileMessages = [];
 $profileMessagesError = '';
+$profileNotice = (string) ($_SESSION['profileNotice'] ?? '');
+$profileError = (string) ($_SESSION['profileError'] ?? '');
+
+unset($_SESSION['profileNotice'], $_SESSION['profileError']);
 
 
 if (!$isLoggedIn) {
     (new Redirect('/login.php'))->redirect();
 }
+
+if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string) ($_POST['form_type'] ?? '') === 'reply_to_admin') {
+    $messageId = filter_var($_POST['message_id'] ?? null, FILTER_VALIDATE_INT);
+    $replyText = trim((string) ($_POST['reply_text'] ?? ''));
+
+    if (!($pdo instanceof PDO)) {
+        $_SESSION['profileError'] = 'Databázové pripojenie nie je dostupné.';
+    } elseif ($profileEmail === '') {
+        $_SESSION['profileError'] = 'E-mail používateľa nie je dostupný.';
+    } elseif (!$messageId || $messageId < 1) {
+        $_SESSION['profileError'] = 'Neplatné ID správy.';
+    } elseif ($replyText === '') {
+        $_SESSION['profileError'] = 'Odpoveď nemôže byť prázdna.';
+    } else {
+        $contactMessageModel = new ContactMessageModel($pdo);
+        if ($contactMessageModel->addUserReply((int) $messageId, $profileEmail, $replyText)) {
+            $_SESSION['profileNotice'] = 'Odpoveď bola odoslaná administrátorovi.';
+        } else {
+            $_SESSION['profileError'] = 'Odpoveď sa nepodarilo uložiť.';
+        }
+    }
+
+    (new Redirect('/userprofile.php'))->redirect();
+}
+
 include __DIR__ . '/partials/userprofile-header.php';
 
 
@@ -138,6 +167,14 @@ if ($pdo instanceof PDO && $profileEmail !== '') {
                         <span class="edit-link">Načítané podľa tvojho emailu</span>
                     </div>
 
+                    <?php if ($profileNotice !== ''): ?>
+                        <p class="panel-success"><?= htmlspecialchars($profileNotice, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
+
+                    <?php if ($profileError !== ''): ?>
+                        <p class="panel-error"><?= htmlspecialchars($profileError, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
+
                     <?php if ($profileMessagesError !== ''): ?>
                         <p class="message-empty"><?= htmlspecialchars($profileMessagesError, ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php elseif (empty($profileMessages)): ?>
@@ -151,8 +188,8 @@ if ($pdo instanceof PDO && $profileEmail !== '') {
                                             <h3><?= htmlspecialchars((string) ($profileMessage['subject'] ?? 'Bez predmetu'), ENT_QUOTES, 'UTF-8'); ?></h3>
                                             <p><?= htmlspecialchars((string) ($profileMessage['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
                                         </div>
-                                        <span class="message-badge <?= htmlspecialchars((string) ($profileMessage['status'] ?? 'unread'), ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?= htmlspecialchars((string) ($profileMessage['status'] ?? 'unread'), ENT_QUOTES, 'UTF-8'); ?>
+                                        <span class="message-badge <?= htmlspecialchars((string) ($profileMessage['status'] ?? 'new'), ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?= htmlspecialchars((string) ($profileMessage['status'] ?? 'new'), ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </div>
 
@@ -172,6 +209,14 @@ if ($pdo instanceof PDO && $profileEmail !== '') {
                                             <p class="message-reply-empty">Na túto správu ešte neprišla reakcia.</p>
                                         <?php endif; ?>
                                     </div>
+
+                                    <form method="POST" action="<?php echo route('/userprofile.php'); ?>" class="message-reply-form">
+                                        <input type="hidden" name="form_type" value="reply_to_admin">
+                                        <input type="hidden" name="message_id" value="<?= htmlspecialchars((string) ($profileMessage['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                        <label class="message-reply-label" for="reply-<?php echo htmlspecialchars((string) ($profileMessage['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">Napíš odpoveď</label>
+                                        <textarea id="reply-<?php echo htmlspecialchars((string) ($profileMessage['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" name="reply_text" rows="3" placeholder="Doplň otázku alebo reakciu" required></textarea>
+                                        <button type="submit" class="management-submit">Odoslať odpoveď</button>
+                                    </form>
                                 </article>
                             <?php endforeach; ?>
                         </div>

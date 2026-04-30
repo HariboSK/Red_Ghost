@@ -62,7 +62,8 @@ class Router
             '/login_register.php' => 'app/core/login_register.php',
             '/api/cart' => 'app/core/api/cart.php',
             '/api/cart.php' => 'app/core/api/cart.php',
-            '/logout' => 'app/views/logout.php'
+            '/logout' => 'app/views/logout.php',
+            '/UploadAvatar.php' => 'app/core/UploadAvatar.php',
         ];
 
     }

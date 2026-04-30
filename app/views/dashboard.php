@@ -16,8 +16,9 @@ if (($dashboardState['redirectTo'] ?? '') !== '') {
 
 extract($dashboardState, EXTR_SKIP);
 
-include __DIR__ . '/partials/dashboard-header.php';
+$avatarPath = dirname(__DIR__, 2) . '/public/uploads/avatars/' . ($sessionUser['id'] ?? 'default') . '.png';
 
+include __DIR__ . '/partials/dashboard-header.php';
 ?>
 
 <main class="admin-dashboard-ui">
@@ -44,8 +45,9 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <strong><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></strong>
                         <span>Administrator</span>
                     </div>
-                    <a href="<?php echo route('/userprofile'); ?>">Profile</a>
-                    <a href="<?php echo route('/logout'); ?>">Logout</a>
+                    <a href="<?php echo route('/userprofile'); ?>">Uživateľsky profil</a>
+                    <a href="<?php echo route('/logout'); ?>">Odhlásiť</a>
+                    <a href="<?php echo route('/home'); ?>">Domov</a>
                 </div>
             </details>
         </div>
@@ -61,13 +63,13 @@ include __DIR__ . '/partials/dashboard-header.php';
                     <small>Zaregistrovaní administrátori</small>
                 </article>
 
-                <article class="metric-card is-accent">
+                <article class="metric-card">
                     <p>Dnešné objednávky</p>
                     <h2><?php echo dash_h($todayOrderCount); ?></h2>
                     <small>Objednávky vytvorené dnes</small>
                 </article>
 
-                <article class="metric-card metric-card-wide">
+                <article class="metric-card">
                     <p>Dnešné tržby</p>
                     <h2><?php echo dash_h(number_format($todayRevenue, 2, '.', ',')); ?> €</h2>
                     <small>Súčet dnešných objednávok</small>
@@ -93,16 +95,18 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </section>
 
                 <aside class="admin-card user-avatar-side-card" aria-label="Sekcia používateľa">
-                    <div class="user-avatar-frame">
-                        <?php if (!empty($sessionUser['avatar'])): ?>
-                            <img src="<?php echo dash_h((string) $sessionUser['avatar']); ?>" alt="Avatar používateľa">
-                        <?php else: ?>
-                            <span><?php echo strtoupper(substr((string) ($sessionUser['name'] ?? 'U'), 0, 1)); ?></span>
-                        <?php endif; ?>
-                    </div>
+                    <form action="UploadAvatar.php" method="POST" enctype="multipart/form-data">
+                        <div class="user-avatar-frame">
+                            <img src="<?php echo htmlspecialchars($avatarPath); ?>" alt="Avatar">
+                        </div>
+    
+                        <label for="user-avatar-file" class="management-submit user-avatar-edit-btn">
+                            Edit avatara
+                        </label>
+                        <input type="file" name="avatar" id="user-avatar-file" class="user-avatar-input" accept="image/*" onchange="this.form.submit()">
+                    </form>
+
                     <p class="user-avatar-name"><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></p>
-                    <label for="user-avatar-file" class="management-submit user-avatar-edit-btn">Edit avatara</label>
-                    <input type="file" id="user-avatar-file" class="user-avatar-input" accept="image/*">
 
                     <div class="user-avatar-meta">
                         <p>Informácie o administrátorovi</p>
@@ -299,11 +303,11 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         <td>
                                             <div class="message-status-cell">
                                                 
-                                                <span class="message-status-badge message-status-<?php echo dash_h((string) ($message['status'] ?? 'unread')); ?>">
-                                                    <?php echo dash_h((string) ($message['status'] ?? 'unread')); ?>
+                                                <span class="message-status-badge message-status-<?php echo dash_h((string) ($message['status'] ?? 'new')); ?>">
+                                                    <?php echo dash_h((string) ($message['status'] ?? 'new')); ?>
                                                 </span>
 
-                                                <?php if (($message['status'] ?? 'unread') === 'unread'): ?>
+                                                <?php if (($message['status'] ?? 'new') === 'new'): ?>
                                                     <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-status-form">
                                                         <input type="hidden" name="form_type" value="mark_message_read">
                                                         <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
@@ -537,8 +541,8 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <label for="coupon-code">Kód</label>
                             <input id="coupon-code" name="code" type="text" placeholder="SUMMER20" required>
 
-                            <label for="coupon-title">Názov</label>
-                            <input id="coupon-title" name="title" type="text" placeholder="Leto 2026">
+                            <label for="coupon-description">Popis</label>
+                            <input id="coupon-description" name="description" type="text" placeholder="Leto 2026">
 
                             <label for="coupon-type">Typ zľavy</label>
                             <select id="coupon-type" name="discount_type">
@@ -547,19 +551,16 @@ include __DIR__ . '/partials/dashboard-header.php';
                             </select>
 
                             <label for="coupon-value">Hodnota zľavy</label>
-                            <input id="coupon-value" name="discount_value" type="number" step="0.01" min="0" placeholder="20" required>
+                            <input id="coupon-value" name="value" type="number" step="0.01" min="0" placeholder="20" required>
 
                             <label for="coupon-min-total">Minimálna hodnota objednávky</label>
-                            <input id="coupon-min-total" name="min_order_total" type="number" step="0.01" min="0" value="0">
-
-                            <label for="coupon-limit">Limit použití</label>
-                            <input id="coupon-limit" name="usage_limit" type="number" min="1" placeholder="100">
+                            <input id="coupon-min-total" name="min_order_value" type="number" step="0.01" min="0" value="0">
 
                             <label for="coupon-starts">Platí od</label>
-                            <input id="coupon-starts" name="starts_at" type="datetime-local">
+                            <input id="coupon-starts" name="valid_from" type="datetime-local">
 
                             <label for="coupon-ends">Platí do</label>
-                            <input id="coupon-ends" name="ends_at" type="datetime-local">
+                            <input id="coupon-ends" name="valid_to" type="datetime-local">
 
                             <label class="checkbox-field"><input type="checkbox" name="is_active" checked> Aktívny</label>
 
@@ -576,7 +577,6 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         <th>Kód</th>
                                         <th>Zľava</th>
                                         <th>Obmedzenie</th>
-                                        <th>Použité</th>
                                         <th>Stav</th>
                                         <th>Akcia</th>
                                     </tr>
@@ -591,21 +591,20 @@ include __DIR__ . '/partials/dashboard-header.php';
                                             <tr>
                                                 <td>
                                                     <strong><?php echo dash_h($discountCode['code'] ?? ''); ?></strong>
-                                                    <div class="product-meta"><?php echo dash_h($discountCode['title'] ?? ''); ?></div>
+                                                    <div class="product-meta"><?php echo dash_h($discountCode['description'] ?? ''); ?></div>
                                                 </td>
                                                 <td>
                                                     <?php if ((string) ($discountCode['discount_type'] ?? 'percent') === 'fixed'): ?>
-                                                        <span class="product-price-chip"><?php echo dash_h(number_format((float) ($discountCode['discount_value'] ?? 0), 2, '.', '')); ?> €</span>
+                                                        <span class="product-price-chip"><?php echo dash_h(number_format((float) ($discountCode['value'] ?? 0), 2, '.', '')); ?> €</span>
                                                     <?php else: ?>
-                                                        <span class="product-price-chip"><?php echo dash_h(number_format((float) ($discountCode['discount_value'] ?? 0), 2, '.', '')); ?> %</span>
+                                                        <span class="product-price-chip"><?php echo dash_h(number_format((float) ($discountCode['value'] ?? 0), 2, '.', '')); ?> %</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <span class="product-stock-chip">
-                                                        min. <?php echo dash_h(number_format((float) ($discountCode['min_order_total'] ?? 0), 2, '.', '')); ?> €
+                                                        min. <?php echo dash_h(number_format((float) ($discountCode['min_order_value'] ?? 0), 2, '.', '')); ?> €
                                                     </span>
                                                 </td>
-                                                <td><?php echo dash_h($discountCode['used_count'] ?? 0); ?> / <?php echo dash_h($discountCode['usage_limit'] ?? '∞'); ?></td>
                                                 <td>
                                                     <span class="coupon-status <?php echo ((int) ($discountCode['is_active'] ?? 0) === 1) ? 'is-active' : 'is-disabled'; ?>">
                                                         <?php echo ((int) ($discountCode['is_active'] ?? 0) === 1) ? 'Aktívny' : 'Vypnutý'; ?>

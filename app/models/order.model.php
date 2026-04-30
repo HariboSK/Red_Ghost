@@ -6,7 +6,7 @@ class OrderModel extends BaseModel
 {
     public function getTodaySummary(): array
     {
-        $stmt = $this->pdo->query('SELECT COUNT(*) AS order_count, COALESCE(SUM(total_price), 0) AS revenue FROM orders WHERE DATE(created_at) = CURDATE()');
+        $stmt = $this->pdo->query('SELECT COUNT(*) AS order_count, COALESCE(SUM(total_price), 0) AS revenue FROM `order` WHERE DATE(created_at) = CURDATE()');
 
         if (!($stmt instanceof PDOStatement)) {
             return [

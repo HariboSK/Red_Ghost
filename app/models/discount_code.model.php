@@ -6,7 +6,11 @@ class DiscountCodeModel extends BaseModel
 {
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT id, code, title, discount_type, discount_value, min_order_total, usage_limit, used_count, is_active, starts_at, ends_at, created_at FROM discount_codes ORDER BY id DESC');
+        if (!$this->hasDiscountCodesTable()) {
+            return [];
+        }
+
+        $stmt = $this->pdo->query('SELECT id_discount_code AS id, code, description, discount_type, value, min_order_value, is_active, valid_from, valid_to, created_at FROM discount_code ORDER BY id_discount_code DESC');
         $rows = $stmt instanceof PDOStatement ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
         return is_array($rows) ? $rows : [];
@@ -14,29 +18,36 @@ class DiscountCodeModel extends BaseModel
 
     public function create(array $data): void
     {
+        if (!$this->hasDiscountCodesTable()) {
+            throw new RuntimeException('Tabulka discount_code neexistuje.');
+        }
+
         $stmt = $this->pdo->prepare(
-            'INSERT INTO discount_codes (code, title, discount_type, discount_value, min_order_total, usage_limit, used_count, is_active, starts_at, ends_at) VALUES (:code, :title, :discount_type, :discount_value, :min_order_total, :usage_limit, :used_count, :is_active, :starts_at, :ends_at)'
+            'INSERT INTO discount_code (code, description, discount_type, value, min_order_value, is_active, valid_from, valid_to)
+             VALUES (:code, :description, :discount_type, :value, :min_order_value, :is_active, :valid_from, :valid_to)'
         );
 
         $stmt->execute([
             ':code' => $data['code'],
-            ':title' => $data['title'],
+            ':description' => $data['description'],
             ':discount_type' => $data['discount_type'],
-            ':discount_value' => $data['discount_value'],
-            ':min_order_total' => $data['min_order_total'],
-            ':usage_limit' => $data['usage_limit'],
-            ':used_count' => 0,
+            ':value' => $data['value'],
+            ':min_order_value' => $data['min_order_value'],
             ':is_active' => $data['is_active'],
-            ':starts_at' => $data['starts_at'],
-            ':ends_at' => $data['ends_at'],
+            ':valid_from' => $data['valid_from'],
+            ':valid_to' => $data['valid_to'],
         ]);
     }
 
     public function delete(int $discountCodeId): bool
     {
+        if (!$this->hasDiscountCodesTable()) {
+            return false;
+        }
+
         try {
             $this->pdo->beginTransaction();
-            $stmt = $this->pdo->prepare('DELETE FROM discount_codes WHERE id = :id');
+            $stmt = $this->pdo->prepare('DELETE FROM discount_code WHERE id_discount_code = :id');
             $stmt->execute([':id' => $discountCodeId]);
             $this->pdo->commit();
             return true;
@@ -44,6 +55,20 @@ class DiscountCodeModel extends BaseModel
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
+            return false;
+        }
+    }
+
+    private function hasDiscountCodesTable(): bool
+    {
+        try {
+            $stmt = $this->pdo->query("SHOW TABLES LIKE 'discount_code'");
+            if (!($stmt instanceof PDOStatement)) {
+                return false;
+            }
+
+            return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $exception) {
             return false;
         }
     }

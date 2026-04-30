@@ -182,14 +182,13 @@ class DashboardHelper
 
         if ($formType === 'create_discount_code') {
             $code = strtoupper(trim((string) ($post['code'] ?? '')));
-            $title = trim((string) ($post['title'] ?? ''));
+            $description = trim((string) ($post['description'] ?? ''));
             $discountType = (string) ($post['discount_type'] ?? 'percent');
-            $discountValue = filter_var($post['discount_value'] ?? null, FILTER_VALIDATE_FLOAT);
-            $minOrderTotal = filter_var($post['min_order_total'] ?? 0, FILTER_VALIDATE_FLOAT);
-            $usageLimit = filter_var($post['usage_limit'] ?? null, FILTER_VALIDATE_INT);
+            $discountValue = filter_var($post['value'] ?? null, FILTER_VALIDATE_FLOAT);
+            $minOrderValue = filter_var($post['min_order_value'] ?? 0, FILTER_VALIDATE_FLOAT);
             $isActive = isset($post['is_active']) ? 1 : 0;
-            $startsAt = trim((string) ($post['starts_at'] ?? ''));
-            $endsAt = trim((string) ($post['ends_at'] ?? ''));
+            $validFrom = trim((string) ($post['valid_from'] ?? ''));
+            $validTo = trim((string) ($post['valid_to'] ?? ''));
 
             if ($code === '' || strlen($code) < 4) {
                 $state['discountCodeError'] = 'Kód musí mať aspoň 4 znaky.';
@@ -200,14 +199,13 @@ class DashboardHelper
             } else {
                 $couponPayload = [
                     'code' => $code,
-                    'title' => $title,
+                    'description' => $description,
                     'discount_type' => $discountType,
-                    'discount_value' => $discountValue,
-                    'min_order_total' => $minOrderTotal === false || $minOrderTotal === null ? 0 : max(0, (float) $minOrderTotal),
-                    'usage_limit' => $usageLimit === false ? null : $usageLimit,
+                    'value' => $discountValue,
+                    'min_order_value' => $minOrderValue === false || $minOrderValue === null ? 0 : max(0, (float) $minOrderValue),
                     'is_active' => $isActive,
-                    'starts_at' => $startsAt !== '' ? $startsAt : null,
-                    'ends_at' => $endsAt !== '' ? $endsAt : null,
+                    'valid_from' => $validFrom !== '' ? $validFrom : null,
+                    'valid_to' => $validTo !== '' ? $validTo : null,
                 ];
 
                 try {

@@ -1,11 +1,44 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
+require_once dirname(__DIR__, 2) . '/core/helper.php';
+require_once dirname(__DIR__, 2) . '/core/assetHelper.php';
+
+$resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
+  ? $pageTitle
+  : Helper::getPageTitle() . ' - E-shop';
+
+require_once dirname(__DIR__, 2) . '/core/session_helper.php';
+SessionHelper::bootstrap();
+
+$sessionUser = SessionHelper::user();
+
+$profileEmail = (string) ($sessionUser['email'] ?? '');
+$profileName = (string) ($sessionUser['name'] ?? '');
+$isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
+$profilePoints = (int) ($sessionUser['points'] ?? 0);
+$userRole = (string) ($sessionUser['role'] ?? 'guest');
+
+if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO) {
+  $profilePoints = SessionHelper::refreshSessionPoints($conn, $profileEmail);
+}
+
+if ($isLoggedIn && $userRole === 'admin') {
+  $profileHref = route('/dashboard');
+} elseif ($isLoggedIn) {
+  $profileHref = route('/userprofile');
+} else {
+  $profileHref = route('/login');
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="sk">
 
 <head>
-  <?php require_once dirname(__DIR__, 2) . '/core/middleware/function.php'; ?>
-  <?php require_once dirname(__DIR__, 2) . '/core/helper.php'; ?>
-  <?php require_once dirname(__DIR__, 2) . '/core/assetHelper.php';?>
-
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Jakub Chrkavý">
@@ -54,17 +87,31 @@
         <li class="nav-item">
           <a href="<?php echo route('/e-shop'); ?>" class="nav-link">E-shop</a>
         </li>
-        <li class="nav-item nav-login-mobile">
-          <a href="<?php echo route('/login'); ?>" class="nav-link nav-login-mobile-link">
-            <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
-          </a>
-        </li>
+        <?php if ($isLoggedIn): ?>
+          <li class="nav-item nav-login-mobile">
+            <a href="<?php echo htmlspecialchars($userRole === 'admin' ? htmlspecialchars(route('/dashboard')) : htmlspecialchars(route('/userprofile')), ENT_QUOTES, 'UTF-8'); ?>" class="nav-link nav-login-mobile-link">
+              <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+            </a>
+          </li>
+        <?php else: ?>
+          <li class="nav-item nav-login-mobile">
+            <a href="<?php echo htmlspecialchars(route('/login'), ENT_QUOTES, 'UTF-8'); ?>" class="nav-link nav-login-mobile-link">
+              <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+            </a>
+          </li>
+        <?php endif; ?>
       </ul>
 
-      <a href="<?php echo route('/login'); ?>" class="nav-login">
-        <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
-      </a>
-
+      <?php if ($isLoggedIn): ?>
+        <a href="<?php echo htmlspecialchars($userRole === 'admin' ? htmlspecialchars(route('/dashboard')) : htmlspecialchars(route('/userprofile')), ENT_QUOTES, 'UTF-8'); ?>" class="nav-login">
+          <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+        </a>
+      <?php else: ?>
+        <a href="<?php echo htmlspecialchars(route('/login'), ENT_QUOTES, 'UTF-8'); ?>" class="nav-login">
+          <img src="/assets/icons/user-svgrepo-com.svg" alt="Log-in icon" class="nav-login-icon">
+        </a>
+      <?php endif; ?>
+      
       <button id="menu-open-button" class="fas fa-bars"></button>
     </nav>
   </header>

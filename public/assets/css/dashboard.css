@@ -37,16 +37,16 @@ html {
 
 .admin-sidebar {
   position: sticky;
-  top: 146px;
+  top: 150px;
   height: calc(100vh - 174px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 14px;
-  padding: 12px 0;
-  border-radius: 18px;
-  border: 1px solid var(--dash-border);
+  gap: 20px;
+  padding: 15px 0;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 0, 0.492);
   background: rgba(15, 11, 11, 0.74);
   backdrop-filter: blur(12px);
   box-shadow: var(--dash-shadow);
@@ -54,17 +54,23 @@ html {
 }
 
 .sidebar-brand {
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
   color: #fff;
   text-decoration: none;
   font-family: "Oswald", sans-serif;
-  font-size: 1.2rem;
+  font-size: 1rem;
   letter-spacing: 0.06em;
-  background: linear-gradient(135deg, var(--dash-accent), var(--dash-accent-2));
+}
+
+.sidebar-brand img{
+  border: 0.5px solid yellow;
+  width: 45px;
+  height: 45px;
+  border-radius: 100%;
+  background: transparent;
 }
 
 .sidebar-nav {
@@ -85,11 +91,11 @@ html {
   height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 15px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.76);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid transparent;
+  color: var(--dash-text);
+  background: var(--dash-accent-2);
+  border: 1px solid var(--dash-text);
   transition:
     transform 0.18s ease,
     border-color 0.18s ease,
@@ -100,9 +106,9 @@ html {
 .sidebar-link:hover,
 .sidebar-link.active {
   transform: translateY(-1px);
-  color: #fff;
-  background: var(--dash-accent-soft);
-  border-color: rgba(255, 138, 38, 0.38);
+  color: var(--dash-bg);
+  background: yellow;
+  border-color: var(--dash-text);
 }
 
 .admin-main {
@@ -194,9 +200,15 @@ html {
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: 50%;
   padding: 6px 12px 6px 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 0, 0.126);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: ease 1s;
+}
+
+.admin-profile-menu summary:hover {
+  background: var(--dash-accent-2);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -221,7 +233,7 @@ html {
   place-items: center;
   color: #fff;
   font-weight: 800;
-  background: linear-gradient(140deg, var(--dash-accent), var(--dash-accent-2));
+  background: var(--dash-accent-2);
 }
 
 .admin-profile-name {
@@ -239,7 +251,7 @@ html {
   gap: 4px;
   border-radius: 12px;
   background: #170f0e;
-  border: 1px solid var(--dash-border);
+  border: 1px solid var(--dash-text);
   box-shadow: var(--dash-shadow);
   z-index: 9999;
 }
@@ -255,18 +267,19 @@ html {
   padding: 6px 10px 8px;
   display: grid;
   gap: 2px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--dash-text);
   margin-bottom: 4px;
 }
 
 .profile-meta strong {
-  color: var(--dash-text);
-  font-size: 0.92rem;
+  text-transform: uppercase;
+  color: yellow;
+  font-size: 1rem;
 }
 
 .profile-meta span {
-  color: rgba(248, 245, 242, 0.62);
-  font-size: 0.78rem;
+  color: orangered;
+  font-size: 1rem;
 }
 
 .admin-profile-dropdown a {
@@ -277,7 +290,8 @@ html {
 }
 
 .admin-profile-dropdown a:hover {
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--dash-bg);
+  background: yellow;
 }
 
 .admin-metrics {
@@ -439,20 +453,21 @@ html {
 .metric-card,
 .admin-card {
   border-radius: 18px;
-  border: 1px solid var(--dash-border);
+  border: 1px solid rgba(255, 255, 0, 0.567);
   background: var(--dash-surface);
   backdrop-filter: blur(12px);
-  box-shadow: var(--dash-shadow);
+  box-shadow: var(--dash-accent-2);
 }
 
 .metric-card {
   padding: 16px 18px;
+  background: var(--dash-bg);
 }
 
 .metric-card p {
   margin: 0;
-  color: var(--dash-muted);
-  font-size: 0.86rem;
+  color: yellow;
+  font-size: 1.10rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -465,7 +480,8 @@ html {
 }
 
 .metric-card small {
-  color: rgba(248, 245, 242, 0.66);
+  font-size: 0.9rem;
+  color: var(--dash-text);
 }
 
 .metric-card.is-accent {
@@ -473,22 +489,6 @@ html {
     145deg,
     rgba(255, 138, 38, 0.14),
     rgba(182, 58, 31, 0.11)
-  );
-}
-
-.metric-card-wide {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 138, 38, 0.08)
-  );
-}
-
-.metric-card.wide-highlight {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 138, 38, 0.08)
   );
 }
 

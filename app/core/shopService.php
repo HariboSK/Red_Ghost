@@ -9,12 +9,29 @@ class ShopService
         $allProducts = [];
 
         if ($conn instanceof PDO) {
-            $hasDiscountPercent = self::hasDiscountPercentColumn($conn);
-            $sql = $hasDiscountPercent
-                ? 'SELECT id, name, description, price, discount_percent, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC'
-                : 'SELECT id, name, description, price, rating, featured, stock, image FROM products ORDER BY featured DESC, id ASC';
-
-            $stmt = $conn->query($sql);
+            $stmt = $conn->query(
+                'SELECT p.id_product AS id,
+                        p.name,
+                        p.description,
+                        p.price,
+                        p.rating,
+                        p.featured,
+                        p.stock,
+                        p.image,
+                        MIN(c.name) AS category
+                 FROM product p
+                 LEFT JOIN product_category pc ON pc.id_product = p.id_product
+                 LEFT JOIN category c ON c.id_category = pc.id_category
+                 GROUP BY p.id_product,
+                          p.name,
+                          p.description,
+                          p.price,
+                          p.rating,
+                          p.featured,
+                          p.stock,
+                          p.image
+                 ORDER BY p.featured DESC, p.id_product ASC'
+            );
 
             $rows = ($stmt instanceof PDOStatement) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
@@ -62,8 +79,8 @@ class ShopService
         }
 
         $price = (float) ($row['price'] ?? 0);
-        $discountPercent = max(0, min(100, (float) ($row['discount_percent'] ?? 0)));
-        $finalPrice = $discountPercent > 0 ? max(0, $price * (1 - ($discountPercent / 100))) : $price;
+        $discountPercent = 0.0;
+        $finalPrice = $price;
 
         return [
             'id' => (int) ($row['id'] ?? 0),
@@ -76,6 +93,7 @@ class ShopService
             'rating' => (int) ($row['rating'] ?? 4),
             'featured' => (int) ($row['featured'] ?? 0) === 1,
             'stock' => (int) ($row['stock'] ?? 0),
+            'category' => (string) ($row['category'] ?? 'Chilli produkt'),
         ];
     }
 
@@ -151,12 +169,28 @@ class ShopService
             return null;
         }
 
-        $hasDiscountPercent = self::hasDiscountPercentColumn($conn);
-        $sql = $hasDiscountPercent
-            ? 'SELECT id, name, description, image, price, discount_percent, rating, stock, category FROM products WHERE id = :id LIMIT 1'
-            : 'SELECT id, name, description, image, price, rating, stock, category FROM products WHERE id = :id LIMIT 1';
-
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare(
+            'SELECT p.id_product AS id,
+                    p.name,
+                    p.description,
+                    p.image,
+                    p.price,
+                    p.rating,
+                    p.stock,
+                    MIN(c.name) AS category
+             FROM product p
+             LEFT JOIN product_category pc ON pc.id_product = p.id_product
+             LEFT JOIN category c ON c.id_category = pc.id_category
+             WHERE p.id_product = :id
+             GROUP BY p.id_product,
+                      p.name,
+                      p.description,
+                      p.image,
+                      p.price,
+                      p.rating,
+                      p.stock
+             LIMIT 1'
+        );
         if (!($stmt instanceof PDOStatement)) {
             return null;
         }
@@ -173,8 +207,8 @@ class ShopService
         }
 
         $price = (float) ($row['price'] ?? 0);
-        $discountPercent = max(0, min(100, (float) ($row['discount_percent'] ?? 0)));
-        $finalPrice = $discountPercent > 0 ? max(0, $price * (1 - ($discountPercent / 100))) : $price;
+        $discountPercent = 0.0;
+        $finalPrice = $price;
 
         return [
             'id' => (int) ($row['id'] ?? 0),
@@ -228,20 +262,6 @@ class ShopService
                 'date' => '25.02.2026',
             ],
         ];
-    }
-
-    private static function hasDiscountPercentColumn(PDO $conn): bool
-    {
-        try {
-            $stmt = $conn->query("SHOW COLUMNS FROM products LIKE 'discount_percent'");
-            if (!($stmt instanceof PDOStatement)) {
-                return false;
-            }
-
-            return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $exception) {
-            return false;
-        }
     }
 
     public static function renderMain(array $data): void

@@ -45,15 +45,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? ''
 
   if (empty($contactFormErrors) && $pdo instanceof PDO) {
     try {
-      $stmt = $pdo->prepare('INSERT INTO contact_messages (sender_name, sender_email, subject, message_text, status) 
-                                                  VALUES (:sender_name, :sender_email, :subject, :message_text, :status)');
+      $pdo->beginTransaction();
+
+      $stmt = $pdo->prepare(
+        'INSERT INTO contact_messages (sender_name, sender_email, subject, status, id_user)
+         VALUES (:sender_name, :sender_email, :subject, :status, :id_user)'
+      );
       $stmt->execute([
         ':sender_name' => $contactFormData['name'],
         ':sender_email' => $contactFormData['email'],
         ':subject' => $contactFormData['subject'],
-        ':message_text' => $contactFormData['message'],
-        ':status' => 'unread',
+        ':status' => 'new',
+        ':id_user' => null,
       ]);
+
+      $messageId = (int) $pdo->lastInsertId();
+      $stmt = $pdo->prepare(
+        'INSERT INTO contact_replies (sender_type, message_text, id_message)
+         VALUES (:sender_type, :message_text, :id_message)'
+      );
+      $stmt->execute([
+        ':sender_type' => 'user',
+        ':message_text' => $contactFormData['message'],
+        ':id_message' => $messageId,
+      ]);
+
+      $pdo->commit();
 
       $contactFormSuccess = 'Správa bola úspešne odoslaná.';
       $contactFormData = [
@@ -63,6 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? ''
         'message' => '',
       ];
     } catch (PDOException $exception) {
+      if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+      }
       $contactFormErrors[] = 'Správu sa nepodarilo uložiť. Skúste to prosím neskôr.';
     }
   }
@@ -235,7 +255,8 @@ include __DIR__ . '/partials/header.php';
         </li>
         <li class="contact-info">
           <i class="fa-regular fa-clock"></i>
-            <p>Pondelok - Nedeľa 9:00 - 19:00</p>           
+            <p>Pondelok - Piatok</p>
+            <p>9:00 - 19:00</p>
         </li>
       </ul>
 

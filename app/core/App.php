@@ -16,7 +16,6 @@ class App
         self::loadModels($projectRoot);
 
         SessionManager::start();
-        app_env_load($projectRoot . '/config/config.env');
         app_register_error_handlers();
 
         self::$initialized = true;
@@ -55,6 +54,7 @@ class App
             '/app/models/user.model.php',
             '/app/models/order.model.php',
             '/app/models/payment.model.php',
+            '/app/models/AvatarManager.php',
         ];
 
         foreach ($modelFiles as $file) {
