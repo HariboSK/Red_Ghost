@@ -9,8 +9,12 @@ class DashboardHelper
 {
     private static ?array $baseDashboardState = null;
 
-    public static function h($value): string
+    public static function h(mixed $value): string
     {
+
+    if(is_array($value)) {
+        throw new Error('Error:Cannot be an array');
+    }
         return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 

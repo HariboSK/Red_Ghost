@@ -7,6 +7,14 @@ SessionHelper::bootstrap();
 require_once dirname(__DIR__, 2) . '/config/config.php';
 require_once dirname(__DIR__) . '/models/contact_message.model.php';
 $sessionUser = SessionHelper::user();
+$avatarFile = (string) ($sessionUser['image'] ?? '');
+$avatarFsPath = $avatarFile !== ''
+    ? dirname(__DIR__, 2) . '/public/uploads/avatars/' . $avatarFile
+    : '';
+$avatarUrl = ($avatarFile !== '' && is_file($avatarFsPath))
+    ? '/uploads/avatars/' . rawurlencode($avatarFile)
+    : '';
+$avatarInitial = strtoupper(substr(trim((string) ($sessionUser['name'] ?? 'A')), 0, 1));
 $profileEmail = (string) ($sessionUser['email'] ?? '');
 $profileName = (string) ($sessionUser['name'] ?? '');
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
@@ -67,7 +75,11 @@ if ($pdo instanceof PDO && $profileEmail !== '') {
         <div class="profile-shell">
             <aside class="profile-card">
                 <div class="avatar-wrap">
-                    <img src="/assets/icons/user-svgrepo-com.svg" alt="Avatar uzivatela" class="profile-avatar">
+                    <?php if ($avatarUrl !== ''): ?>
+                        <img src="<?php echo htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Avatar používateľa" class="profile-avatar">
+                    <?php else: ?>
+                        <span aria-hidden="true" class="profile-avatar-initial"><?php echo htmlspecialchars($avatarInitial !== '' ? $avatarInitial : 'A', ENT_QUOTES, 'UTF-8'); ?></span>
+                    <?php endif; ?>
                 </div>
                 <h1>VITAJ, <span><?= htmlspecialchars($profileName !== '' ? $profileName : 'Zakaznik', ENT_QUOTES, 'UTF-8'); ?></span></h1>
                 <p class="profile-email"><?= htmlspecialchars($profileEmail !== '' ? $profileEmail : 'Neznamy e-mail', ENT_QUOTES, 'UTF-8'); ?></p>

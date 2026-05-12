@@ -2,11 +2,11 @@
 
 :root {
   --white-color: #fff;
-  --dark-color: #373737;
-  --primary-color: #000000;
-  --secondary-color: rgb(162, 49, 27);
-  --light-red-color: #fa6e17;
-  --medium-gray-color: #ccc;
+  --dark-color: #0a0f0c;
+  --primary-color: #050706;
+  --secondary-color: #b42318;
+  --light-red-color: #2f9e44;
+  --medium-gray-color: #c8d0c9;
 }
 
 .profile-page {
@@ -15,11 +15,11 @@
   background:
     radial-gradient(
       circle at 100% 0,
-      rgba(250, 110, 23, 0.18),
+      rgba(47, 158, 68, 0.14),
       transparent 36%
     ),
-    radial-gradient(circle at 5% 95%, rgba(162, 49, 27, 0.2), transparent 40%),
-    linear-gradient(150deg, #100706 0%, #1b0d0c 56%, #130706 100%);
+    radial-gradient(circle at 5% 95%, rgba(180, 35, 24, 0.18), transparent 40%),
+    linear-gradient(150deg, #050706 0%, #0f1110 56%, #090606 100%);
 }
 
 .profile-shell {
@@ -33,13 +33,9 @@
 .profile-card,
 .account-card,
 .orders-card {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(47, 158, 68, 0.18);
   border-radius: 16px;
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.09),
-    rgba(255, 255, 255, 0.03)
-  );
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.025));
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
 }
@@ -56,16 +52,30 @@
   display: grid;
   place-items: center;
   margin-bottom: 10px;
-  background: linear-gradient(
-    135deg,
-    var(--light-red-color),
-    var(--secondary-color)
-  );
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(47, 158, 68, 0.18), rgba(180, 35, 24, 0.18));
+  border: 2px solid rgba(47, 158, 68, 0.32);
 }
 
 .profile-avatar {
-  width: 56px;
-  height: 56px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.profile-avatar-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: "Arial", sans-serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .profile-card h1 {
@@ -95,16 +105,16 @@
   align-items: center;
   padding: 11px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(47, 158, 68, 0.16);
+  background: rgba(0, 0, 0, 0.26);
 }
 
 .stat-item span {
-  color: var(--light-red-color);
+  color: #86efac;
 }
 
 .stat-item strong {
-  color: #ffd8c4;
+  color: #f8f5f2;
 }
 
 .profile-main {
@@ -127,9 +137,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(47, 158, 68, 0.2);
   background: rgba(255, 255, 255, 0.06);
-  color: #ffd8c4;
+  color: #d7f5de;
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -146,13 +156,13 @@
 
 .profile-logout-icon:hover {
   transform: translateY(-1px);
-  border-color: rgba(250, 110, 23, 0.72);
-  background: rgba(250, 110, 23, 0.16);
-  color: #fff3ea;
+  border-color: rgba(47, 158, 68, 0.56);
+  background: rgba(47, 158, 68, 0.14);
+  color: #ffffff;
 }
 
 .profile-logout-icon:focus-visible {
-  outline: 2px solid rgba(250, 110, 23, 0.75);
+  outline: 2px solid rgba(47, 158, 68, 0.75);
   outline-offset: 2px;
 }
 
@@ -177,7 +187,7 @@
 
 .edit-link {
   text-decoration: none;
-  color: #ffd8c4;
+  color: #86efac;
   font-size: 0.9rem;
 }
 
@@ -188,7 +198,7 @@
 }
 
 .account-grid article {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(47, 158, 68, 0.14);
   border-radius: 12px;
   padding: 12px;
   background: rgba(0, 0, 0, 0.24);
@@ -196,7 +206,7 @@
 
 .account-grid h3 {
   margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(248, 245, 242, 0.84);
   font-size: 0.9rem;
 }
 
@@ -213,13 +223,9 @@
 
 .messages-card {
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(47, 158, 68, 0.18);
   border-radius: 16px;
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.09),
-    rgba(255, 255, 255, 0.03)
-  );
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.025));
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
 }
@@ -234,7 +240,7 @@
   gap: 12px;
   padding: 14px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(47, 158, 68, 0.14);
   background: rgba(0, 0, 0, 0.24);
 }
 
@@ -267,22 +273,22 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffe1cd;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d7f5de;
 }
 
 .message-badge.replied {
-  background: rgba(41, 130, 52, 0.38);
+  background: rgba(47, 158, 68, 0.3);
   color: #e7ffe5;
 }
 
 .message-badge.read {
-  background: rgba(199, 108, 18, 0.38);
-  color: #fff0dc;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8f5f2;
 }
 
 .message-badge.unread {
-  background: rgba(162, 49, 27, 0.42);
+  background: rgba(180, 35, 24, 0.32);
   color: #fff0ec;
 }
 
@@ -292,13 +298,13 @@
   gap: 6px;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(47, 158, 68, 0.12);
   background: rgba(255, 255, 255, 0.04);
 }
 
 .message-body strong,
 .message-reply strong {
-  color: var(--light-red-color);
+  color: #86efac;
 }
 
 .message-reply small {
@@ -315,7 +321,7 @@
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(47, 158, 68, 0.12);
   border-radius: 12px;
   padding: 12px;
   background: rgba(0, 0, 0, 0.24);
@@ -332,7 +338,7 @@
 }
 
 .order-row strong {
-  color: #ffd8c4;
+  color: #d7f5de;
 }
 
 .order-state {
@@ -344,12 +350,12 @@
 
 .order-state.done {
   color: #e7ffe5;
-  background: rgba(41, 130, 52, 0.4);
+  background: rgba(47, 158, 68, 0.32);
 }
 
 .order-state.progress {
   color: #fff6e8;
-  background: rgba(199, 108, 18, 0.45);
+  background: rgba(180, 35, 24, 0.34);
 }
 
 @media screen and (max-width: 930px) {
@@ -369,6 +375,15 @@
 @media screen and (max-width: 640px) {
   .profile-page {
     padding: 96px 12px 26px;
+  }
+
+  .profile-top-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .profile-logout-icon {
+    justify-content: center;
   }
 
   .order-row {

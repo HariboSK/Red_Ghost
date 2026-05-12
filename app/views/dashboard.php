@@ -16,7 +16,17 @@ if (($dashboardState['redirectTo'] ?? '') !== '') {
 
 extract($dashboardState, EXTR_SKIP);
 
-$avatarPath = dirname(__DIR__, 2) . '/public/uploads/avatars/' . ($sessionUser['id'] ?? 'default') . '.png';
+$avatarFile = (string) ($sessionUser['image'] ?? '');
+$avatarFsPath = $avatarFile !== ''
+    ? dirname(__DIR__, 2) . '/public/uploads/avatars/' . $avatarFile
+    : '';
+$avatarUrl = ($avatarFile !== '' && is_file($avatarFsPath))
+    ? '/uploads/avatars/' . rawurlencode($avatarFile)
+    : '';
+$avatarInitial = strtoupper(substr(trim((string) ($sessionUser['name'] ?? 'A')), 0, 1));
+
+$uploadError = (string) ($_SESSION['upload_error'] ?? '');
+unset($_SESSION['upload_error']);
 
 include __DIR__ . '/partials/dashboard-header.php';
 ?>
@@ -97,8 +107,16 @@ include __DIR__ . '/partials/dashboard-header.php';
                 <aside class="admin-card user-avatar-side-card" aria-label="Sekcia používateľa">
                     <form action="UploadAvatar.php" method="POST" enctype="multipart/form-data">
                         <div class="user-avatar-frame">
-                            <img src="<?php echo htmlspecialchars($avatarPath); ?>" alt="Avatar">
+                            <?php if ($avatarUrl !== ''): ?>
+                                <img src="<?php echo htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Avatar">
+                            <?php else: ?>
+                                <span aria-hidden="true"><?php echo dash_h($avatarInitial !== '' ? $avatarInitial : 'A'); ?></span>
+                            <?php endif; ?>
                         </div>
+
+                        <?php if ($uploadError !== ''): ?>
+                            <p class="user-avatar-note user-avatar-note--error"><?php echo dash_h($uploadError); ?></p>
+                        <?php endif; ?>
     
                         <label for="user-avatar-file" class="management-submit user-avatar-edit-btn">
                             Edit avatara
@@ -106,7 +124,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <input type="file" name="avatar" id="user-avatar-file" class="user-avatar-input" accept="image/*" onchange="this.form.submit()">
                     </form>
 
-                    <p class="user-avatar-name"><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></p>
+                    <p class="user-avatar-name">Vitaj späť, <strong><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></strong></p>
 
                     <div class="user-avatar-meta">
                         <p>Informácie o administrátorovi</p>

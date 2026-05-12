@@ -18,6 +18,33 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
+function product_stock(PDO $conn, int $productId): int
+{
+    $stmt = $conn->prepare('SELECT stock FROM product WHERE id_product = :id LIMIT 1');
+    $stmt->execute(['id' => $productId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!is_array($row)) {
+        return -1;
+    }
+
+    return (int) ($row['stock'] ?? 0);
+}
+
+function product_has_stock(PDO $conn, int $productId, int $requestedQuantity): bool
+{
+    if ($requestedQuantity <= 0) {
+        return false;
+    }
+
+    return product_stock($conn, $productId) >= $requestedQuantity;
+}
+
+function cart_quantity_for_product(array $cart, int $productId): int
+{
+    return (int) ($cart[$productId]['quantity'] ?? 0);
+}
+
 // Nacita jeden produkt z databazy, aby kosik pouzival aktualne data.
 function get_product_by_id(PDO $conn, int $productId): ?array
 {   
@@ -51,6 +78,7 @@ function sync_cart_prices(PDO $conn, array &$cart): void
 
         $cart[$productId]['name'] = $dbProduct['name'];
         $cart[$productId]['price'] = $dbProduct['price'];
+
     }
 }
 
@@ -157,6 +185,15 @@ if ($action === 'add') {
         exit;
     }
 
+    $currentQuantity = cart_quantity_for_product($_SESSION['cart'], $productId);
+    $requestedQuantity = $currentQuantity + 1;
+
+    if (!product_has_stock($conn, $productId, $requestedQuantity)) {
+        http_response_code(409);
+        echo json_encode(['success' => false, 'message' => 'Na sklade nie je dosť kusov.']);
+        exit;
+    }
+
     if (!isset($_SESSION['cart'][$productId])) {
         $_SESSION['cart'][$productId] = [
             'id' => $productId,
@@ -167,6 +204,8 @@ if ($action === 'add') {
     }
 
     $_SESSION['cart'][$productId]['quantity'] += 1;
+    $_SESSION['cart'][$productId]['name'] = $product['name'];
+    $_SESSION['cart'][$productId]['price'] = $product['price'];
 
     echo json_encode([
         'success' => true,
@@ -186,17 +225,23 @@ if ($action === 'update') {
         exit;
     }
 
+    $currentQuantity = (int) ($_SESSION['cart'][$productId]['quantity'] ?? 0);
+    $product = get_product_by_id($conn, $productId);
+    if ($product === null) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Produkt uz nie je dostupny']);
+        exit;
+    }
+
+    if ($quantity > $currentQuantity && !product_has_stock($conn, $productId, $quantity)) {
+        http_response_code(409);
+        echo json_encode(['success' => false, 'message' => 'Požadované množstvo presahuje sklad.']);
+        exit;
+    }
+
     if ($quantity <= 0) {
         unset($_SESSION['cart'][$productId]);
     } else {
-        $product = get_product_by_id($conn, $productId);
-        if ($product === null) {
-            unset($_SESSION['cart'][$productId]);
-            http_response_code(404);
-            echo json_encode(['success' => false, 'message' => 'Produkt uz nie je dostupny']);
-            exit;
-        }
-
         $_SESSION['cart'][$productId]['name'] = $product['name'];
         $_SESSION['cart'][$productId]['price'] = $product['price'];
         $_SESSION['cart'][$productId]['quantity'] = $quantity;
@@ -211,6 +256,7 @@ if ($action === 'update') {
 
 if ($action === 'clear') {
     $_SESSION['cart'] = [];
+
     echo json_encode([
         'success' => true,
         'summary' => cart_summary($_SESSION['cart']),
@@ -227,10 +273,19 @@ if ($action === 'remove') {
         exit;
     }
 
-    // Znížit quantity o 1
+    $currentQuantity = (int) ($_SESSION['cart'][$productId]['quantity'] ?? 0);
+    if ($currentQuantity <= 0) {
+        unset($_SESSION['cart'][$productId]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Produkt bol aktualizovaný',
+            'summary' => cart_summary($_SESSION['cart']),
+        ]);
+        exit;
+    }
+
     $_SESSION['cart'][$productId]['quantity'] -= 1;
 
-    // Ak je quantity 0, odstránit produkt úplne
     if ($_SESSION['cart'][$productId]['quantity'] <= 0) {
         unset($_SESSION['cart'][$productId]);
     }

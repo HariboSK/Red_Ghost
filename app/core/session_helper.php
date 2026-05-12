@@ -72,6 +72,7 @@ class SessionHelper
         $_SESSION['email'] = $email;
         $_SESSION['role'] = $role;
         $_SESSION['image'] = $image;
+        $_SESSION['user']['image'] = $image;
         $_SESSION['loayalty_points'] = $points;
         $_SESSION['logged_in'] = true;
     }

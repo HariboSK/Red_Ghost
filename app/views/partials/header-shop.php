@@ -26,6 +26,30 @@ if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO)
 
 $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
 
+$headerCartItems = [];
+$headerCartCountValue = 0;
+$headerCartTotalValue = 0.0;
+
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $quantity = max(0, (int) ($item['quantity'] ?? 0));
+    if ($quantity <= 0) {
+      continue;
+    }
+
+    $price = (float) ($item['price'] ?? 0);
+    $headerCartItems[] = [
+      'name' => (string) ($item['name'] ?? 'Produkt'),
+      'price' => $price,
+      'quantity' => $quantity,
+      'image' => (string) ($item['image'] ?? '/assets/images/omacka3.jpg'),
+    ];
+
+    $headerCartCountValue += $quantity;
+    $headerCartTotalValue += $price * $quantity;
+  }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +78,8 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
 </head>
 
 <body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>"
-  data-cart-api="<?php echo route('/api/cart.php'); ?>">
+  data-cart-api="<?php echo route('/api/cart.php'); ?>"
+  data-checkout-api="<?php echo route('/api/checkout.php'); ?>">
   <!-- Header pre e-shop -->
   <header class="posun">
     <div class="container">
@@ -101,13 +126,25 @@ $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
           <div id="cartMenu" class="cart-menu">
             <button id="cartIcon" aria-expanded="false" aria-label="Otvorit kosik">
               <i class="fa-solid fa-cart-shopping"></i>
-              <span id="headerCartCount" class="header-cart-count">0</span>
-              <span id="headerCartTotal" class="sr-only">0.00 EUR</span>
+              <span id="headerCartCount" class="header-cart-count"><?php echo (int) $headerCartCountValue; ?></span>
+              <span id="headerCartTotal" class="sr-only"><?php echo number_format($headerCartTotalValue, 2, '.', ''); ?> EUR</span>
             </button>
   
             <div id="cartPopup" class="cart-popup" aria-hidden="true">
               <div class="cart-items-list" id="cartItemsList">
-                <!-- pridane produkty do košika sa pridaju sem -->
+                <?php if (!empty($headerCartItems)): ?>
+                  <?php foreach ($headerCartItems as $item): ?>
+                    <div class="cart-item">
+                      <img src="<?php echo htmlspecialchars($item['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                      <div class="cart-item-info">
+                        <p class="cart-item-name"><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p class="cart-item-price"><?php echo number_format($item['price'], 2, '.', ''); ?> EUR x <?php echo (int) $item['quantity']; ?></p>
+                      </div>
+                    </div>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <p style="padding: 10px; text-align: center;">Košík je prázdny</p>
+                <?php endif; ?>
               </div>
               <a href="<?php echo route('/shopcart'); ?>" class="cart-view-btn">Zobraziť košík</a>
             </div>

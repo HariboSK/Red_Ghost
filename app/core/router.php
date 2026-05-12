@@ -26,6 +26,8 @@ class Router
         '/userprofile.php' => ['style.css','userprofile.css'],
         '/login.php' => ['style2.css', 'login.css'],
         '/login' => ['style2.css', 'login.css'],
+        '/forgot-password' => ['style2.css', 'login.css'],
+        '/forgot-password.php' => ['style2.css', 'login.css'],
         '/404' => ['errors.css', 'style.css'],
         '/404.php' => ['errors.css', 'style.css'],
         '/error500' => ['errors.css', 'style.css'],
@@ -56,6 +58,8 @@ class Router
             '/userprofile.php' => 'app/views/userprofile.php',
             '/login.php' => 'app/views/login.php',
             '/login' => 'app/views/login.php',
+            '/forgot-password' => 'app/views/forgot_password.php',
+            '/forgot-password.php' => 'app/views/forgot_password.php',
             '/login-register' => 'app/core/login_register.php',
             '/login-register.php' => 'app/core/login_register.php',
             '/login_register' => 'app/core/login_register.php',
@@ -78,8 +82,7 @@ class Router
             $normalizedPath = substr($normalizedPath, strlen($basePath));
         }
 
-        $normalizedPath = '/' . ltrim($normalizedPath, '/');
-        $normalizedPath = rtrim($normalizedPath, '/');
+        $normalizedPath = '/' . trim($normalizedPath, '/');
         $normalizedPath = ($normalizedPath === '') ? '/' : $normalizedPath;
 
         if (isset(self::$page_assets[$normalizedPath])) {
@@ -108,8 +111,7 @@ class Router
             $urlPath = substr($urlPath, strlen($basePath));
         }
 
-        $url = '/' . ltrim($urlPath, '/');
-        $url = rtrim($url, '/');
+        $url = '/' . trim($urlPath, '/');
         $url = ($url === '') ? '/' : $url;
 
         if (isset($this->routes[$url])) {
@@ -138,7 +140,7 @@ class Router
     public static function url($path)
     {
         $basePath = function_exists('app_base_path') ? app_base_path() : '';
-        $normalizedPath = '/' . ltrim((string) $path, '/');
+        $normalizedPath = '/' . trim((string) $path, '/');
 
         return htmlspecialchars($basePath . $normalizedPath, ENT_QUOTES, 'UTF-8');
     }

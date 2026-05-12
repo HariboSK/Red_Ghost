@@ -12,26 +12,22 @@ class AvatarManager {
 
 
     public function uploadAvatar(int $userId, array $file): bool {
-        try {
-            $this->validateFile($file);
+        $this->validateFile($file);
 
-            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $newFileName = "avatar_" . $userId . "_" . time() . "." . $extension;
-            $fullPath = $this->uploadDir . $newFileName;
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $newFileName = "avatar_" . $userId . "_" . time() . "." . $extension;
+        $fullPath = $this->uploadDir . $newFileName;
 
-            // Vytvorenie priečinka, ak neexistuje
-            if (!is_dir($this->uploadDir)) {
-                mkdir($this->uploadDir, 0755, true);
-            }
-
-            if (move_uploaded_file($file['tmp_name'], $fullPath)) {
-                return $this->updateUserImage($userId, $newFileName);
-            }
-
-            return false;
-        } catch (Exception $e) {
-            return false;
+        // Vytvorenie priečinka, ak neexistuje
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0755, true);
         }
+
+        if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+            return $this->updateUserImage($userId, $newFileName);
+        }
+
+        return false;
     }
 
     private function validateFile(array $file) {

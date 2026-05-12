@@ -88,7 +88,7 @@ body.login-page {
 }
 
 body.login-page main {
-  min-height: 100vh;
+  min-height: 120vh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -244,6 +244,44 @@ body.login-page main {
   background: linear-gradient(rgb(40, 0, 0) 35%, var(--primary-color) 100%);
   backdrop-filter: blur(10px);
   margin-top: 50px;
+}
+
+.auth-shell--single {
+  width: min(520px, 100%);
+}
+
+.forgot-password-message {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.forgot-password-message--success {
+  color: #dfffe7;
+  border: 1px solid rgba(47, 158, 68, 0.34);
+  background: rgba(47, 158, 68, 0.14);
+}
+
+.forgot-password-message--error {
+  color: #ffe1e1;
+  border: 1px solid rgba(180, 35, 24, 0.34);
+  background: rgba(180, 35, 24, 0.14);
+}
+
+.auth-footer-link {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.auth-footer-link a {
+  color: var(--light-red-color);
+  text-decoration: none;
+}
+
+.auth-footer-link a:hover {
+  color: #fff;
 }
 
 body.login-page .footer-section {

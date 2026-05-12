@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const headerCartTotal = document.getElementById("headerCartTotal");
   const headerCartCount = document.getElementById("headerCartCount");
   const cartApiUrl = document.body.dataset.cartApi || "api/cart.php";
+  const checkoutApiUrl = document.body.dataset.checkoutApi || "api/checkout.php";
   const profileMenu = document.getElementById("profileMenu");
   const profileIcon = document.getElementById("profileIcon");
   const profilePopup = document.getElementById("profilePopup");
@@ -37,32 +38,87 @@ document.addEventListener("DOMContentLoaded", function () {
   const cartIcon = document.getElementById("cartIcon");
   const cartPopup = document.getElementById("cartPopup");
   const cartItemsList = document.getElementById("cartItemsList");
+  const cartPageItemsList = document.getElementById("cartPageItemsList");
+  const cartPageCount = document.getElementById("cartPageCount");
+  const cartPageSubtotal = document.getElementById("cartPageSubtotal");
+  const cartPageShipping = document.getElementById("cartPageShipping");
+  const cartPageDiscount = document.getElementById("cartPageDiscount");
+  const cartPageTotal = document.getElementById("cartPageTotal");
+  const cartPageMessage = document.getElementById("cartPageMessage");
+  const checkoutBtn = document.getElementById("checkoutBtn");
 
-  function loadCartPopup() {
-    fetch(cartApiUrl + "?action=list", {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (payload) {
-        if (payload && payload.success && payload.items) {
-          renderCartItems(payload.items);
-        } else {
-          cartItemsList.innerHTML =
-            "<p style='padding: 10px; text-align: center;'>Košík je prázdny</p>";
-        }
-      })
-      .catch(function () {
-        cartItemsList.innerHTML =
-          "<p style='padding: 10px; text-align: center; color: red;'>Chyba pri načítaní</p>";
-      });
+  function formatMoney(value) {
+    return Number(value || 0).toFixed(2) + " EUR";
   }
 
-  function renderCartItems(items) {
+  function summarizeItems(items) {
+    return items.reduce(
+      function (summary, item) {
+        const quantity = Math.max(0, Number(item.quantity || 0));
+        const price = Number(item.price || 0);
+        summary.count += quantity;
+        summary.total += quantity * price;
+        return summary;
+      },
+      { count: 0, total: 0 },
+    );
+  }
+
+  function updateHeaderSummary(summary) {
+    if (!summary) {
+      return;
+    }
+
+    if (headerCartTotal) {
+      headerCartTotal.textContent = formatMoney(summary.total || 0);
+    }
+
+    if (headerCartCount) {
+      headerCartCount.textContent = String(Math.max(0, Number(summary.count || 0)));
+    }
+  }
+
+  function updateCartPageSummary(summary) {
+    if (!summary) {
+      return;
+    }
+
+    if (cartPageCount) {
+      cartPageCount.textContent = String(Math.max(0, Number(summary.count || 0))) + " položiek";
+    }
+
+    if (cartPageSubtotal) {
+      cartPageSubtotal.textContent = formatMoney(summary.total || 0);
+    }
+
+    if (cartPageShipping) {
+      cartPageShipping.textContent = summary.count > 0 ? "3,90 EUR" : "0,00 EUR";
+    }
+
+    if (cartPageDiscount) {
+      cartPageDiscount.textContent = "-0,00 EUR";
+    }
+
+    if (cartPageTotal) {
+      const shipping = summary.count > 0 ? 3.9 : 0;
+      cartPageTotal.textContent = formatMoney((summary.total || 0) + shipping);
+    }
+  }
+
+  function setCartPageMessage(message, isError) {
+    if (!cartPageMessage) {
+      return;
+    }
+
+    cartPageMessage.textContent = message;
+    cartPageMessage.classList.toggle("is-error", Boolean(isError));
+  }
+
+  function renderCartPopupItems(items) {
+    if (!cartItemsList) {
+      return;
+    }
+
     if (!items || items.length === 0) {
       cartItemsList.innerHTML =
         "<p style='padding: 10px; text-align: center;'>Košík je prázdny</p>";
@@ -88,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const priceP = document.createElement("p");
       priceP.className = "cart-item-price";
       priceP.textContent =
-        (item.price || 0).toFixed(2) + " EUR x " + (item.quantity || 1);
+        formatMoney(item.price || 0) + " x " + (item.quantity || 1);
 
       info.appendChild(nameP);
       info.appendChild(priceP);
@@ -99,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
       removeBtn.innerHTML = '<i class="fa fa-trash"></i>';
       removeBtn.onclick = function (e) {
         e.preventDefault();
-        removeFromCart(item.id);
+        updateCartQuantity(item.id, Math.max(0, Number(item.quantity || 0) - 1));
       };
 
       itemEl.appendChild(img);
@@ -109,25 +165,143 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function removeFromCart(id) {
-    fetch(cartApiUrl + "?action=remove", {
+  function renderCartPageItems(items) {
+    if (!cartPageItemsList) {
+      return;
+    }
+
+    if (!items || items.length === 0) {
+      cartPageItemsList.innerHTML = '<div class="cart-empty">Košík je prázdny.</div>';
+      setCartPageMessage("Košík je prázdny.", false);
+      if (checkoutBtn) {
+        checkoutBtn.disabled = true;
+      }
+      updateCartPageSummary({ count: 0, total: 0 });
+      return;
+    }
+
+    if (checkoutBtn) {
+      checkoutBtn.disabled = false;
+    }
+
+    cartPageItemsList.innerHTML = "";
+    items.forEach(function (item) {
+      const itemEl = document.createElement("div");
+      itemEl.className = "cart-item";
+
+      const img = document.createElement("img");
+      img.src = item.image || "/assets/images/omacka3.jpg";
+      img.alt = item.name;
+
+      const info = document.createElement("div");
+      info.className = "item-info";
+
+      const title = document.createElement("h3");
+      title.textContent = item.name;
+
+      const meta = document.createElement("p");
+      meta.textContent = "Množstvo: " + (item.quantity || 1);
+
+      info.appendChild(title);
+      info.appendChild(meta);
+
+      const controls = document.createElement("div");
+      controls.className = "item-controls";
+
+      const qtyBox = document.createElement("div");
+      qtyBox.className = "qty-box";
+
+      const minusBtn = document.createElement("button");
+      minusBtn.type = "button";
+      minusBtn.textContent = "-";
+      minusBtn.onclick = function () {
+        updateCartQuantity(item.id, Math.max(0, Number(item.quantity || 0) - 1));
+      };
+
+      const qtyValue = document.createElement("span");
+      qtyValue.textContent = String(item.quantity || 1);
+
+      const plusBtn = document.createElement("button");
+      plusBtn.type = "button";
+      plusBtn.textContent = "+";
+      plusBtn.onclick = function () {
+        updateCartQuantity(item.id, Number(item.quantity || 0) + 1);
+      };
+
+      qtyBox.appendChild(minusBtn);
+      qtyBox.appendChild(qtyValue);
+      qtyBox.appendChild(plusBtn);
+
+      const price = document.createElement("p");
+      price.className = "item-price";
+      price.textContent = formatMoney((item.price || 0) * (item.quantity || 1));
+
+      const removeAllBtn = document.createElement("button");
+      removeAllBtn.type = "button";
+      removeAllBtn.className = "item-remove";
+      removeAllBtn.textContent = "Odstrániť produkt";
+      removeAllBtn.onclick = function () {
+        updateCartQuantity(item.id, 0);
+      };
+
+      controls.appendChild(qtyBox);
+      controls.appendChild(price);
+      controls.appendChild(removeAllBtn);
+
+      itemEl.appendChild(img);
+      itemEl.appendChild(info);
+      itemEl.appendChild(controls);
+      cartPageItemsList.appendChild(itemEl);
+    });
+
+    const summary = summarizeItems(items);
+    updateCartPageSummary(summary);
+    setCartPageMessage("Košík sa načítal zo servera.", false);
+  }
+
+  function refreshCartViews() {
+    return fetch(cartApiUrl + "?action=list", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (payload) {
+        const items = payload && payload.success && Array.isArray(payload.items) ? payload.items : [];
+        renderCartPopupItems(items);
+        renderCartPageItems(items);
+        updateHeaderSummary(summarizeItems(items));
+        return items;
+      });
+  }
+
+  function updateCartQuantity(id, quantity) {
+    fetch(cartApiUrl + "?action=update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ id: id }),
+      body: JSON.stringify({ id: id, quantity: quantity }),
     })
       .then(function (response) {
         return response.json();
       })
       .then(function (payload) {
         if (payload && payload.success) {
-          loadCartPopup();
+          refreshCartViews();
           updateHeaderSummary(payload.summary);
-          showCartToast("Produkt bol odstránený", "success");
+          showCartToast("Košík bol aktualizovaný.", "success");
         } else {
-          showCartToast("Chyba pri odstraňovaní", "error");
+          showCartToast(
+            payload && payload.message
+              ? payload.message
+              : "Nepodarilo sa aktualizovať košík.",
+            "error",
+          );
         }
       })
       .catch(function () {
@@ -135,9 +309,62 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  function checkoutCart() {
+    if (checkoutBtn) {
+      checkoutBtn.disabled = true;
+    }
+
+    fetch(checkoutApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({}),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (payload) {
+        if (!payload || !payload.success) {
+          if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+          }
+          showCartToast(
+            payload && payload.message
+              ? payload.message
+              : "Objednávku sa nepodarilo vytvoriť.",
+            "error",
+          );
+          setCartPageMessage(
+            payload && payload.message
+              ? payload.message
+              : "Objednávku sa nepodarilo vytvoriť.",
+            true,
+          );
+          return;
+        }
+
+        showCartToast(payload.message || "Objednávka bola vytvorená.", "success");
+        setCartPageMessage(payload.message || "Objednávka bola vytvorená.", false);
+        refreshCartViews();
+      })
+      .catch(function () {
+        if (checkoutBtn) {
+          checkoutBtn.disabled = false;
+        }
+        showCartToast("Chyba spojenia so serverom. Skus to znova.", "error");
+      });
+  }
+
   if (cartIcon && cartPopup) {
     cartIcon.addEventListener("mouseenter", function () {
-      loadCartPopup();
+      refreshCartViews().catch(function () {
+        if (cartItemsList) {
+          cartItemsList.innerHTML =
+            "<p style='padding: 10px; text-align: center; color: red;'>Chyba pri načítaní</p>";
+        }
+      });
       cartPopup.classList.add("is-visible");
       cartPopup.setAttribute("aria-hidden", "false");
       cartIcon.setAttribute("aria-expanded", "true");
@@ -166,22 +393,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Aktualizuje sumu a pocet kusov v hlavicke.
-  function updateHeaderSummary(summary) {
-    if (!summary) {
-      return;
-    }
-
-    if (headerCartTotal) {
-      const total = Number(summary.total || 0);
-      headerCartTotal.textContent = total.toFixed(2) + " EUR";
-    }
-
-    if (headerCartCount) {
-      const count = Math.max(0, Number(summary.count || 0));
-      headerCartCount.textContent = String(count);
-    }
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", function () {
+      checkoutCart();
+    });
   }
+
+  refreshCartViews().catch(function () {
+    if (cartPageItemsList) {
+      cartPageItemsList.innerHTML =
+        '<div class="cart-empty">Košík sa nepodarilo načítať.</div>';
+    }
+  });
 
   if (searchInputs.length > 0) {
     const products = Array.from(document.querySelectorAll(".product-card"));

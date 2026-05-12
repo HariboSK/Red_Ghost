@@ -18,7 +18,7 @@ $activeForm = $auth->getActiveForm();
     <title>Red Ghost Log-in</title>
     <!-- Pridanie odkazu na CSS súbor -->
     <?php foreach (AssetHelper::current_page_assets() as $css): ?>
-        <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">
+        <link rel="stylesheet" href="<?php echo asset('css/' . trim($css, '/')); ?>">
     <?php endforeach; ?>
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
