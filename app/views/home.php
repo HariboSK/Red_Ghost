@@ -1,6 +1,10 @@
 <?php
 require_once dirname(__DIR__, 2) . '/config/config.php';
 
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 
 
@@ -12,6 +16,38 @@ $contactFormData = [
   'subject' => '',
   'message' => '',
 ];
+
+if (isset($_SESSION['contact_form_success'])) {
+  $contactFormSuccess = (string) $_SESSION['contact_form_success'];
+  unset($_SESSION['contact_form_success']);
+}
+
+if (isset($_SESSION['contact_form_errors']) && is_array($_SESSION['contact_form_errors'])) {
+  $contactFormErrors = $_SESSION['contact_form_errors'];
+  unset($_SESSION['contact_form_errors']);
+}
+
+if (isset($_SESSION['contact_form_data']) && is_array($_SESSION['contact_form_data'])) {
+  $contactFormData = array_merge($contactFormData, $_SESSION['contact_form_data']);
+  unset($_SESSION['contact_form_data']);
+}
+
+$shopReviews = [];
+if ($pdo instanceof PDO) {
+  try {
+    $stmt = $pdo->prepare(
+      'SELECT reviewer_name, rating, review_text, created_at
+       FROM shop_review
+       WHERE status = :status
+       ORDER BY created_at DESC, id_shop_review DESC
+       LIMIT 8'
+    );
+    $stmt->execute([':status' => 'approved']);
+    $shopReviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (PDOException $exception) {
+    $shopReviews = [];
+  }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? '') === 'contact_message') {
   $contactFormData['name'] = trim((string) ($_POST['name'] ?? ''));
@@ -72,19 +108,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? ''
 
       $pdo->commit();
 
-      $contactFormSuccess = 'Správa bola úspešne odoslaná.';
-      $contactFormData = [
+      $_SESSION['contact_form_success'] = 'Správa bola úspešne odoslaná.';
+      $_SESSION['contact_form_data'] = [
         'name' => '',
         'email' => '',
         'subject' => '',
         'message' => '',
       ];
+      header('Location: ' . route('/home#contact'));
+      exit;
     } catch (PDOException $exception) {
       if ($pdo->inTransaction()) {
         $pdo->rollBack();
       }
       $contactFormErrors[] = 'Správu sa nepodarilo uložiť. Skúste to prosím neskôr.';
     }
+  }
+
+  if (!empty($contactFormErrors)) {
+    $_SESSION['contact_form_errors'] = $contactFormErrors;
+    $_SESSION['contact_form_data'] = $contactFormData;
+    header('Location: ' . route('/home#contact'));
+    exit;
   }
 }
 
@@ -195,32 +240,26 @@ include __DIR__ . '/partials/header.php';
     <div class="slider-container swiper">
       <div class="slider-wrapper">
         <ul class="testimonials-list swiper-wrapper">
-          <li class="testimonial swiper-slide">
-            <h3 class="name">Dominika Janošíková</h3>
-            <i class="feedback">"❤️Ochota-TOP <br>❤️Tovar-TOP "</i>
-          </li>
+          <?php if (empty($shopReviews)): ?>
             <li class="testimonial swiper-slide">
-            <h3 class="name">Kristína Mravcová</h3>
-            <i class="feedback">"Skvelá komunikácia, chutné omáčky. za 1 hodinu zmizla polovica"</i>
-          </li>
-            <li class="testimonial swiper-slide">
-            <h3 class="name">Adam Kováč</h3>
-            <i class="feedback">"Mal som tu mozost okostovat Marhulove chutney s chilli.. 
-              Chut bola krasne vyvazena.. sladka s tonom stiplavosti. 
-              Okostoval som to s masom a krasne to doplnilo chute masa a dodalo mu to uplne iny smrnc.
-              Zvysok som zjedol ako detsku vyzivu lyzickou nakolko mi to chutilo 😃 mozem len odporucit. 
-              Nevydrzalo mi to ani cestu domov 😃"</i>
-          </li>
-            <li class="testimonial swiper-slide">
-            <h3 class="name">Silvia Tuatitanko</h3>
-            <i class="feedback">"Top produkty, komunikacia, rychlost dodania. 
-              Nakupovala som a budem nakupovat 🙂👏"</i>
-          </li>
-            <li class="testimonial swiper-slide">
-            <h3 class="name">Juraj Simansky</h3>
-            <i class="feedback">"Super produkty zatiaľ som síce skúšal len extrakty ale určite neskôe
-                vyskúšam aj niečo iné."</i>
-          </li>
+              <h3 class="name">Zatiaľ bez recenzií</h3>
+              <i class="feedback">"Buď prvý, kto pridá recenziu na obchod."</i>
+            </li>
+          <?php else: ?>
+            <?php foreach ($shopReviews as $shopReview): ?>
+              <li class="testimonial swiper-slide">
+                <h3 class="name"><?php echo htmlspecialchars((string) ($shopReview['reviewer_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h3>
+                <div class="review-rating" aria-label="Hodnotenie <?php echo (int) ($shopReview['rating'] ?? 0); ?> z 5">
+                  <?php for ($i = 0; $i < (int) ($shopReview['rating'] ?? 0); $i++): ?>
+                    <i class="fa-solid fa-star"></i>
+                  <?php endfor; ?>
+                </div>
+                <i class="feedback">
+                  "<?php echo nl2br(htmlspecialchars((string) ($shopReview['review_text'] ?? ''), ENT_QUOTES, 'UTF-8')); ?>"
+                </i>
+              </li>
+            <?php endforeach; ?>
+          <?php endif; ?>
         </ul>
 
         <!-- If we need pagination -->
@@ -230,6 +269,10 @@ include __DIR__ . '/partials/header.php';
         <div class="swiper-slide-button swiper-button-next"></div>
       </div>
     </div>
+  </div>
+
+  <div class="section-content fadeUp2 testimonials-cta-wrap">
+    <a href="<?php echo route('/shop-review'); ?>" class="testimonials-cta-button">Pridať recenziu</a>
   </div>
   </section>
 

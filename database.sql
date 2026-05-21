@@ -150,6 +150,28 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`contact_replies` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
+-- Table `red_ghost`.`shop_review`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`shop_review` (
+  `id_shop_review` INT(11) NOT NULL AUTO_INCREMENT,
+  `reviewer_name` VARCHAR(100) NOT NULL,
+  `rating` TINYINT(1) UNSIGNED NOT NULL,
+  `review_text` TEXT NOT NULL,
+  `status` ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  `id_user` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_shop_review`),
+  INDEX `idx_shop_review_status_created` (`status` ASC, `created_at` DESC),
+  INDEX `idx_shop_review_user` (`id_user` ASC),
+  CONSTRAINT `shop_review_ibfk_1`
+    FOREIGN KEY (`id_user`)
+    REFERENCES `red_ghost`.`user` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
 -- Table `red_ghost`.`order_address`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `red_ghost`.`order_address` (
@@ -202,6 +224,43 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`order_item` (
   CONSTRAINT `order_item_ibfk_2`
     FOREIGN KEY (`id_product`)
     REFERENCES `red_ghost`.`product` (`id_product`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`product_review`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `red_ghost`.`product_review` (
+  `id_review` INT(11) NOT NULL AUTO_INCREMENT,
+  `rating` TINYINT(1) UNSIGNED NOT NULL,
+  `title` VARCHAR(150) NOT NULL,
+  `content` TEXT NOT NULL,
+  `status` ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+  `is_verified_purchase` TINYINT(1) NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  `id_product` INT(11) NOT NULL,
+  `id_user` INT(11) NOT NULL,
+  `id_order_item` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_review`),
+  UNIQUE INDEX `uq_review_user_product` (`id_user` ASC, `id_product` ASC),
+  INDEX `idx_review_product_status` (`id_product` ASC, `status` ASC, `created_at` DESC),
+  INDEX `idx_review_user` (`id_user` ASC),
+  INDEX `idx_review_order_item` (`id_order_item` ASC),
+  CONSTRAINT `product_review_ibfk_1`
+    FOREIGN KEY (`id_product`)
+    REFERENCES `red_ghost`.`product` (`id_product`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `product_review_ibfk_2`
+    FOREIGN KEY (`id_user`)
+    REFERENCES `red_ghost`.`user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `product_review_ibfk_3`
+    FOREIGN KEY (`id_order_item`)
+    REFERENCES `red_ghost`.`order_item` (`id_order_item`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------

@@ -41,6 +41,7 @@ include __DIR__ . '/partials/dashboard-header.php';
             <a href="#products" class="sidebar-link" title="Produkty" aria-label="Produkty"><i class="fa-solid fa-boxes-stacked"></i></a>
             <a href="#coupons" class="sidebar-link" title="Kupóny" aria-label="Kupóny"><i class="fa-solid fa-ticket"></i></a>
             <a href="#users" class="sidebar-link" title="Používatelia" aria-label="Používatelia"><i class="fa-solid fa-users"></i></a>
+            <a href="#reviews" class="sidebar-link" title="Recenzie" aria-label="Recenzie"><i class="fa-solid fa-star"></i></a>
             <a href="#mailer" class="sidebar-link" title="Pošta" aria-label="Pošta"><i class="fa-solid fa-envelope"></i></a>
             <a href="#orders" class="sidebar-link" title="Objednávky" aria-label="Objednávky"><i class="fa-solid fa-chart-line"></i></a>
         </nav>
@@ -350,6 +351,80 @@ include __DIR__ . '/partials/dashboard-header.php';
                         </button>
                     </form>
                 <?php endif; ?>
+            </section>
+        </section>
+
+        <section class="dashboard-panel" id="reviews" data-dashboard-panel="reviews">
+            <section class="admin-card contact-mailer-section">
+                <div class="admin-card-head">
+                    <div>
+                        <h2>Recenzie na obchod</h2>
+                        <span>Správa recenzií od zákazníkov</span>
+                    </div>
+                </div>
+
+                <?php if ($reviewNotice !== ''): ?>
+                    <p class="panel-success"><?php echo dash_h($reviewNotice); ?></p>
+                <?php endif; ?>
+
+                <?php if ($reviewError !== ''): ?>
+                    <p class="panel-error"><?php echo dash_h($reviewError); ?></p>
+                <?php endif; ?>
+
+                <div class="table-wrap contact-mailer-wrap">
+                    <table class="admin-table contact-mailer-table">
+                        <thead>
+                            <tr>
+                                <th>Meno</th>
+                                <th>Hodnotenie</th>
+                                <th>Obsah recenzie</th>
+                                <th>Stav</th>
+                                <th>Akcia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($shopReviews)): ?>
+                                <tr>
+                                    <td colspan="5" class="empty-cell">Žiadne recenzie nie sú k dispozícii.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($shopReviews as $shopReview): ?>
+                                    <tr>
+                                        <td><?php echo dash_h($shopReview['reviewer_name'] ?? ''); ?></td>
+                                        <td><?php echo dash_h($shopReview['rating'] ?? 0); ?>/5</td>
+                                        <td><?php echo nl2br(dash_h($shopReview['review_text'] ?? '')); ?></td>
+                                        <td>
+                                            <span class="message-status-badge message-status-<?php echo dash_h((string) ($shopReview['status'] ?? 'pending')); ?>">
+                                                <?php echo dash_h((string) ($shopReview['status'] ?? 'pending')); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="product-col-actions">
+                                                <?php if ((string) ($shopReview['status'] ?? 'pending') !== 'approved'): ?>
+                                                    <form method="POST" action="<?php echo route('/dashboard#reviews'); ?>" class="message-status-form">
+                                                        <input type="hidden" name="form_type" value="approve_shop_review">
+                                                        <input type="hidden" name="review_id" value="<?php echo dash_h($shopReview['id'] ?? ''); ?>">
+                                                        <button type="submit" class="management-submit message-done-btn">Approve</button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="overview-pill">Schválené</span>
+                                                <?php endif; ?>
+
+                                                <form method="POST" action="<?php echo route('/dashboard#reviews'); ?>" class="delete-form" onsubmit="return confirm('Naozaj chceš vymazať túto recenziu?');">
+                                                    <input type="hidden" name="form_type" value="delete_shop_review">
+                                                    <input type="hidden" name="review_id" value="<?php echo dash_h($shopReview['id'] ?? ''); ?>">
+                                                    <button type="submit" class="delete-btn" title="Vymazať recenziu" aria-label="Vymazať recenziu">
+                                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </section>
 

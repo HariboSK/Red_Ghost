@@ -59,7 +59,7 @@ if ($isLoggedIn && $userRole === 'admin') {
     href="/assets/images/favicon.webp">
 </head>
 
-<body>
+<body<?php echo isset($bodyClass) && is_string($bodyClass) && $bodyClass !== '' ? ' class="' . htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
   <!-- Header / Navbar -->
   <header>
     <nav class="navbar section-content">

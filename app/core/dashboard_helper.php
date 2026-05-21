@@ -3,6 +3,7 @@ require_once __DIR__ . '/../models/contact_message.model.php';
 require_once __DIR__ . '/../models/discount_code.model.php';
 require_once __DIR__ . '/../models/order.model.php';
 require_once __DIR__ . '/../models/product.model.php';
+require_once __DIR__ . '/../models/shop_review.model.php';
 require_once __DIR__ . '/../models/user.model.php';
 
 class DashboardHelper
@@ -97,6 +98,9 @@ class DashboardHelper
                 'productError' => '',
                 'discountCodeNotice' => '',
                 'discountCodeError' => '',
+                'reviewNotice' => '',
+                'reviewError' => '',
+                'shopReviews' => [],
                 'adminDisplayName' => '',
                 'adminDisplayEmail' => '',
                 'adminDisplayRole' => '',
@@ -110,8 +114,23 @@ class DashboardHelper
         $state['adminDisplayRole'] = (string) ($sessionUser['role'] ?? 'administrator');
         $state['productNotice'] = (string) ($_SESSION['productNotice'] ?? '');
         $state['productError'] = (string) ($_SESSION['productError'] ?? '');
+        $state['adminMailerNotice'] = (string) ($_SESSION['adminMailerNotice'] ?? $state['adminMailerNotice']);
+        $state['adminMailerError'] = (string) ($_SESSION['adminMailerError'] ?? $state['adminMailerError']);
+        $state['discountCodeNotice'] = (string) ($_SESSION['discountCodeNotice'] ?? $state['discountCodeNotice']);
+        $state['discountCodeError'] = (string) ($_SESSION['discountCodeError'] ?? $state['discountCodeError']);
+        $state['reviewNotice'] = (string) ($_SESSION['reviewNotice'] ?? $state['reviewNotice']);
+        $state['reviewError'] = (string) ($_SESSION['reviewError'] ?? $state['reviewError']);
 
-        unset($_SESSION['productNotice'], $_SESSION['productError']);
+        unset(
+            $_SESSION['productNotice'],
+            $_SESSION['productError'],
+            $_SESSION['adminMailerNotice'],
+            $_SESSION['adminMailerError'],
+            $_SESSION['discountCodeNotice'],
+            $_SESSION['discountCodeError'],
+            $_SESSION['reviewNotice'],
+            $_SESSION['reviewError']
+        );
 
         return $state;
     }
@@ -125,6 +144,7 @@ class DashboardHelper
         $productModel = new ProductModel($pdo);
         $discountCodeModel = new DiscountCodeModel($pdo);
         $contactMessageModel = new ContactMessageModel($pdo);
+        $shopReviewModel = new ShopReviewModel($pdo);
         $formType = (string) ($post['form_type'] ?? '');
 
         if ($formType === 'mark_message_read') {
@@ -271,6 +291,61 @@ class DashboardHelper
                 }
             }
         }
+
+        if ($formType === 'approve_shop_review') {
+            $reviewId = filter_var($post['review_id'] ?? null, FILTER_VALIDATE_INT);
+
+            if (!$reviewId || $reviewId < 1) {
+                $state['reviewError'] = 'Neplatné ID recenzie.';
+            } else {
+                if ($shopReviewModel->approve((int) $reviewId)) {
+                    $state['reviewNotice'] = 'Recenzia bola schválená a používateľ získal 100 vernostných bodov.';
+                } else {
+                    $state['reviewError'] = 'Recenzia už bola schválená alebo neexistuje.';
+                }
+            }
+        }
+
+        if ($formType === 'delete_shop_review') {
+            $reviewId = filter_var($post['review_id'] ?? null, FILTER_VALIDATE_INT);
+
+            if (!$reviewId || $reviewId < 1) {
+                $state['reviewError'] = 'Neplatné ID recenzie.';
+            } else {
+                if ($shopReviewModel->deleteReview((int) $reviewId)) {
+                    $state['reviewNotice'] = 'Recenzia bola odstránená.';
+                } else {
+                    $state['reviewError'] = 'Recenziu sa nepodarilo odstrániť.';
+                }
+            }
+        }
+
+        if ($formType !== '') {
+            $_SESSION['adminMailerNotice'] = (string) ($state['adminMailerNotice'] ?? '');
+            $_SESSION['adminMailerError'] = (string) ($state['adminMailerError'] ?? '');
+            $_SESSION['productNotice'] = (string) ($state['productNotice'] ?? '');
+            $_SESSION['productError'] = (string) ($state['productError'] ?? '');
+            $_SESSION['discountCodeNotice'] = (string) ($state['discountCodeNotice'] ?? '');
+            $_SESSION['discountCodeError'] = (string) ($state['discountCodeError'] ?? '');
+            $_SESSION['reviewNotice'] = (string) ($state['reviewNotice'] ?? '');
+            $_SESSION['reviewError'] = (string) ($state['reviewError'] ?? '');
+
+            $redirectAnchors = [
+                'mark_message_read' => '#mailer',
+                'reply_message' => '#mailer',
+                'delete_message' => '#mailer',
+                'delete_all_messages' => '#mailer',
+                'create_product' => '#products',
+                'update_product' => '#products',
+                'delete_product' => '#products',
+                'create_discount_code' => '#coupons',
+                'delete_discount_code' => '#coupons',
+                'approve_shop_review' => '#reviews',
+                'delete_shop_review' => '#reviews',
+            ];
+
+            $state['redirectTo'] = '/dashboard' . ($redirectAnchors[$formType] ?? '');
+        }
     }
 
     private static function loadDashboardData(PDO $pdo, array &$state): void
@@ -280,6 +355,7 @@ class DashboardHelper
         $userModel = new UserModel($pdo);
         $discountCodeModel = new DiscountCodeModel($pdo);
         $orderModel = new OrderModel($pdo);
+        $shopReviewModel = new ShopReviewModel($pdo);
 
         try {
             $state['unreadMessages'] = $contactMessageModel->getUnread();
@@ -312,6 +388,12 @@ class DashboardHelper
             $state['discountCodes'] = $discountCodeModel->getAll();
         } catch (PDOException $exception) {
             $state['discountCodesError'] = 'Nepodarilo sa načítať zľavové kódy.';
+        }
+
+        try {
+            $state['shopReviews'] = $shopReviewModel->getAll();
+        } catch (PDOException $exception) {
+            $state['reviewError'] = 'Nepodarilo sa načítať recenzie.';
         }
 
         try {
