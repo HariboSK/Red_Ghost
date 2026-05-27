@@ -6,7 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/core/session_helper.php';
 require_once dirname(__DIR__) . '/core/Redirect.php';
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__) . '/models/product.model.php';
+// product model may be intentionally removed while rebuilding product flow
+$productModelPath = dirname(__DIR__) . '/models/product.model.php';
+if (is_file($productModelPath)) {
+    require_once $productModelPath;
+}
 
 $sessionUser = SessionHelper::user();
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
@@ -48,6 +52,8 @@ if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
     if (!($pdo instanceof PDO)) {
         $formError = 'Databázové pripojenie nie je dostupné.';
+    } elseif (!class_exists('ProductModel')) {
+        $formError = 'Funkcionalita produktov nie je momentálne dostupná.';
     } else {
         $validation = ProductModel::validateAndBuildPayload($_POST);
         if (!$validation['ok']) {

@@ -6,7 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/core/session_helper.php';
 require_once dirname(__DIR__) . '/core/Redirect.php';
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__) . '/models/product.model.php';
+// product model may be intentionally removed while rebuilding product flow
+$productModelPath = dirname(__DIR__) . '/models/product.model.php';
+if (is_file($productModelPath)) {
+    require_once $productModelPath;
+}
 
 $sessionUser = SessionHelper::user();
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
@@ -28,6 +32,11 @@ if (!$productId || $productId < 1) {
 
 if (!($pdo instanceof PDO)) {
     $_SESSION['productError'] = 'Databázové pripojenie nie je dostupné.';
+    (new Redirect('/dashboard#products'))->redirect();
+}
+
+if (!class_exists('ProductModel')) {
+    $_SESSION['productError'] = 'Funkcionalita produktov nie je momentalne dostupná.';
     (new Redirect('/dashboard#products'))->redirect();
 }
 
@@ -65,16 +74,20 @@ if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         'rating' => (string) ($_POST['rating'] ?? '4'),
     ]);
 
-    $validation = ProductModel::validateAndBuildPayload($_POST);
-    if (!$validation['ok']) {
-        $formError = (string) $validation['error'];
+    if (!class_exists('ProductModel')) {
+        $formError = 'Funkcionalita produktov nie je momentalne dostupná.';
     } else {
-        try {
-            $productModel->update((int) $productId, $validation['payload']);
-            $_SESSION['productNotice'] = 'Produkt bol úspešne upravený.';
-            (new Redirect('/dashboard#products'))->redirect();
-        } catch (PDOException $exception) {
-            $formError = 'Produkt sa nepodarilo uložiť.';
+        $validation = ProductModel::validateAndBuildPayload($_POST);
+        if (!$validation['ok']) {
+            $formError = (string) $validation['error'];
+        } else {
+            try {
+                $productModel->update((int) $productId, $validation['payload']);
+                $_SESSION['productNotice'] = 'Produkt bol úspešne upravený.';
+                (new Redirect('/dashboard#products'))->redirect();
+            } catch (PDOException $exception) {
+                $formError = 'Produkt sa nepodarilo uložiť.';
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../models/contact_message.model.php';
 require_once __DIR__ . '/../models/discount_code.model.php';
 require_once __DIR__ . '/../models/order.model.php';
-require_once __DIR__ . '/../models/product.model.php';
+// product.model.php intentionally removed — product model will be reimplemented later
 require_once __DIR__ . '/../models/shop_review.model.php';
 require_once __DIR__ . '/../models/user.model.php';
 
@@ -141,7 +141,7 @@ class DashboardHelper
             return;
         }
 
-        $productModel = new ProductModel($pdo);
+        $productModel = class_exists('ProductModel') ? new ProductModel($pdo) : null;
         $discountCodeModel = new DiscountCodeModel($pdo);
         $contactMessageModel = new ContactMessageModel($pdo);
         $shopReviewModel = new ShopReviewModel($pdo);
@@ -242,38 +242,46 @@ class DashboardHelper
         }
 
         if ($formType === 'create_product' || $formType === 'update_product') {
-            $productValidation = ProductModel::validateAndBuildPayload($post);
-
-            if (!$productValidation['ok']) {
-                $state['productError'] = (string) $productValidation['error'];
+            if (!class_exists('ProductModel')) {
+                $state['productError'] = 'Funkcionalita produktov nie je momentálne dostupná.';
             } else {
-                $productId = filter_var($post['product_id'] ?? null, FILTER_VALIDATE_INT);
-                try {
-                    if ($formType === 'create_product') {
-                        $productModel->create($productValidation['payload']);
-                        $state['productNotice'] = 'Produkt bol úspešne pridaný.';
-                    } elseif ($productId && $productId > 0) {
-                        $productModel->update((int) $productId, $productValidation['payload']);
-                        $state['productNotice'] = 'Produkt bol úspešne upravený.';
-                    } else {
-                        $state['productError'] = 'Neplatné ID produktu.';
+                $productValidation = ProductModel::validateAndBuildPayload($post);
+
+                if (!$productValidation['ok']) {
+                    $state['productError'] = (string) $productValidation['error'];
+                } else {
+                    $productId = filter_var($post['product_id'] ?? null, FILTER_VALIDATE_INT);
+                    try {
+                        if ($formType === 'create_product') {
+                            $productModel->create($productValidation['payload']);
+                            $state['productNotice'] = 'Produkt bol úspešne pridaný.';
+                        } elseif ($productId && $productId > 0) {
+                            $productModel->update((int) $productId, $productValidation['payload']);
+                            $state['productNotice'] = 'Produkt bol úspešne upravený.';
+                        } else {
+                            $state['productError'] = 'Neplatné ID produktu.';
+                        }
+                    } catch (PDOException $exception) {
+                        $state['productError'] = 'Produkt sa nepodarilo uložiť.';
                     }
-                } catch (PDOException $exception) {
-                    $state['productError'] = 'Produkt sa nepodarilo uložiť.';
                 }
             }
         }
 
         if ($formType === 'delete_product') {
-            $productId = filter_var($post['product_id'] ?? null, FILTER_VALIDATE_INT);
-
-            if (!$productId || $productId < 1) {
-                $state['productError'] = 'Neplatné ID produktu.';
+            if (!class_exists('ProductModel')) {
+                $state['productError'] = 'Funkcionalita produktov nie je momentálne dostupná.';
             } else {
-                if ($productModel->delete((int) $productId)) {
-                    $state['productNotice'] = 'Produkt bol odstránený.';
+                $productId = filter_var($post['product_id'] ?? null, FILTER_VALIDATE_INT);
+
+                if (!$productId || $productId < 1) {
+                    $state['productError'] = 'Neplatné ID produktu.';
                 } else {
-                    $state['productError'] = 'Produkt sa nepodarilo odstrániť.';
+                    if ($productModel->delete((int) $productId)) {
+                        $state['productNotice'] = 'Produkt bol odstránený.';
+                    } else {
+                        $state['productError'] = 'Produkt sa nepodarilo odstrániť.';
+                    }
                 }
             }
         }
@@ -350,7 +358,7 @@ class DashboardHelper
 
     private static function loadDashboardData(PDO $pdo, array &$state): void
     {
-        $productModel = new ProductModel($pdo);
+        $productModel = class_exists('ProductModel') ? new ProductModel($pdo) : null;
         $contactMessageModel = new ContactMessageModel($pdo);
         $userModel = new UserModel($pdo);
         $discountCodeModel = new DiscountCodeModel($pdo);
@@ -379,7 +387,12 @@ class DashboardHelper
         }
 
         try {
-            $state['products'] = $productModel->findAll();
+            if ($productModel) {
+                $state['products'] = $productModel->findAll();
+            } else {
+                $state['products'] = [];
+                $state['productError'] = 'Funkcionalita produktov nie je momentálne dostupná.';
+            }
         } catch (PDOException $exception) {
             $state['productError'] = 'Nepodarilo sa načítať produkty: ' . $exception->getMessage();
         }
@@ -459,6 +472,9 @@ function dashboard_get_registered_users(PDO $pdo): array
 
 function dashboard_get_products(PDO $pdo): array
 {
+    if (!class_exists('ProductModel')) {
+        return [];
+    }
     return (new ProductModel($pdo))->findAll();
 }
 
@@ -479,11 +495,17 @@ function dashboard_get_coupon_count(array $discountCodes): int
 
 function dashboard_create_product(PDO $pdo, array $data): void
 {
+    if (!class_exists('ProductModel')) {
+        throw new RuntimeException('Product functionality not available');
+    }
     (new ProductModel($pdo))->create($data);
 }
 
 function dashboard_update_product(PDO $pdo, int $productId, array $data): void
 {
+    if (!class_exists('ProductModel')) {
+        throw new RuntimeException('Product functionality not available');
+    }
     (new ProductModel($pdo))->update($productId, $data);
 }
 
@@ -499,5 +521,8 @@ function dashboard_delete_discount_code(PDO $pdo, int $discountCodeId): void
 
 function dashboard_delete_product(PDO $pdo, int $productId): void
 {
+    if (!class_exists('ProductModel')) {
+        throw new RuntimeException('Product functionality not available');
+    }
     (new ProductModel($pdo))->delete($productId);
 }

@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
 require_once dirname(__DIR__, 2) . '/core/helper.php';
 require_once dirname(__DIR__, 2) . '/core/assetHelper.php';
+require_once dirname(__DIR__, 2) . '/core/Flash.php';
 
 $resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
   ? $pageTitle
@@ -26,6 +27,23 @@ if ($isLoggedIn && $profileEmail !== '' && isset($conn) && $conn instanceof PDO)
 
 $profileHref = $isLoggedIn ? route('/userprofile') : route('/login');
 
+if (!function_exists('normalize_cart_image_path')) {
+  function normalize_cart_image_path(string $image): string
+  {
+    $image = trim($image);
+
+    if ($image === '') {
+      return '/assets/images/omacka3.webp';
+    }
+
+    if (preg_match('~^(https?:)?//~i', $image) === 1 || strpos($image, '/') === 0) {
+      return preg_replace('~\.(jpe?g)$~i', '.webp', $image);
+    }
+
+    return preg_replace('~\.(jpe?g)$~i', '.webp', '/assets/images/' . ltrim($image, '/'));
+  }
+}
+
 $headerCartItems = [];
 $headerCartCountValue = 0;
 $headerCartTotalValue = 0.0;
@@ -42,7 +60,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
       'name' => (string) ($item['name'] ?? 'Produkt'),
       'price' => $price,
       'quantity' => $quantity,
-      'image' => (string) ($item['image'] ?? '/assets/images/omacka3.jpg'),
+      'image' => normalize_cart_image_path((string) ($item['image'] ?? '')),
     ];
 
     $headerCartCountValue += $quantity;
@@ -80,6 +98,12 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>"
   data-cart-api="<?php echo route('/api/cart.php'); ?>"
   data-checkout-api="<?php echo route('/api/checkout.php'); ?>">
+  <?php if ($f = get_flash()): ?>
+    <div class="flash flash--<?php echo htmlspecialchars((string) ($f['type'] ?? 'info'), ENT_QUOTES, 'UTF-8'); ?>" role="status" aria-live="polite">
+      <?php echo htmlspecialchars((string) ($f['message'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+  <?php endif; ?>
+  
   <!-- Header pre e-shop -->
   <header class="posun">
     <div class="container">

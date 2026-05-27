@@ -47,7 +47,6 @@ class App
     {
         $modelFiles = [
             '/app/models/base.model.php',
-            '/app/models/product.model.php',
             '/app/models/contact_message.model.php',
             '/app/models/discount_code.model.php',
             '/app/models/user.model.php',

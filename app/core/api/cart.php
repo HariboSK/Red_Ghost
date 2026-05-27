@@ -45,6 +45,21 @@ function cart_quantity_for_product(array $cart, int $productId): int
     return (int) ($cart[$productId]['quantity'] ?? 0);
 }
 
+function normalize_image_path(string $image): string
+{
+    $image = trim($image);
+
+    if ($image === '') {
+        return '/assets/images/omacka3.webp';
+    }
+
+    if (preg_match('~^(https?:)?//~i', $image) === 1 || strpos($image, '/') === 0) {
+        return preg_replace('~\.(jpe?g)$~i', '.webp', $image);
+    }
+
+    return preg_replace('~\.(jpe?g)$~i', '.webp', '/assets/images/' . ltrim($image, '/'));
+}
+
 // Nacita jeden produkt z databazy, aby kosik pouzival aktualne data.
 function get_product_by_id(PDO $conn, int $productId): ?array
 {   
@@ -78,6 +93,7 @@ function sync_cart_prices(PDO $conn, array &$cart): void
 
         $cart[$productId]['name'] = $dbProduct['name'];
         $cart[$productId]['price'] = $dbProduct['price'];
+        $cart[$productId]['image'] = normalize_image_path((string) ($dbProduct['image'] ?? ''));
 
     }
 }
@@ -159,7 +175,7 @@ if ($action === 'list') {
             'name' => (string) ($item['name'] ?? $product['name']),
             'price' => (float) ($item['price'] ?? $product['price']),
             'quantity' => (int) ($item['quantity'] ?? 0),
-            'image' => (string) ($product['image'] ?? ''),
+            'image' => normalize_image_path((string) ($product['image'] ?? '')),
         ];
     }
 
@@ -200,12 +216,14 @@ if ($action === 'add') {
             'name' => $product['name'],
             'price' => $product['price'],
             'quantity' => 0,
+            'image' => normalize_image_path((string) ($product['image'] ?? '')),
         ];
     }
 
     $_SESSION['cart'][$productId]['quantity'] += 1;
     $_SESSION['cart'][$productId]['name'] = $product['name'];
     $_SESSION['cart'][$productId]['price'] = $product['price'];
+    $_SESSION['cart'][$productId]['image'] = normalize_image_path((string) ($product['image'] ?? ''));
 
     echo json_encode([
         'success' => true,
@@ -245,6 +263,7 @@ if ($action === 'update') {
         $_SESSION['cart'][$productId]['name'] = $product['name'];
         $_SESSION['cart'][$productId]['price'] = $product['price'];
         $_SESSION['cart'][$productId]['quantity'] = $quantity;
+        $_SESSION['cart'][$productId]['image'] = normalize_image_path((string) ($product['image'] ?? ''));
     }
 
     echo json_encode([

@@ -75,7 +75,9 @@ class ShopService
     {
         $image = (string) ($row['image'] ?? '');
         if ($image === '') {
-            $image = asset('images/omacka3.jpg');
+            $image = asset('images/omacka3.webp');
+        } else {
+            $image = preg_replace('~\.(jpe?g)$~i', '.webp', $image);
         }
 
         $price = (float) ($row['price'] ?? 0);
@@ -103,7 +105,7 @@ class ShopService
             [
                 'name' => 'Nove chilli produkty',
                 'description' => 'Specialne chilli omacky pripravene s laskou od nasich pestovatelov.',
-                'image' => asset('images/chilli-sol.jpg'),
+                'image' => asset('images/chilli-sol.webp'),
                 'price' => 0,
                 'stock' => 10,
                 'id' => 1,
@@ -111,7 +113,7 @@ class ShopService
             [
                 'name' => 'Domace omacky',
                 'description' => 'Autenticke receptury tradicnej slovenskej kuchyne s chilli.',
-                'image' => asset('images/omacky2.jpg'),
+                'image' => asset('images/omacky2.webp'),
                 'price' => 0,
                 'stock' => 10,
                 'id' => 2,
@@ -119,7 +121,7 @@ class ShopService
             [
                 'name' => 'Susene chilli',
                 'description' => 'Prirodne susene chilli papriky bez chemickych pridatkov.',
-                'image' => asset('images/susene-chilli-Picsart-AiImageEnhancer.jpg'),
+                'image' => asset('images/susene-chilli-Picsart-AiImageEnhancer.webp'),
                 'price' => 0,
                 'stock' => 10,
                 'id' => 3,
@@ -159,7 +161,14 @@ class ShopService
             echo '<p class="price-example">' . number_format($price, 2, '.', '') . '€</p>';
         }
         echo '<div class="stock ' . ($stock > 0 ? 'in-stock' : 'out-of-stock') . '">' . ($stock > 0 ? 'Na sklade: ' . $stock . ' ks' : 'Vypredane') . '</div>';
-        echo '<button class="add-to-cart" onclick="addToCart(' . $productId . ')" ' . ($stock <= 0 ? 'disabled' : '') . '>Pridat do kosika</button>';
+        
+        // server-side add_to_cart form (refreshes page)
+        $returnTo = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8');
+        echo '<form method="POST" action="/api/add_to_cart.php" class="add_to_cart_form">';
+        echo '<input type="hidden" name="id" value="' . $productId . '">';
+        echo '<input type="hidden" name="return_to" value="' . $returnTo . '">';
+        echo '<button type="submit" class="add_to_cart-btn" ' . ($stock <= 0 ? 'disabled' : '') . '>' . ($stock > 0 ? 'Pridať do košíka' : 'Vypredané') . '</button>';
+        echo '</form>';
         echo '</div>';
     }
 
@@ -203,7 +212,9 @@ class ShopService
 
         $image = (string) ($row['image'] ?? '');
         if ($image === '') {
-            $image = asset('images/omacka3.jpg');
+            $image = asset('images/omacka3.webp');
+        } else {
+            $image = preg_replace('~\.(jpe?g)$~i', '.webp', $image);
         }
 
         $price = (float) ($row['price'] ?? 0);
@@ -289,7 +300,7 @@ class ShopService
                             <?php if (!empty($bannerProduct['description'])): ?>
                                 <p class="description"><?php echo htmlspecialchars((string) $bannerProduct['description'], ENT_QUOTES, 'UTF-8'); ?></p>
                             <?php endif; ?>
-                            <button class="add-to-cart-btn" onclick="addToCart(<?php echo (int) ($bannerProduct['id'] ?? 0); ?>)"><?php echo ((int) ($bannerProduct['stock'] ?? 0) > 0) ? 'Pridať do košíka' : 'Vypredané'; ?></button>
+                            <button class="add_to_cart-btn"><?php echo ((int) ($bannerProduct['stock'] ?? 0) > 0) ? 'Pridať do košíka' : 'Vypredané'; ?></button>
                         </div>
                         <div class="diagonal-stripe diagonal-right"></div>
                     </div>
