@@ -652,8 +652,8 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 
 .shopBannerSwiper {
   width: 100%;
-  height: 52vh;
-  min-height: 320px;
+  height: 60vh;
+  min-height: 32vh;
 }
 
 .shopBannerSwiper .swiper-slide {
@@ -671,6 +671,7 @@ input[type="search"]::-webkit-search-cancel-button:hover {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .diagonal-stripe {
@@ -681,38 +682,42 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 }
 
 .diagonal-left {
-  width: 550px;
+  width: 800px;
   height: 200%;
-  left: -90px;
-  top: -50%;
+  left: -250px;
+  top: -70%;
   transform: skewX(-20deg) skewY(-5deg);
 }
 
 .diagonal-right {
-  width: 550px;
+  width: 800px;
   height: 200%;
-  right: -95px;
-  top: -50%;
+  right: -250px;
+  top: -70%;
   transform: skewX(-20deg) skewY(-5deg);
 }
 
+/* Obalový element pre obrázok */
 .showcase-image {
   position: fixed;
-  left: 0;
+  left: 50%;
   top: 50%;
-  transform: translateY(-50%);
-  width: 100vw;
-  height: 100vh;
+  transform: translate(-50%, -50%);
+  width: 40vw;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 8;
+  object-fit: cover;
+  overflow: hidden;
 }
 
+
 .showcase-image img {
-  width: 44vw;
+  width: 100%;
   height: 100%;
-  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+  object-position: center;
 }
 
 .showcase-info {
@@ -895,6 +900,7 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 
 .col-4 img {
   width: 100%;
+  height: auto;
 }
 
 .product-grid {
@@ -909,13 +915,16 @@ input[type="search"]::-webkit-search-cancel-button:hover {
   background: var(--primary-color);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
   padding: 15px;
+  object-fit: cover;
+
 }
 
 .product-card img {
-  height: 210px;
-  object-fit: cover;
+  height: 400px;
+  width : 100%;
   border-radius: 10px;
   margin-bottom: 10px;
+  overflow: hidden;
 }
 
 .product-card h4 {
@@ -1023,6 +1032,7 @@ button[disabled] {
   align-items: baseline;
   position: relative;
   margin-top: 100px;
+  display: flex;
 }
 
 .footer p {
