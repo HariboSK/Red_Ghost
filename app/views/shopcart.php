@@ -26,7 +26,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             'name' => (string) ($item['name'] ?? 'Produkt'),
             'price' => $price,
             'quantity' => $quantity,
-            'image' => (string) ($item['image'] ?? '/assets/images/omacka3.jpg'),
+            'image' => (string) ($item['image'] ?? '/assets/images/omacka3.webp'),
         ];
 
         $cartSummary['count'] += $quantity;

@@ -12,9 +12,14 @@
   --off-color: #ff0000;
 }
 
-
 * {
   box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -210,7 +215,6 @@ body {
   font-size: xx-large;
   font-weight: bold;
 }
-
 
 .actions {
   display: flex;

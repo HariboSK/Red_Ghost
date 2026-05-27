@@ -5,7 +5,10 @@ require_once dirname(__DIR__, 2) . '/app/core/shopService.php';
 include __DIR__ . '/partials/header-shop.php';
 
 $productId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+error_log("DEBUG: productId = " . $productId . ", conn = " . ($conn instanceof PDO ? "PDO" : "null"));
+
 $product = ShopService::getProductById($conn ?? null, $productId);
+error_log("DEBUG: product result = " . ($product ? json_encode($product) : "null"));
 
 if (!$product) {
     http_response_code(404);

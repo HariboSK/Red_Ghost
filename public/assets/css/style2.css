@@ -697,16 +697,17 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 }
 
 .showcase-image {
-  position: fixed;
+  position: relative;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 100vw;
-  height: 100vh;
+  top: auto;
+  transform: none;
+  width: 100%;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 8;
+  padding: 20px 0;
 }
 
 .showcase-image img {
@@ -1023,6 +1024,7 @@ button[disabled] {
   align-items: baseline;
   position: relative;
   margin-top: 100px;
+  display: flex;
 }
 
 .footer p {

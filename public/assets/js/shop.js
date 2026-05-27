@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
       itemEl.className = "cart-item";
 
       const img = document.createElement("img");
-      img.src = item.image || "/assets/images/omacka3.jpg";
+      img.src = item.image || "/assets/images/omacka3.webp";
       img.alt = item.name;
 
       const info = document.createElement("div");
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
       itemEl.className = "cart-item";
 
       const img = document.createElement("img");
-      img.src = item.image || "/assets/images/omacka3.jpg";
+      img.src = item.image || "/assets/images/omacka3.webp";
       img.alt = item.name;
 
       const info = document.createElement("div");

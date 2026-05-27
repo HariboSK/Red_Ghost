@@ -2,6 +2,73 @@
 
 class ShopService
 {
+    private static function normalizeImagePath(string $imagePath): string
+    {
+        $imagePath = trim($imagePath);
+
+        if ($imagePath === '') {
+            return asset('images/omacka3.webp');
+        }
+
+        if (preg_match('/\.(jpe?g)$/i', $imagePath) === 1) {
+            $webpPath = preg_replace('/\.(jpe?g)$/i', '.webp', $imagePath);
+
+            if (is_string($webpPath)) {
+                $publicPath = dirname(__DIR__, 2) . '/public' . $webpPath;
+                if (is_file($publicPath)) {
+                    return $webpPath;
+                }
+            }
+        }
+
+        return $imagePath;
+    }
+
+    private static function defaultCatalog(): array
+    {
+        return [
+            1 => [
+                'id' => 1,
+                'name' => 'Red Ghost Chilli Omacka',
+                'description' => 'Vynikajúca chilli omáčka s bohatou chuťou a paprikovými nádychmi.',
+                'image' => asset('images/omacka3.webp'),
+                'price' => 12.99,
+                'basePrice' => 12.99,
+                'discountPercent' => 0,
+                'rating' => 5,
+                'featured' => true,
+                'stock' => 15,
+                'category' => 'Omáčky',
+            ],
+            2 => [
+                'id' => 2,
+                'name' => 'Domaca Chilli Pasta',
+                'description' => 'Tradičná slovenská recepta s domácimi paprikami.',
+                'image' => asset('images/omacky2.webp'),
+                'price' => 8.99,
+                'basePrice' => 8.99,
+                'discountPercent' => 0,
+                'rating' => 4,
+                'featured' => true,
+                'stock' => 20,
+                'category' => 'Omáčky',
+            ],
+            3 => [
+                'id' => 3,
+                'name' => 'Susene Chilli Papriky',
+                'description' => 'Prírodne sušené chilli papriky bez chemických prídavkov.',
+                'image' => asset('images/susene-chilli-Picsart-AiImageEnhancer.webp'),
+                'price' => 14.99,
+                'basePrice' => 14.99,
+                'discountPercent' => 0,
+                'rating' => 4,
+                'featured' => false,
+                'stock' => 8,
+                'category' => 'Chilli',
+            ],
+        ];
+    }
+
     public static function collectProducts($conn): array
     {
         $featuredProducts = [];
@@ -75,21 +142,20 @@ class ShopService
     {
         $image = (string) ($row['image'] ?? '');
         if ($image === '') {
-            $image = asset('images/omacka3.jpg');
+            $image = asset('images/omacka3.webp');
         }
+        $image = self::normalizeImagePath($image);
 
         $price = (float) ($row['price'] ?? 0);
-        $discountPercent = 0.0;
-        $finalPrice = $price;
 
         return [
             'id' => (int) ($row['id'] ?? 0),
             'name' => (string) ($row['name'] ?? ''),
             'description' => (string) ($row['description'] ?? ''),
             'image' => $image,
-            'price' => $finalPrice,
+            'price' => $price,
             'basePrice' => $price,
-            'discountPercent' => $discountPercent,
+            'discountPercent' => 0.0,
             'rating' => (int) ($row['rating'] ?? 4),
             'featured' => (int) ($row['featured'] ?? 0) === 1,
             'stock' => (int) ($row['stock'] ?? 0),
@@ -99,31 +165,12 @@ class ShopService
 
     private static function defaultNewProducts(): array
     {
+        $catalog = self::defaultCatalog();
+
         return [
-            [
-                'name' => 'Nove chilli produkty',
-                'description' => 'Specialne chilli omacky pripravene s laskou od nasich pestovatelov.',
-                'image' => asset('images/chilli-sol.jpg'),
-                'price' => 0,
-                'stock' => 10,
-                'id' => 1,
-            ],
-            [
-                'name' => 'Domace omacky',
-                'description' => 'Autenticke receptury tradicnej slovenskej kuchyne s chilli.',
-                'image' => asset('images/omacky2.jpg'),
-                'price' => 0,
-                'stock' => 10,
-                'id' => 2,
-            ],
-            [
-                'name' => 'Susene chilli',
-                'description' => 'Prirodne susene chilli papriky bez chemickych pridatkov.',
-                'image' => asset('images/susene-chilli-Picsart-AiImageEnhancer.jpg'),
-                'price' => 0,
-                'stock' => 10,
-                'id' => 3,
-            ],
+            $catalog[1],
+            $catalog[2],
+            $catalog[3],
         ];
     }
 
@@ -165,63 +212,70 @@ class ShopService
 
     public static function getProductById($conn, int $productId): ?array
     {
-        if (!($conn instanceof PDO) || $productId <= 0) {
+        if ($productId <= 0) {
             return null;
         }
 
-        $stmt = $conn->prepare(
-            'SELECT p.id_product AS id,
-                    p.name,
-                    p.description,
-                    p.image,
-                    p.price,
-                    p.rating,
-                    p.stock,
-                    MIN(c.name) AS category
-             FROM product p
-             LEFT JOIN product_category pc ON pc.id_product = p.id_product
-             LEFT JOIN category c ON c.id_category = pc.id_category
-             WHERE p.id_product = :id
-             GROUP BY p.id_product,
-                      p.name,
-                      p.description,
-                      p.image,
-                      p.price,
-                      p.rating,
-                      p.stock
-             LIMIT 1'
-        );
-        if (!($stmt instanceof PDOStatement)) {
-            return null;
+        if ($conn instanceof PDO) {
+            $stmt = $conn->prepare(
+                'SELECT p.id_product AS id,
+                        p.name,
+                        p.description,
+                        p.image,
+                        p.price,
+                        p.rating,
+                        p.stock,
+                        MIN(c.name) AS category
+                 FROM product p
+                 LEFT JOIN product_category pc ON pc.id_product = p.id_product
+                 LEFT JOIN category c ON c.id_category = pc.id_category
+                 WHERE p.id_product = :id
+                 GROUP BY p.id_product,
+                          p.name,
+                          p.description,
+                          p.image,
+                          p.price,
+                          p.rating,
+                          p.stock
+                 LIMIT 1'
+            );
+
+            if ($stmt instanceof PDOStatement) {
+                $stmt->execute([':id' => $productId]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (is_array($row)) {
+                    $image = (string) ($row['image'] ?? '');
+                    if ($image === '') {
+                        $image = asset('images/omacka3.webp');
+                    }
+                    $image = self::normalizeImagePath($image);
+
+                    $price = (float) ($row['price'] ?? 0);
+
+                    return [
+                        'id' => (int) ($row['id'] ?? 0),
+                        'name' => (string) ($row['name'] ?? 'Produkt'),
+                        'description' => (string) ($row['description'] ?? ''),
+                        'image' => $image,
+                        'price' => $price,
+                        'basePrice' => $price,
+                        'discountPercent' => 0.0,
+                        'rating' => max(0, min(5, (int) ($row['rating'] ?? 0))),
+                        'stock' => (int) ($row['stock'] ?? 0),
+                        'category' => (string) ($row['category'] ?? 'Chilli produkt'),
+                    ];
+                }
+            }
         }
 
-        $stmt->execute(['id' => $productId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!is_array($row)) {
-            return null;
+        $catalog = self::defaultCatalog();
+
+        if (isset($catalog[$productId])) {
+            return $catalog[$productId];
         }
 
-        $image = (string) ($row['image'] ?? '');
-        if ($image === '') {
-            $image = asset('images/omacka3.jpg');
-        }
-
-        $price = (float) ($row['price'] ?? 0);
-        $discountPercent = 0.0;
-        $finalPrice = $price;
-
-        return [
-            'id' => (int) ($row['id'] ?? 0),
-            'name' => (string) ($row['name'] ?? 'Produkt'),
-            'description' => (string) ($row['description'] ?? ''),
-            'image' => $image,
-            'price' => $finalPrice,
-            'basePrice' => $price,
-            'discountPercent' => $discountPercent,
-            'rating' => max(0, min(5, (int) ($row['rating'] ?? 0))),
-            'stock' => (int) ($row['stock'] ?? 0),
-            'category' => (string) ($row['category'] ?? 'Chilli produkt'),
-        ];
+        return null;
     }
 
     public static function productSpicyLabel(int $rating): array
@@ -229,9 +283,11 @@ class ShopService
         if ($rating <= 1) {
             return ['Jemna', 'mild'];
         }
+
         if ($rating <= 3) {
             return ['Stredna', 'medium'];
         }
+
         return ['Extremna', 'hot'];
     }
 
