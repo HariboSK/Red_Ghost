@@ -7,7 +7,7 @@ require_once dirname(__DIR__) . '/session_helper.php';
 SessionHelper::bootstrap();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . route('/payment'));
+    header('Location: /payment');
     exit;
 }
 
@@ -15,16 +15,10 @@ $sessionUser = SessionHelper::user();
 $userId = (int) ($sessionUser['id'] ?? 0);
 $userEmail = (string) ($sessionUser['email'] ?? '');
 
-if ($userId <= 0 || $userEmail === '') {
-    $_SESSION['checkout_error'] = 'Na dokončenie objednávky sa musíte prihlásiť.';
-    header('Location: ' . route('/login'));
-    exit;
-}
-
 $cart = $_SESSION['cart'] ?? [];
 if (!is_array($cart) || $cart === []) {
     $_SESSION['checkout_error'] = 'Košík je prázdny.';
-    header('Location: ' . route('/shopcart'));
+    header('Location: /shopcart');
     exit;
 }
 
@@ -39,13 +33,13 @@ $cashDelivery = trim((string) ($_POST['cash_delivery'] ?? 'standard'));
 
 if ($customerName === '' || $customerEmail === '' || $customerPhone === '' || $city === '' || $street === '' || $zip === '') {
     $_SESSION['checkout_error'] = 'Vyplň všetky dodacie údaje.';
-    header('Location: ' . route('/payment'));
+    header('Location: /payment');
     exit;
 }
 
 if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
     $_SESSION['checkout_error'] = 'Zadaj platnú emailovú adresu.';
-    header('Location: ' . route('/payment'));
+    header('Location: /payment');
     exit;
 }
 
@@ -178,7 +172,7 @@ try {
     $_SESSION['checkout_points_awarded'] = $pointsAwarded;
     $_SESSION['checkout_success'] = 'Objednávka bola prijatá. Ďakujeme za nákup.';
 
-    header('Location: ' . route('/thank-you'));
+    header('Location: /thank_you');
     exit;
 } catch (Throwable $e) {
     if ($conn->inTransaction()) {
@@ -187,6 +181,6 @@ try {
 
     error_log('[checkout] ' . $e->getMessage());
     $_SESSION['checkout_error'] = 'Objednávku sa nepodarilo dokončiť. Skús to znova.';
-    header('Location: ' . route('/payment'));
+    header('Location: /payment');
     exit;
 }

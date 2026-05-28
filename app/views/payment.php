@@ -6,6 +6,65 @@ require_once dirname(__DIR__, 2) . '/app/core/session_helper.php';
 SessionHelper::bootstrap();
 
 $pageTitle = 'E-shop - Platba';
+
+// Zachováme format obrazkov
+function normalize_image_path(string $image): string
+{
+    $image = trim($image);
+    if ($image === '') {
+        return '/assets/images/omacka3.webp';
+    }
+    if (preg_match('~^(https?:)?//~i', $image) === 1 || strpos($image, '/') === 0) {
+        return preg_replace('~\.(jpe?g)$~i', '.webp', $image);
+    }
+    return preg_replace('~\.(jpe?g)$~i', '.webp', '/assets/images/' . ltrim($image, '/'));
+}
+
+$cartItems = [];
+$cartSummary = [
+    'count' => 0,
+    'subtotal' => 0.0,
+    'shipping' => 0.0,
+    'discount' => 0.0,
+    'total' => 0.0,
+];
+
+// Načítanie položiek zo SESSION
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $productId => $item) {
+        $quantity = max(0, (int) ($item['quantity'] ?? 0));
+        if ($quantity <= 0) {
+            continue;
+        }
+
+        $productId = (int) ($item['id'] ?? $productId);
+        $price = (float) ($item['price'] ?? 0);
+        $cartItems[] = [
+            'id' => $productId,
+            'name' => (string) ($item['name'] ?? 'Produkt'),
+            'price' => $price,
+            'quantity' => $quantity,
+            'image' => normalize_image_path((string) ($item['image'] ?? '')),
+        ];
+
+        $cartSummary['count'] += $quantity;
+        $cartSummary['subtotal'] += $price * $quantity;
+    }
+}
+
+// Ak je košík prázdny, nepustíme ho platiť (voliteľné, ale odporúčané)
+if ($cartSummary['count'] <= 0) {
+    header('Location: ' . route('/shopcart'));
+    exit;
+}
+
+// Výpočet súhrnu (identický s košíkom)
+$cartSummary['shipping'] = $cartSummary['count'] > 0 ? 3.9 : 0.0;
+$cartSummary['discount'] = abs((float) ($_SESSION['applied_discount_amount'] ?? 0));
+
+$subtotalAfterDiscount = max(0, $cartSummary['subtotal'] - $cartSummary['discount']);
+$cartSummary['total'] = $subtotalAfterDiscount + $cartSummary['shipping'];
+
 include __DIR__ . '/partials/header-shop.php';
 ?>
 
@@ -297,25 +356,45 @@ include __DIR__ . '/partials/header-shop.php';
             <div class="summary-card">
                 <div class="panel-head">
                     <h2>Súhrn objednávky</h2>
-                    <p>Tu si môžeš doplniť vlastný prepočet objednávky.</p>
+                    <p>Položiek v košíku: <?php echo (int) $cartSummary['count']; ?></p>
                 </div>
 
                 <div class="summary-items">
-                    <article class="summary-item">
-                        <img src="/assets/images/omacka3.webp" alt="Produkt">
-                        <div>
-                            <h3>Názov produktu</h3>
-                            <p>1 x 0,00 EUR</p>
-                        </div>
-                    </article>
-                    <div class="summary-empty">Toto je len vizuálny placeholder.</div>
+                    <?php if (!empty($cartItems)): ?>
+                        <?php foreach ($cartItems as $item): ?>
+                            <article class="summary-item">
+                                <img src="<?php echo htmlspecialchars($item['image'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                    alt="<?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <div>
+                                    <h3><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                                    <p><?php echo (int) $item['quantity']; ?> x <?php echo number_format($item['price'], 2, ',', ' '); ?> EUR</p>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="summary-empty">Košík je prázdny.</div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="summary-breakdown">
-                    <div><span>Medzisúčet</span><strong>0,00 EUR</strong></div>
-                    <div><span>Doprava</span><strong>0,00 EUR</strong></div>
-                    <div><span>Zľava</span><strong>-0,00 EUR</strong></div>
-                    <div class="is-total"><span>Spolu</span><strong>0,00 EUR</strong></div>
+                    <div>
+                        <span>Medzisúčet</span>
+                        <strong><?php echo number_format($cartSummary['subtotal'], 2, ',', ' '); ?> EUR</strong>
+                    </div>
+                    <div>
+                        <span>Doprava</span>
+                        <strong><?php echo number_format($cartSummary['shipping'], 2, ',', ' '); ?> EUR</strong>
+                    </div>
+                    <?php if ($cartSummary['discount'] > 0): ?>
+                        <div>
+                            <span>Zľava</span>
+                            <strong style="color: #2ecc71;">-<?php echo number_format($cartSummary['discount'], 2, ',', ' '); ?> EUR</strong>
+                        </div>
+                    <?php endif; ?>
+                    <div class="is-total">
+                        <span>Spolu</span>
+                        <strong><?php echo number_format($cartSummary['total'], 2, ',', ' '); ?> EUR</strong>
+                    </div>
                 </div>
             </div>
         </aside>
