@@ -44,6 +44,7 @@ include __DIR__ . '/partials/dashboard-header.php';
             <a href="#reviews" class="sidebar-link" title="Recenzie" aria-label="Recenzie"><i class="fa-solid fa-star"></i></a>
             <a href="#mailer" class="sidebar-link" title="Pošta" aria-label="Pošta"><i class="fa-solid fa-envelope"></i></a>
             <a href="#orders" class="sidebar-link" title="Objednávky" aria-label="Objednávky"><i class="fa-solid fa-chart-line"></i></a>
+            <a href="#settings" class="sidebar-link" title="Nastavenia" aria-label="Nastavenia"><i class="fa-solid fa-gear"></i></a>
         </nav>
 
         <div class="sidebar-bottom">
@@ -65,6 +66,7 @@ include __DIR__ . '/partials/dashboard-header.php';
     </aside>
 
     <section class="admin-main dashboard-tabs-ready">
+        <!-- SEKCIA OVERVIEW -->
         <section class="dashboard-panel is-active" id="overview" data-dashboard-panel="overview">
             <div class="overview-intro-layout">
                 <section class="admin-metrics admin-metrics-overview">
@@ -166,6 +168,7 @@ include __DIR__ . '/partials/dashboard-header.php';
             </div>
         </section>
 
+        <!-- SEKCIA USERS -->
         <section class="dashboard-panel" id="users" data-dashboard-panel="users">
             <article class="admin-card user-overview-card">
                 <div class="admin-card-head">
@@ -210,21 +213,9 @@ include __DIR__ . '/partials/dashboard-header.php';
             </article>
         </section>
 
+        <!-- SEKCIA ORDERS -->
         <section class="dashboard-panel" id="orders" data-dashboard-panel="orders">
             <div class="admin-content-grid">
-                <article class="admin-card quick-tools-panel">
-                    <div class="admin-card-head">
-                        <h2>Objednávky a nástroje</h2>
-                        <span>Denné tržby, objednávky a rýchle akcie</span>
-                    </div>
-                    <div class="quick-tools-buttons">
-                        <button type="button" class="tool-btn">Pridať admina</button>
-                        <button type="button" class="tool-btn">Resetovať heslo</button>
-                        <a href="<?php echo route('/e-shop'); ?>" class="tool-btn ghost-link">Otvoriť obchod</a>
-                        <a href="<?php echo route('/shopcart'); ?>" class="tool-btn ghost-link">Zobraziť košík</a>
-                    </div>
-                </article>
-
                 <article class="admin-card activity-panel">
                     <div class="admin-card-head">
                         <h2>Systémová aktivita</h2>
@@ -246,18 +237,52 @@ include __DIR__ . '/partials/dashboard-header.php';
                         </div>
                     </div>
 
-                    <ul class="activity-feed">
-                        <?php foreach ($activityFeed as $item): ?>
-                            <li>
-                                <time><?php echo dash_h($item['time'] ?? ''); ?></time>
-                                <p><?php echo dash_h($item['text'] ?? ''); ?></p>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </article>
+                    <article class="admin-card setting-section">
+                        <div class="admin-card-head">
+                            <h2>Posledné objednávky</h2>
+                            <span>Checkout objednávky z košíka</span>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table class="admin-table setting-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Zákazník</th>
+                                        <th>Email</th>
+                                        <th>Suma</th>
+                                        <th>Stav</th>
+                                        <th>Platba</th>
+                                        <th>Dátum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($recentOrders)): ?>
+                                        <tr>
+                                            <td colspan="7" class="empty-cell">Žiadne objednávky.</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($recentOrders as $order): ?>
+                                            <tr>
+                                                <td><?php echo dash_h($order['id_order'] ?? ''); ?></td>
+                                                <td><?php echo dash_h($order['customer_name'] ?? ''); ?></td>
+                                                <td><?php echo dash_h($order['customer_email'] ?? ''); ?></td>
+                                                <td><?php echo dash_h(number_format((float) ($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
+                                                <td><?php echo dash_h($order['status'] ?? ''); ?></td>
+                                                <td><?php echo dash_h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
+                                                <td><?php echo dash_h($order['created_at'] ?? ''); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+
             </div>
         </section>
 
+        <!-- SEKCIA MAILER -->
         <section class="dashboard-panel" id="mailer" data-dashboard-panel="mailer">
             <section class="admin-card contact-mailer-section">
                 <div class="admin-card-head">
@@ -321,7 +346,6 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         </td>
                                         <td>
                                             <div class="message-status-cell">
-                                                
                                                 <span class="message-status-badge message-status-<?php echo dash_h((string) ($message['status'] ?? 'new')); ?>">
                                                     <?php echo dash_h((string) ($message['status'] ?? 'new')); ?>
                                                 </span>
@@ -354,6 +378,7 @@ include __DIR__ . '/partials/dashboard-header.php';
             </section>
         </section>
 
+        <!-- SEKCIA REVIEWS -->
         <section class="dashboard-panel" id="reviews" data-dashboard-panel="reviews">
             <section class="admin-card contact-mailer-section">
                 <div class="admin-card-head">
@@ -428,6 +453,7 @@ include __DIR__ . '/partials/dashboard-header.php';
             </section>
         </section>
 
+        <!-- SEKCIA PRODUCTS -->
         <section class="dashboard-panel" id="products" data-dashboard-panel="products">
             <section class="admin-card management-section">
                 <div class="admin-card-head">
@@ -610,6 +636,7 @@ include __DIR__ . '/partials/dashboard-header.php';
             </section>
         </section>
 
+        <!-- SEKCIA COUPONS -->
         <section class="dashboard-panel" id="coupons" data-dashboard-panel="coupons">
             <section class="admin-card coupons-section">
                 <div class="admin-card-head">
@@ -720,7 +747,21 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
             </section>
         </section>
+        <section class="dashboard-panel" id="settings" data-dashboard-panel="settings">
+             <article class="admin-card quick-tools-panel">
+                    <div class="admin-card-head">
+                        <h2>Objednávky a nástroje</h2>
+                        <span>Denné tržby, objednávky a rýchle akcie</span>
+                    </div>
+                    <div class="quick-tools-buttons">
+                        <button type="button" class="tool-btn">Pridať admina</button>
+                        <button type="button" class="tool-btn">Resetovať heslo</button>
+                        <a href="<?php echo route('/e-shop'); ?>" class="tool-btn ghost-link">Otvoriť obchod</a>
+                        <a href="<?php echo route('/shopcart'); ?>" class="tool-btn ghost-link">Zobraziť košík</a>
+                    </div>
+                </article>
     </section>
+
 </main>
 
 <script>

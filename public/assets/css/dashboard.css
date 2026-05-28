@@ -534,8 +534,20 @@ html {
 
 .admin-content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
+}
+
+.recent-orders-section {
+  width: 100%;
+}
+
+.recent-orders-table {
+  min-width: 100%;
+}
+
+.activity-panel {
+  width: 100%;
 }
 
 .orders-summary-strip {

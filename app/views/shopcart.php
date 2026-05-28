@@ -159,7 +159,7 @@ include __DIR__ . '/partials/header-shop.php';
                 <?php endif; ?>
             </form>
 
-            <button type="button" class="checkout-btn" id="checkoutBtn" <?php echo $cartSummary['count'] <= 0 ? 'disabled' : ''; ?>>Pokračovať na objednávku</button>
+            <button type="button" class="checkout-btn" id="checkoutBtn" data-payment-url="<?php echo route('/payment'); ?>" <?php echo $cartSummary['count'] <= 0 ? 'disabled' : ''; ?>>Pokračovať na objednávku</button>
             <a class="continue-link" href="<?php echo route('/e-shop'); ?>">Späť do e-shopu</a>
         </aside>
     </section>

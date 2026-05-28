@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../models/contact_message.model.php';
 require_once __DIR__ . '/../models/discount_code.model.php';
 require_once __DIR__ . '/../models/order.model.php';
-// product.model.php intentionally removed — product model will be reimplemented later
 require_once __DIR__ . '/../models/shop_review.model.php';
 require_once __DIR__ . '/../models/user.model.php';
 
@@ -92,6 +91,7 @@ class DashboardHelper
                 'totalAdmins' => 0,
                 'activeSessions' => 0,
                 'todayOrderCount' => 0,
+                'recentOrders' => [],
                 'todayRevenue' => 0.0,
                 'products' => [],
                 'productNotice' => '',
@@ -416,6 +416,12 @@ class DashboardHelper
         } catch (PDOException $exception) {
             $state['todayOrderCount'] = 0;
             $state['todayRevenue'] = 0.0;
+        }
+
+        try {
+            $state['recentOrders'] = $orderModel->getRecentOrders(50);
+        } catch (PDOException $exception) {
+            $state['recentOrders'] = [];
         }
     }
 }

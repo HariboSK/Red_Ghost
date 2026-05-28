@@ -1,194 +1,192 @@
 <?php
 
 require_once dirname(__DIR__, 3) . '/config/config.php';
+require_once dirname(__DIR__) . '/middleware/function.php';
 require_once dirname(__DIR__) . '/session_helper.php';
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-header('Content-Type: application/json; charset=UTF-8');
-
-if (!isset($conn) || !($conn instanceof PDO)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Databazove spojenie nie je dostupne']);
-    exit;
-}
-
 SessionHelper::bootstrap();
-$sessionUser = SessionHelper::user();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Metoda neni povolena.']);
+    header('Location: ' . route('/payment'));
     exit;
 }
 
-$rawBody = file_get_contents('php://input');
-$payload = json_decode($rawBody ?: '{}', true);
-if (!is_array($payload)) {
-    $payload = [];
-}
-
-if (!(bool) ($sessionUser['is_logged_in'] ?? false)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Na objednávku sa musíš prihlásiť.']);
-    exit;
-}
-
-if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart']) || $_SESSION['cart'] === []) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Košík je prázdny.']);
-    exit;
-}
-
-function checkout_cart_summary(array $cart): array
-{
-    $count = 0;
-    $total = 0.0;
-
-    foreach ($cart as $item) {
-        $quantity = (int) ($item['quantity'] ?? 0);
-        $price = (float) ($item['price'] ?? 0);
-        $count += $quantity;
-        $total += $quantity * $price;
-    }
-
-    return [
-        'count' => $count,
-        'total' => round($total, 2),
-    ];
-}
-
-function load_product_for_checkout(PDO $conn, int $productId): ?array
-{
-    $stmt = $conn->prepare('SELECT id_product AS id, name, price, stock FROM product WHERE id_product = :id LIMIT 1 FOR UPDATE');
-    $stmt->execute(['id' => $productId]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!is_array($row)) {
-        return null;
-    }
-
-    return [
-        'id' => (int) ($row['id'] ?? 0),
-        'name' => (string) ($row['name'] ?? ''),
-        'price' => (float) ($row['price'] ?? 0),
-        'stock' => (int) ($row['stock'] ?? 0),
-    ];
-}
-
-$cart = $_SESSION['cart'];
-$customerName = trim((string) ($sessionUser['name'] ?? ''));
-$customerEmail = trim((string) ($sessionUser['email'] ?? ''));
-$customerPhone = trim((string) ($payload['customer_phone'] ?? $_POST['customer_phone'] ?? ''));
+$sessionUser = SessionHelper::user();
 $userId = (int) ($sessionUser['id'] ?? 0);
+$userEmail = (string) ($sessionUser['email'] ?? '');
 
-if ($customerName === '' || $customerEmail === '') {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'V profile chýba meno alebo email.']);
+if ($userId <= 0 || $userEmail === '') {
+    $_SESSION['checkout_error'] = 'Na dokončenie objednávky sa musíte prihlásiť.';
+    header('Location: ' . route('/login'));
     exit;
 }
+
+$cart = $_SESSION['cart'] ?? [];
+if (!is_array($cart) || $cart === []) {
+    $_SESSION['checkout_error'] = 'Košík je prázdny.';
+    header('Location: ' . route('/shopcart'));
+    exit;
+}
+
+$customerName = trim((string) ($_POST['customer_name'] ?? ''));
+$customerEmail = trim((string) ($_POST['customer_email'] ?? $userEmail));
+$customerPhone = trim((string) ($_POST['customer_phone'] ?? ''));
+$city = trim((string) ($_POST['city'] ?? ''));
+$street = trim((string) ($_POST['street'] ?? ''));
+$zip = trim((string) ($_POST['zip'] ?? ''));
+$paymentMethod = trim((string) ($_POST['payment_method'] ?? 'card'));
+$cashDelivery = trim((string) ($_POST['cash_delivery'] ?? 'standard'));
+
+if ($customerName === '' || $customerEmail === '' || $customerPhone === '' || $city === '' || $street === '' || $zip === '') {
+    $_SESSION['checkout_error'] = 'Vyplň všetky dodacie údaje.';
+    header('Location: ' . route('/payment'));
+    exit;
+}
+
+if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['checkout_error'] = 'Zadaj platnú emailovú adresu.';
+    header('Location: ' . route('/payment'));
+    exit;
+}
+
+$allowedPaymentMethods = ['card', 'cash', 'transfer'];
+if (!in_array($paymentMethod, $allowedPaymentMethods, true)) {
+    $paymentMethod = 'card';
+}
+
+$allowedCashDelivery = ['standard', 'fast', 'pickup'];
+if (!in_array($cashDelivery, $allowedCashDelivery, true)) {
+    $cashDelivery = 'standard';
+}
+
+$orderTotal = 0.0;
+$orderItems = [];
 
 try {
     $conn->beginTransaction();
 
-    $items = [];
-    $total = 0.0;
+    $productStmt = $conn->prepare('SELECT id_product, name, price, stock FROM product WHERE id_product = :id_product LIMIT 1 FOR UPDATE');
+    $updateStockStmt = $conn->prepare('UPDATE product SET stock = stock - :quantity WHERE id_product = :id_product');
+    $orderStmt = $conn->prepare(
+        'INSERT INTO `order` (user_id, customer_name, customer_email, customer_phone, total_price, status, created_at)
+         VALUES (:user_id, :customer_name, :customer_email, :customer_phone, :total_price, :status, NOW())'
+    );
+    $orderItemStmt = $conn->prepare(
+        'INSERT INTO order_item (id_order, id_product, quantity, price)
+         VALUES (:id_order, :id_product, :quantity, :price)'
+    );
+    $addressStmt = $conn->prepare(
+        'INSERT INTO order_address (type, street, city, zip, country, id_order)
+         VALUES (:type, :street, :city, :zip, :country, :id_order)'
+    );
+    $paymentStmt = $conn->prepare(
+        'INSERT INTO payment (id_order, payment_method, amount, status, paid_at)
+         VALUES (:id_order, :payment_method, :amount, :status, NULL)'
+    );
+    $pointsStmt = $conn->prepare(
+        'UPDATE `user`
+         SET loyalty_points = COALESCE(loyalty_points, 0) + :points
+         WHERE id = :user_id'
+    );
 
-    foreach ($cart as $productId => $item) {
-        $productId = (int) $productId;
-        $quantity = (int) ($item['quantity'] ?? 0);
+    foreach ($cart as $item) {
+        $productId = (int) ($item['id_product'] ?? ($item['id'] ?? 0));
+        $quantity = max(1, (int) ($item['quantity'] ?? 0));
 
         if ($productId <= 0 || $quantity <= 0) {
-            continue;
+            throw new RuntimeException('Neplatná položka v košíku.');
         }
 
-        $product = load_product_for_checkout($conn, $productId);
-        if ($product === null) {
-            throw new RuntimeException('Jeden z produktov už nie je dostupný.');
+        $productStmt->execute([':id_product' => $productId]);
+        $product = $productStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$product) {
+            throw new RuntimeException('Produkt sa nenašiel.');
         }
 
-        if ((int) ($product['stock'] ?? 0) < $quantity) {
-            throw new RuntimeException('Na sklade nie je dosť kusov pre: ' . $product['name']);
+        $stock = (int) ($product['stock'] ?? 0);
+        if ($stock < $quantity) {
+            throw new RuntimeException('Na sklade nie je dosť kusov pre produkt: ' . (string) ($product['name'] ?? 'Produkt'));
         }
 
-        $stockUpdateStmt = $conn->prepare(
-            'UPDATE product SET stock = stock - :quantity WHERE id_product = :id AND stock >= :quantity'
-        );
-        $stockUpdateStmt->execute([
-            ':quantity' => $quantity,
-            ':id' => $productId,
-        ]);
+        $unitPrice = (float) ($product['price'] ?? 0);
+        $lineTotal = $unitPrice * $quantity;
 
-        if ($stockUpdateStmt->rowCount() !== 1) {
-            throw new RuntimeException('Na sklade nie je dosť kusov pre: ' . $product['name']);
-        }
-
-        $lineTotal = round($product['price'] * $quantity, 2);
-        $total += $lineTotal;
-
-        $items[] = [
-            'id' => $product['id'],
-            'name' => $product['name'],
-            'price' => $product['price'],
+        $orderItems[] = [
+            'product_id' => $productId,
             'quantity' => $quantity,
+            'price' => $unitPrice,
         ];
+
+        $orderTotal += $lineTotal;
+        $updateStockStmt->execute([
+            ':quantity' => $quantity,
+            ':id_product' => $productId,
+        ]);
     }
 
-    if ($items === []) {
-        throw new RuntimeException('Košík je prázdny.');
+    if ($orderTotal <= 0) {
+        throw new RuntimeException('Celková suma objednávky je neplatná.');
     }
 
-    $orderStmt = $conn->prepare(
-        'INSERT INTO `order` (customer_name, customer_email, customer_phone, total_price, status, user_id) VALUES (:customer_name, :customer_email, :customer_phone, :total_price, :status, :user_id)'
-    );
     $orderStmt->execute([
+        ':user_id' => $userId,
         ':customer_name' => $customerName,
         ':customer_email' => $customerEmail,
-        ':customer_phone' => $customerPhone !== '' ? $customerPhone : null,
-        ':total_price' => $total,
+        ':customer_phone' => $customerPhone,
+        ':total_price' => $orderTotal,
         ':status' => 'pending',
-        ':user_id' => $userId > 0 ? $userId : null,
     ]);
-
     $orderId = (int) $conn->lastInsertId();
-    if ($orderId <= 0) {
-        throw new RuntimeException('Objednávku sa nepodarilo uložiť.');
-    }
 
-    $orderItemStmt = $conn->prepare(
-        'INSERT INTO order_item (quantity, price, id_order, id_product) VALUES (:quantity, :price, :id_order, :id_product)'
-    );
-    foreach ($items as $item) {
+    foreach ($orderItems as $orderItem) {
         $orderItemStmt->execute([
-            ':quantity' => $item['quantity'],
-            ':price' => $item['price'],
             ':id_order' => $orderId,
-            ':id_product' => $item['id'],
+            ':id_product' => $orderItem['product_id'],
+            ':quantity' => $orderItem['quantity'],
+            ':price' => $orderItem['price'],
         ]);
     }
+
+    $addressStmt->execute([
+        ':id_order' => $orderId,
+        ':type' => 'shipping',
+        ':city' => $city,
+        ':street' => $street,
+        ':zip' => $zip,
+        ':country' => 'Slovensko',
+    ]);
+
+    $paymentStmt->execute([
+        ':id_order' => $orderId,
+        ':payment_method' => $paymentMethod,
+        ':amount' => $orderTotal,
+        ':status' => 'pending',
+    ]);
+
+    $pointsAwarded = 50;
+    $pointsStmt->execute([
+        ':points' => $pointsAwarded,
+        ':user_id' => $userId,
+    ]);
 
     $conn->commit();
 
+    SessionHelper::refreshSessionPoints($conn, $userEmail);
     $_SESSION['cart'] = [];
+    $_SESSION['checkout_order_id'] = $orderId;
+    $_SESSION['checkout_points_awarded'] = $pointsAwarded;
+    $_SESSION['checkout_success'] = 'Objednávka bola prijatá. Ďakujeme za nákup.';
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Objednávka bola vytvorená.',
-        'order_id' => $orderId,
-        'summary' => checkout_cart_summary($items),
-    ]);
+    header('Location: ' . route('/thank-you'));
     exit;
-} catch (Throwable $exception) {
+} catch (Throwable $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
 
-    http_response_code(409);
-    echo json_encode([
-        'success' => false,
-        'message' => $exception->getMessage() !== '' ? $exception->getMessage() : 'Objednávku sa nepodarilo vytvoriť.',
-    ]);
+    error_log('[checkout] ' . $e->getMessage());
+    $_SESSION['checkout_error'] = 'Objednávku sa nepodarilo dokončiť. Skús to znova.';
+    header('Location: ' . route('/payment'));
     exit;
 }

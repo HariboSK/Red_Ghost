@@ -184,8 +184,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function checkoutCart() {
-    // Checkout should be performed via server-side POST form.
-    showCartToast('Checkout presunutý na server; použite formulár.', 'error');
+    if (checkoutBtn && checkoutBtn.dataset.paymentUrl) {
+      window.location.href = checkoutBtn.dataset.paymentUrl;
+      return Promise.resolve({ success: true });
+    }
+
     return Promise.resolve({ success: false });
   }
 

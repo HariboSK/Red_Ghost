@@ -1,0 +1,1 @@
+[2026-05-28 01:56:11] ERROR: Uncaught exception {"type":"ParseError","message":"syntax error, unexpected token \"<\", expecting end of file","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\views\\dashboard.php","line":732,"uri":"/dashboard"}
