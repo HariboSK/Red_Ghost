@@ -42,6 +42,11 @@ function asset(string $path): string
 {
     $basePath = app_base_path();
     $assetPath = '/assets/' . ltrim($path, '/');
+    $publicAssetPath = dirname(__DIR__, 3) . '/public' . $assetPath;
+
+    if (is_file($publicAssetPath)) {
+        $assetPath .= '?v=' . filemtime($publicAssetPath);
+    }
 
     return htmlspecialchars($basePath . $assetPath, ENT_QUOTES, 'UTF-8');
 }

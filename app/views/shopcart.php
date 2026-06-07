@@ -95,19 +95,19 @@ include __DIR__ . '/partials/header-shop.php';
                                 <p class="item-price"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', ' '); ?> EUR</p>
 
                                 <div class="cart-item-controls">
-                                    <form method="POST" action="/api/remove_cart.php" class="cart-action-form">
+                                    <form method="POST" action="<?php echo route('/api/RemoveCart.php'); ?>" class="cart-action-form">
                                         <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>">
                                         <input type="hidden" name="return_to" value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/shopcart', ENT_QUOTES, 'UTF-8'); ?>">
                                         <button type="submit" name="action" value="decrement">-</button>
                                     </form>
 
-                                    <form method="POST" action="/api/remove_cart.php" class="cart-action-form">
+                                    <form method="POST" action="<?php echo route('/api/RemoveCart.php'); ?>" class="cart-action-form">
                                         <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>">
                                         <input type="hidden" name="return_to" value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/shopcart', ENT_QUOTES, 'UTF-8'); ?>">
                                         <button type="submit" name="action" value="increment">+</button>
                                     </form>
 
-                                    <form method="POST" action="/api/remove_cart.php" class="cart-action-form">
+                                    <form method="POST" action="<?php echo route('/api/RemoveCart.php'); ?>" class="cart-action-form">
                                         <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>">
                                         <input type="hidden" name="return_to" value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/shopcart', ENT_QUOTES, 'UTF-8'); ?>">
                                         <button type="submit" name="action" value="remove">Odstrániť</button>
@@ -143,7 +143,7 @@ include __DIR__ . '/partials/header-shop.php';
                 </div>
             </div>
 
-            <form method="POST" action="<?php echo route('/api/apply_discount.php'); ?>" class="discount-form">
+            <form method="POST" action="<?php echo route('/api/ApplyDiscount.php'); ?>" class="discount-form">
                 <label for="discount_code">Zľavový kód</label>
                 <div style="display:flex;gap:8px;margin-top:6px;">
                     <input id="discount_code" name="code" type="text" placeholder="Zadaj kód" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);" value="<?php echo htmlspecialchars((string) ($_SESSION['applied_discount_code'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">

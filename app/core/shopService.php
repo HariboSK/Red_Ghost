@@ -139,13 +139,17 @@ class ShopService
         $discountPercent = max(0, (float) ($product['discountPercent'] ?? 0));
         $rating = max(0, min(5, (int) ($product['rating'] ?? 4)));
         $stock = (int) ($product['stock'] ?? 0);
+        $category = (string) ($product['category'] ?? 'Chilli produkt');
+        $description = trim((string) ($product['description'] ?? ''));
         $productUrl = function_exists('route') ? route('/product?id=' . $productId) : '/product?id=' . $productId;
+        $searchTerms = trim($name . ' ' . $category . ' ' . $description);
 
-        echo '<div class="col-4 product-card" data-id="' . $productId . '" data-price="' . $price . '" data-rating="' . $rating . '" data-stock="' . $stock . '" data-name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<div class="col-4 product-card" data-id="' . $productId . '" data-price="' . $price . '" data-base-price="' . $basePrice . '" data-rating="' . $rating . '" data-stock="' . $stock . '" data-category="' . htmlspecialchars($category, ENT_QUOTES, 'UTF-8') . '" data-name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" data-search="' . htmlspecialchars($searchTerms, ENT_QUOTES, 'UTF-8') . '">';
         echo '<a class="product-link" href="' . htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') . '">';
         echo '<img src="' . htmlspecialchars($image, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">';
         echo '<h4>' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</h4>';
         echo '</a>';
+        echo '<p class="product-category">' . htmlspecialchars($category, ENT_QUOTES, 'UTF-8') . '</p>';
         echo '<div class="rating">';
         for ($i = 0; $i < $rating; $i++) {
             echo '<i class="fa fa-star"></i>';
@@ -164,7 +168,7 @@ class ShopService
         
         // server-side add_to_cart form (refreshes page)
         $returnTo = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8');
-        echo '<form method="POST" action="/api/add_to_cart.php" class="add_to_cart_form">';
+        echo '<form method="POST" action="' . htmlspecialchars(route('/api/AddToCart.php'), ENT_QUOTES, 'UTF-8') . '" class="add_to_cart_form">';
         echo '<input type="hidden" name="id" value="' . $productId . '">';
         echo '<input type="hidden" name="return_to" value="' . $returnTo . '">';
         echo '<button type="submit" class="add_to_cart-btn" ' . ($stock <= 0 ? 'disabled' : '') . '>' . ($stock > 0 ? 'Pridať do košíka' : 'Vypredané') . '</button>';
@@ -280,29 +284,80 @@ class ShopService
         $featuredProducts = $data['featuredProducts'] ?? [];
         $otherProducts = $data['otherProducts'] ?? [];
         $newProducts = $data['newProducts'] ?? [];
+        $bannerProducts = [];
+        $bannerAccents = ['#fa6e17', '#ff7a45', '#ff4d4d', '#ffb347'];
+        $returnTo = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8');
+        foreach (array_merge($featuredProducts, $newProducts) as $candidateProduct) {
+            $candidateId = (int) ($candidateProduct['id'] ?? 0);
+            if ($candidateId > 0 && isset($bannerProducts[$candidateId])) {
+                continue;
+            }
+
+            if ($candidateId > 0) {
+                $bannerProducts[$candidateId] = $candidateProduct;
+                continue;
+            }
+
+            $bannerProducts[] = $candidateProduct;
+        }
+
+        if (empty($bannerProducts)) {
+            $bannerProducts = $newProducts;
+        } else {
+            $bannerProducts = array_values($bannerProducts);
+        }
         ?>
 <main class="shop-main">
     <section class="shop-banner">
         <div class="swiper shopBannerSwiper">
             <div class="swiper-wrapper">
-                <?php foreach ($newProducts as $bannerProduct): ?>
-                    <div class="swiper-slide product-showcase">
-                        <div class="diagonal-stripe diagonal-left"></div>
-                        <div class="showcase-image">
-                            <img src="<?php echo htmlspecialchars((string) ($bannerProduct['image'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string) ($bannerProduct['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?>">
-                        </div>
-                        <div class="showcase-info">
-                            <span class="badge">Nové produkty</span>
-                            <h2><?php echo htmlspecialchars((string) ($bannerProduct['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?></h2>
-                            <?php if ((float) ($bannerProduct['price'] ?? 0) > 0): ?>
-                                <p class="price"><?php echo number_format((float) $bannerProduct['price'], 2, '.', ''); ?> €</p>
+                <?php foreach ($bannerProducts as $index => $bannerProduct): ?>
+                    <?php
+                        $bannerId = (int) ($bannerProduct['id'] ?? 0);
+                        $bannerName = (string) ($bannerProduct['name'] ?? 'Produkt');
+                        $bannerImage = (string) ($bannerProduct['image'] ?? '');
+                        if ($bannerImage === '') {
+                            $bannerImage = asset('images/omacka3.webp');
+                        }
+                        $bannerPrice = (float) ($bannerProduct['price'] ?? 0);
+                        $bannerDescription = trim((string) ($bannerProduct['description'] ?? ''));
+                        $bannerStock = (int) ($bannerProduct['stock'] ?? 0);
+                        $bannerCategory = (string) ($bannerProduct['category'] ?? 'Novinka');
+                        $bannerUrl = $bannerId > 0 ? (function_exists('route') ? route('/product?id=' . $bannerId) : '/product?id=' . $bannerId) : '#';
+                        $bannerAccent = $bannerAccents[$index % count($bannerAccents)];
+                    ?>
+                    <div class="swiper-slide shop-banner-slide" style="--banner-accent: <?php echo htmlspecialchars($bannerAccent, ENT_QUOTES, 'UTF-8'); ?>;">
+                        <div class="shop-banner-copy">
+                            <span class="shop-banner-kicker"><?php echo htmlspecialchars($bannerCategory, ENT_QUOTES, 'UTF-8'); ?></span>
+                            <h2 class="shop-banner-title"><?php echo htmlspecialchars($bannerName, ENT_QUOTES, 'UTF-8'); ?></h2>
+                            <?php if ($bannerDescription !== ''): ?>
+                                <p class="shop-banner-description"><?php echo htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8'); ?></p>
                             <?php endif; ?>
-                            <?php if (!empty($bannerProduct['description'])): ?>
-                                <p class="description"><?php echo htmlspecialchars((string) $bannerProduct['description'], ENT_QUOTES, 'UTF-8'); ?></p>
-                            <?php endif; ?>
-                            <button class="add_to_cart-btn"><?php echo ((int) ($bannerProduct['stock'] ?? 0) > 0) ? 'Pridať do košíka' : 'Vypredané'; ?></button>
+                            <div class="shop-banner-meta">
+                                <?php if ($bannerPrice > 0): ?>
+                                    <span class="shop-banner-price"><?php echo number_format($bannerPrice, 2, '.', ''); ?> EUR</span>
+                                <?php endif; ?>
+                                <span class="shop-banner-stock <?php echo $bannerStock > 0 ? 'is-available' : 'is-empty'; ?>">
+                                    <?php echo $bannerStock > 0 ? 'Skladom ' . $bannerStock . ' ks' : 'Vypredané'; ?>
+                                </span>
+                            </div>
+                            <div class="shop-banner-actions">
+                                <a class="shop-banner-btn" href="<?php echo htmlspecialchars($bannerUrl, ENT_QUOTES, 'UTF-8'); ?>">
+                                    Zobraziť produkt
+                                </a>
+                                <form method="POST" action="<?php echo htmlspecialchars(route('/api/AddToCart.php'), ENT_QUOTES, 'UTF-8'); ?>" class="shop-banner-cart-form">
+                                    <input type="hidden" name="id" value="<?php echo $bannerId; ?>">
+                                    <input type="hidden" name="return_to" value="<?php echo $returnTo; ?>">
+                                    <button type="submit" class="shop-banner-btn shop-banner-btn--ghost" <?php echo ($bannerStock <= 0 || $bannerId <= 0) ? 'disabled' : ''; ?>>
+                                        <?php echo $bannerStock > 0 ? 'Pridať do košíka' : 'Vypredané'; ?>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <div class="diagonal-stripe diagonal-right"></div>
+                        <div class="shop-banner-visual" aria-hidden="true">
+                            <div class="shop-banner-orb"></div>
+                            <img src="<?php echo htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($bannerName, ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -337,9 +392,20 @@ class ShopService
                     <option value="stock">Najviac skladom</option>
                 </select>
             </div>
+
+            <div class="filter-actions">
+                <div class="shop-search-summary shop-search-summary--panel" id="shopSearchSummary" aria-live="polite">Napíš názov produktu a výsledky sa ukážu hneď.</div>
+                <button type="button" class="shop-reset-filters" id="clearShopFilters">Zrušiť filtre</button>
+            </div>
         </aside>
 
         <div class="shop-catalog-content">
+            <div class="shop-empty-state" id="shopNoResults" hidden>
+                <h3>Nenašli sa žiadne produkty</h3>
+                <p>Skús iné slovo, nižšiu cenu alebo iné zoradenie.</p>
+                <button type="button" class="shop-reset-filters shop-reset-filters--ghost" id="clearShopFiltersEmpty">Zrušiť filtre</button>
+            </div>
+
             <div class="shop-sections">
                 <h2 class="title">Odporúčané produkty</h2>
                 <div class="row product-grid" id="featuredProductsContainer">

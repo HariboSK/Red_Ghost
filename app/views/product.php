@@ -194,7 +194,7 @@ include __DIR__ . '/partials/header-shop.php';
 
         <div class="actions">
           <?php if ((int) ($product['stock'] ?? 0) > 0): ?>
-            <form method="POST" action="<?php echo route('/api/add_to_cart.php'); ?>" class="add_to_cart_form">
+            <form method="POST" action="<?php echo route('/api/AddToCart.php'); ?>" class="add_to_cart_form">
               <input type="hidden" name="id" value="<?php echo (int) ($product['id'] ?? 0); ?>">
               <input type="hidden" name="return_to" value="<?php echo htmlspecialchars(route('/product?id=' . (int) ($product['id'] ?? 0)), ENT_QUOTES, 'UTF-8'); ?>">
               <button type="submit" class="add-to-cart-btn">Pridať do košíka</button>

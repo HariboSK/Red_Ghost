@@ -47,6 +47,50 @@
     </div>
   </div>
 </footer>
+
+<div class="faq-floating-widget" id="faqWidget">
+  <button type="button" class="faq-floating-toggle" id="faqWidgetToggle" aria-expanded="false" aria-controls="faqWidgetPanel" aria-label="Otvoriť FAQ">
+    <span class="faq-floating-icon" aria-hidden="true"><i class="fa-solid fa-circle-question"></i></span>
+    <span class="faq-floating-label">FAQ</span>
+  </button>
+
+  <div class="faq-floating-backdrop" id="faqWidgetBackdrop" hidden></div>
+
+  <section class="faq-floating-panel" id="faqWidgetPanel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="faqWidgetTitle">
+    <div class="faq-floating-header">
+      <div>
+        <p class="faq-floating-kicker">Pomoc</p>
+        <h2 id="faqWidgetTitle">Často kladené otázky</h2>
+      </div>
+      <button type="button" class="faq-floating-close" id="faqWidgetClose" aria-label="Zatvoriť FAQ">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="faq-floating-body">
+      <details class="faq-item" open>
+        <summary>Ako pridám produkt do košíka?</summary>
+        <p>Na produkte klikni na <strong>Pridať do košíka</strong>. Košík sa okamžite aktualizuje v hornej lište.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Prečo nevidím suggestions pri vyhľadávaní?</summary>
+        <p>Návrhy sa zobrazia po napísaní aspoň dvoch znakov. Skús názov produktu alebo kategóriu.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Kam sa dostanem po kliknutí na FAQ?</summary>
+        <p>Nikam. Otvorí sa len toto okienko priamo na stránke, bez presmerovania.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Čo ak je produkt vypredaný?</summary>
+        <p>Vypredané produkty sú označené priamo na karte alebo v banneri a nedajú sa pridať do košíka.</p>
+      </details>
+    </div>
+  </section>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="<?php echo asset('js/shop.js'); ?>"></script>
 </body>

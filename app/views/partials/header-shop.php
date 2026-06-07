@@ -96,7 +96,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 </head>
 
 <body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>"
-  data-cart-api="<?php echo route('/api/cart.php'); ?>"
+  data-cart-api="<?php echo route('/api/Cart.php'); ?>"
   data-checkout-api="<?php echo route('/api/checkout.php'); ?>">
   <?php if ($f = get_flash()): ?>
     <div class="flash flash--<?php echo htmlspecialchars((string) ($f['type'] ?? 'info'), ENT_QUOTES, 'UTF-8'); ?>" role="status" aria-live="polite">
