@@ -1,16 +1,16 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-require_once dirname(__DIR__, 2) . '/core/middleware/function.php';
-require_once dirname(__DIR__, 2) . '/core/helper.php';
-require_once dirname(__DIR__, 2) . '/core/assetHelper.php';
+require_once dirname(__DIR__, 2) . '/core/middleware/Function.php';
+require_once dirname(__DIR__, 2) . '/core/Helper.php';
+require_once dirname(__DIR__, 2) . '/core/AssetHelper.php';
 require_once dirname(__DIR__, 2) . '/core/Flash.php';
 
 $resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
   ? $pageTitle
   : Helper::getPageTitle() . ' - E-shop';
 
-require_once dirname(__DIR__, 2) . '/core/session_helper.php';
+require_once dirname(__DIR__, 2) . '/core/SessionHelper.php';
 SessionHelper::bootstrap();
 
 $sessionUser = SessionHelper::user();

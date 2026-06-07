@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 1) . '/core/shopService.php';
+require_once dirname(__DIR__, 1) . '/core/ShopService.php';
 
 $conn = (isset($conn) && $conn instanceof PDO)
 	? $conn

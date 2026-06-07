@@ -26,16 +26,16 @@ class App
         require_once $projectRoot . '/config/config.php';
 
         $coreFiles = [
-            '/app/core/middleware/function.php',
+            '/app/core/middleware/Function.php',
             '/app/core/SessionManager.php',
-            '/app/core/session_helper.php',
+            '/app/core/SessionHelper.php',
             '/app/core/Redirect.php',
-            '/app/core/helper.php',
-            '/app/core/assetHelper.php',
-            '/app/core/shopService.php',
-            '/app/core/dashboard_helper.php',
-            '/app/core/authView.php',
-            '/app/core/router.php',
+            '/app/core/Helper.php',
+            '/app/core/AssetHelper.php',
+            '/app/core/ShopService.php',
+            '/app/core/DashboardHelper.php',
+            '/app/core/AuthView.php',
+            '/app/core/Router.php',
         ];
 
         foreach ($coreFiles as $file) {
@@ -46,12 +46,12 @@ class App
     private static function loadModels(string $projectRoot): void
     {
         $modelFiles = [
-            '/app/models/base.model.php',
-            '/app/models/contact_message.model.php',
-            '/app/models/discount_code.model.php',
-            '/app/models/user.model.php',
-            '/app/models/order.model.php',
-            '/app/models/payment.model.php',
+            '/app/models/BaseModel.php',
+            '/app/models/ContactMessageModel.php',
+            '/app/models/DiscountCodeModel.php',
+            '/app/models/UserModel.php',
+            '/app/models/OrderModel.php',
+            '/app/models/PaymentModel.php',
             '/app/models/AvatarManager.php',
         ];
 

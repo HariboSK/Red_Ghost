@@ -1,11 +1,11 @@
 <?php
 $bodyClass = 'shopcart-page';
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/app/core/session_helper.php';
+require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
 
 SessionHelper::bootstrap();
 
-function normalize_image_path(string $image): string
+function NormalizeImagePath(string $image): string
 {
     $image = trim($image);
 
@@ -44,7 +44,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             'name' => (string) ($item['name'] ?? 'Produkt'),
             'price' => $price,
             'quantity' => $quantity,
-            'image' => normalize_image_path((string) ($item['image'] ?? '')),
+            'image' => NormalizeImagePath((string) ($item['image'] ?? '')),
         ];
 
         $cartSummary['count'] += $quantity;

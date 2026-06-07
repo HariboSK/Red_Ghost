@@ -18,7 +18,7 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-function product_stock(PDO $conn, int $productId): int
+function ProductStock(PDO $conn, int $productId): int
 {
     $stmt = $conn->prepare('SELECT stock FROM product WHERE id_product = :id LIMIT 1');
     $stmt->execute(['id' => $productId]);
@@ -31,21 +31,21 @@ function product_stock(PDO $conn, int $productId): int
     return (int) ($row['stock'] ?? 0);
 }
 
-function product_has_stock(PDO $conn, int $productId, int $requestedQuantity): bool
+function ProductHasStock(PDO $conn, int $productId, int $requestedQuantity): bool
 {
     if ($requestedQuantity <= 0) {
         return false;
     }
 
-    return product_stock($conn, $productId) >= $requestedQuantity;
+    return ProductStock($conn, $productId) >= $requestedQuantity;
 }
 
-function cart_quantity_for_product(array $cart, int $productId): int
+function CartQuantityForProduct(array $cart, int $productId): int
 {
     return (int) ($cart[$productId]['quantity'] ?? 0);
 }
 
-function normalize_image_path(string $image): string
+function NormalizeImagePath(string $image): string
 {
     $image = trim($image);
 
@@ -61,7 +61,7 @@ function normalize_image_path(string $image): string
 }
 
 // Nacita jeden produkt z databazy, aby kosik pouzival aktualne data.
-function get_product_by_id(PDO $conn, int $productId): ?array
+function GetProductById(PDO $conn, int $productId): ?array
 {   
     //stmt skratka pre statement, teda pripravený SQL dopyt
     $stmt = $conn->prepare('SELECT id_product AS id, name, price, image, stock FROM product WHERE id_product = :id LIMIT 1');
@@ -82,10 +82,10 @@ function get_product_by_id(PDO $conn, int $productId): ?array
 }
 
 // Pred odpovedou obnovi nazvy a ceny poloziek v kosiku z databazy.
-function sync_cart_prices(PDO $conn, array &$cart): void
+function SyncCartPrices(PDO $conn, array &$cart): void
 {
     foreach ($cart as $productId => $item) {
-        $dbProduct = get_product_by_id($conn, (int) $productId);
+        $dbProduct = GetProductById($conn, (int) $productId);
         if ($dbProduct === null) {
             unset($cart[$productId]);
             continue;
@@ -93,13 +93,13 @@ function sync_cart_prices(PDO $conn, array &$cart): void
 
         $cart[$productId]['name'] = $dbProduct['name'];
         $cart[$productId]['price'] = $dbProduct['price'];
-        $cart[$productId]['image'] = normalize_image_path((string) ($dbProduct['image'] ?? ''));
+        $cart[$productId]['image'] = NormalizeImagePath((string) ($dbProduct['image'] ?? ''));
 
     }
 }
 
 // Vypocita pocet kusov a celkovu cenu aktualneho kosika.
-function cart_summary(array $cart): array
+function CartSummary(array $cart): array
 {
     $count = 0;
     $total = 0.0;
@@ -119,12 +119,12 @@ function cart_summary(array $cart): array
 
 $action = $_GET['action'] ?? 'summary';
 
-sync_cart_prices($conn, $_SESSION['cart']);
+SyncCartPrices($conn, $_SESSION['cart']);
 
 if ($action === 'summary') {
     echo json_encode([
         'success' => true,
-        'summary' => cart_summary($_SESSION['cart']),
+        'summary' => CartSummary($_SESSION['cart']),
     ]);
     exit;
 }
@@ -164,7 +164,7 @@ if (in_array($action, $getActions)) {
 if ($action === 'list') {
     $cartList = [];
     foreach ($_SESSION['cart'] as $productId => $item) {
-        $product = get_product_by_id($conn, (int) $productId);
+        $product = GetProductById($conn, (int) $productId);
         if ($product === null) {
             unset($_SESSION['cart'][$productId]);
             continue;
@@ -175,7 +175,7 @@ if ($action === 'list') {
             'name' => (string) ($item['name'] ?? $product['name']),
             'price' => (float) ($item['price'] ?? $product['price']),
             'quantity' => (int) ($item['quantity'] ?? 0),
-            'image' => normalize_image_path((string) ($product['image'] ?? '')),
+            'image' => NormalizeImagePath((string) ($product['image'] ?? '')),
         ];
     }
 
@@ -194,17 +194,17 @@ if ($action === 'add') {
         exit;
     }
 
-    $product = get_product_by_id($conn, $productId);
+    $product = GetProductById($conn, $productId);
     if ($product === null) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Produkt neexistuje']);
         exit;
     }
 
-    $currentQuantity = cart_quantity_for_product($_SESSION['cart'], $productId);
+    $currentQuantity = CartQuantityForProduct($_SESSION['cart'], $productId);
     $requestedQuantity = $currentQuantity + 1;
 
-    if (!product_has_stock($conn, $productId, $requestedQuantity)) {
+    if (!ProductHasStock($conn, $productId, $requestedQuantity)) {
         http_response_code(409);
         echo json_encode(['success' => false, 'message' => 'Na sklade nie je dosť kusov.']);
         exit;
@@ -216,19 +216,19 @@ if ($action === 'add') {
             'name' => $product['name'],
             'price' => $product['price'],
             'quantity' => 0,
-            'image' => normalize_image_path((string) ($product['image'] ?? '')),
+            'image' => NormalizeImagePath((string) ($product['image'] ?? '')),
         ];
     }
 
     $_SESSION['cart'][$productId]['quantity'] += 1;
     $_SESSION['cart'][$productId]['name'] = $product['name'];
     $_SESSION['cart'][$productId]['price'] = $product['price'];
-    $_SESSION['cart'][$productId]['image'] = normalize_image_path((string) ($product['image'] ?? ''));
+    $_SESSION['cart'][$productId]['image'] = NormalizeImagePath((string) ($product['image'] ?? ''));
 
     echo json_encode([
         'success' => true,
         'message' => $product['name'] . ' bolo pridane do kosika',
-        'summary' => cart_summary($_SESSION['cart']),
+        'summary' => CartSummary($_SESSION['cart']),
     ]);
     exit;
 }
@@ -244,14 +244,14 @@ if ($action === 'update') {
     }
 
     $currentQuantity = (int) ($_SESSION['cart'][$productId]['quantity'] ?? 0);
-    $product = get_product_by_id($conn, $productId);
+    $product = GetProductById($conn, $productId);
     if ($product === null) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Produkt uz nie je dostupny']);
         exit;
     }
 
-    if ($quantity > $currentQuantity && !product_has_stock($conn, $productId, $quantity)) {
+    if ($quantity > $currentQuantity && !ProductHasStock($conn, $productId, $quantity)) {
         http_response_code(409);
         echo json_encode(['success' => false, 'message' => 'Požadované množstvo presahuje sklad.']);
         exit;
@@ -263,12 +263,12 @@ if ($action === 'update') {
         $_SESSION['cart'][$productId]['name'] = $product['name'];
         $_SESSION['cart'][$productId]['price'] = $product['price'];
         $_SESSION['cart'][$productId]['quantity'] = $quantity;
-        $_SESSION['cart'][$productId]['image'] = normalize_image_path((string) ($product['image'] ?? ''));
+        $_SESSION['cart'][$productId]['image'] = NormalizeImagePath((string) ($product['image'] ?? ''));
     }
 
     echo json_encode([
         'success' => true,
-        'summary' => cart_summary($_SESSION['cart']),
+        'summary' => CartSummary($_SESSION['cart']),
     ]);
     exit;
 }
@@ -278,7 +278,7 @@ if ($action === 'clear') {
 
     echo json_encode([
         'success' => true,
-        'summary' => cart_summary($_SESSION['cart']),
+        'summary' => CartSummary($_SESSION['cart']),
     ]);
     exit;
 }
@@ -298,7 +298,7 @@ if ($action === 'remove') {
         echo json_encode([
             'success' => true,
             'message' => 'Produkt bol aktualizovaný',
-            'summary' => cart_summary($_SESSION['cart']),
+            'summary' => CartSummary($_SESSION['cart']),
         ]);
         exit;
     }
@@ -312,7 +312,7 @@ if ($action === 'remove') {
     echo json_encode([
         'success' => true,
         'message' => 'Produkt bol aktualizovaný',
-        'summary' => cart_summary($_SESSION['cart']),
+        'summary' => CartSummary($_SESSION['cart']),
     ]);
     exit;
 }

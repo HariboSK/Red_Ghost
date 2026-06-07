@@ -16,7 +16,7 @@ if (!isset($conn) || !($conn instanceof PDO)) {
     exit;
 }
 
-function normalize_image_path(string $image): string
+function NormalizeImagePath(string $image): string
 {
     $image = trim($image);
 
@@ -73,7 +73,7 @@ if (!isset($_SESSION['cart'][$productId])) {
         'name' => $product['name'],
         'price' => (float) $product['price'],
         'quantity' => 0,
-        'image' => normalize_image_path((string) ($product['image'] ?? '')),
+        'image' => NormalizeImagePath((string) ($product['image'] ?? '')),
     ];
 }
 
@@ -81,7 +81,7 @@ $_SESSION['cart'][$productId]['quantity'] += 1;
 // ensure latest name/price
 $_SESSION['cart'][$productId]['name'] = $product['name'];
 $_SESSION['cart'][$productId]['price'] = (float) $product['price'];
-$_SESSION['cart'][$productId]['image'] = normalize_image_path((string) ($product['image'] ?? ''));
+$_SESSION['cart'][$productId]['image'] = NormalizeImagePath((string) ($product['image'] ?? ''));
 
 set_flash('success', 'Produkt bol pridaný do košíka.');
 

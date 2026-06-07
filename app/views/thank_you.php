@@ -4,7 +4,7 @@ $pageTitle = 'Dakujeme za objednavku';
 $fixedPointsAwarded = 50;
 
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/app/core/session_helper.php';
+require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
 
 SessionHelper::bootstrap();
 include __DIR__ . '/partials/header-shop.php';

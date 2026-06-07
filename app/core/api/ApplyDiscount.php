@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 3) . '/config/config.php';
-require_once dirname(__DIR__) . '/session_helper.php';
-require_once dirname(__DIR__, 3) . '/app/models/discount_code.model.php';
+require_once dirname(__DIR__) . '/SessionHelper.php';
+require_once dirname(__DIR__, 3) . '/app/models/DiscountCodeModel.php';
 
 SessionHelper::bootstrap();
 

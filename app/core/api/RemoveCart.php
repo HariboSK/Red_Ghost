@@ -36,7 +36,7 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
 }
 
 // Volitelne: overit produkt v DB ak je $conn dostupne
-function product_exists_and_stock($conn, $id) {
+function ProductExistsAndStock($conn, $id) {
     if (!($conn instanceof PDO)) {
         return null;
     }
@@ -63,7 +63,7 @@ switch ($action) {
 
     case 'increment':
         if ($id > 0) {
-            $stock = isset($conn) && ($conn instanceof PDO) ? product_exists_and_stock($conn, $id) : null;
+            $stock = isset($conn) && ($conn instanceof PDO) ? ProductExistsAndStock($conn, $id) : null;
             $current = isset($_SESSION['cart'][$id]) ? (int) ($_SESSION['cart'][$id]['quantity'] ?? 0) : 0;
             $requested = $current + 1;
             if ($stock !== null && $requested > $stock) {
@@ -87,7 +87,7 @@ switch ($action) {
             if ($q <= 0) {
                 unset($_SESSION['cart'][$id]);
             } else {
-                $stock = isset($conn) && ($conn instanceof PDO) ? product_exists_and_stock($conn, $id) : null;
+                $stock = isset($conn) && ($conn instanceof PDO) ? ProductExistsAndStock($conn, $id) : null;
                 if ($stock !== null && $q > $stock) {
                     $q = $stock;
                 }

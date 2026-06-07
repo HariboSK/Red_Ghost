@@ -1,9 +1,9 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-require_once dirname(__DIR__) . '/core/session_helper.php';
+require_once dirname(__DIR__) . '/core/SessionHelper.php';
 require_once dirname(__DIR__) . '/core/Redirect.php';
-require_once dirname(__DIR__) . '/core/dashboard_helper.php';
+require_once dirname(__DIR__) . '/core/DashboardHelper.php';
 require_once dirname(__DIR__, 2) . '/config/config.php';
 
 $sessionUser = SessionHelper::user();
@@ -744,6 +744,73 @@ include __DIR__ . '/partials/dashboard-header.php';
                             </table>
                         </div>
                     </article>
+                </div>
+            </section>
+        </section>
+
+        <section class="dashboard-panel" id="orders" data-dashboard-panel="orders">
+            <section class="admin-card orders-management-section">
+                <div class="admin-card-head">
+                    <h2>Objednávky</h2>
+                    <span>Rýchla zmena stavu objednávky priamo v administrácii</span>
+                </div>
+
+                <?php if ($adminMailerNotice !== ''): ?>
+                    <p class="panel-success"><?php echo dash_h($adminMailerNotice); ?></p>
+                <?php endif; ?>
+
+                <?php if ($adminMailerError !== ''): ?>
+                    <p class="panel-error"><?php echo dash_h($adminMailerError); ?></p>
+                <?php endif; ?>
+
+                <div class="table-wrap recent-orders-wrap">
+                    <table class="admin-table recent-orders-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Zákazník</th>
+                                <th>Email</th>
+                                <th>Suma</th>
+                                <th>Stav</th>
+                                <th>Platba</th>
+                                <th>Zmena stavu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($recentOrders)): ?>
+                                <tr>
+                                    <td colspan="7" class="empty-cell">Žiadne objednávky nie sú k dispozícii.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($recentOrders as $order): ?>
+                                    <tr>
+                                        <td><?php echo dash_h($order['id_order'] ?? ''); ?></td>
+                                        <td><?php echo dash_h($order['customer_name'] ?? ''); ?></td>
+                                        <td><?php echo dash_h($order['customer_email'] ?? ''); ?></td>
+                                        <td><?php echo dash_h(number_format((float) ($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
+                                        <td>
+                                            <span class="message-status-badge message-status-<?php echo dash_h((string) ($order['status'] ?? 'pending')); ?>">
+                                                <?php echo dash_h((string) ($order['status'] ?? 'pending')); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo dash_h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
+                                        <td>
+                                            <form method="POST" action="<?php echo route('/dashboard#orders'); ?>" class="order-status-form">
+                                                <input type="hidden" name="form_type" value="update_order_status">
+                                                <input type="hidden" name="order_id" value="<?php echo dash_h($order['id_order'] ?? ''); ?>">
+                                                <select name="order_status" class="order-status-select">
+                                                    <?php foreach (OrderModel::statusOptions() as $statusOption): ?>
+                                                        <option value="<?php echo dash_h($statusOption); ?>" <?php echo ((string) ($order['status'] ?? 'pending') === $statusOption) ? 'selected' : ''; ?>><?php echo dash_h($statusOption); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <button type="submit" class="management-submit order-status-btn">Uložiť</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </section>

@@ -1,8 +1,8 @@
 <?php
 
 require_once dirname(__DIR__, 3) . '/config/config.php';
-require_once dirname(__DIR__) . '/middleware/function.php';
-require_once dirname(__DIR__) . '/session_helper.php';
+require_once dirname(__DIR__) . '/middleware/Function.php';
+require_once dirname(__DIR__) . '/SessionHelper.php';
 
 SessionHelper::bootstrap();
 

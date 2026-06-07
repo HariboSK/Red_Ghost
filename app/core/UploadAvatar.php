@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once dirname(__DIR__, 2) . '/config/config.php';
 require_once __DIR__ . '/Redirect.php';
 require_once __DIR__ . '/../models/AvatarManager.php';
-require_once dirname(__DIR__) . '/core/session_helper.php';
+require_once dirname(__DIR__) . '/core/SessionHelper.php';
 
 $sessionUser = SessionHelper::user();
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);

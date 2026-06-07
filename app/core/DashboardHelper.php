@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../models/contact_message.model.php';
-require_once __DIR__ . '/../models/discount_code.model.php';
-require_once __DIR__ . '/../models/order.model.php';
-require_once __DIR__ . '/../models/shop_review.model.php';
-require_once __DIR__ . '/../models/user.model.php';
+require_once __DIR__ . '/../models/ContactMessageModel.php';
+require_once __DIR__ . '/../models/DiscountCodeModel.php';
+require_once __DIR__ . '/../models/OrderModel.php';
+require_once __DIR__ . '/../models/ShopReviewModel.php';
+require_once __DIR__ . '/../models/UserModel.php';
 
 class DashboardHelper
 {
@@ -328,6 +328,21 @@ class DashboardHelper
             }
         }
 
+        if ($formType === 'update_order_status') {
+            $orderId = filter_var($post['order_id'] ?? null, FILTER_VALIDATE_INT);
+            $orderStatus = (string) ($post['order_status'] ?? 'pending');
+
+            if (!$orderId || $orderId < 1) {
+                $state['adminMailerError'] = 'Neplatné ID objednávky.';
+            } elseif (!in_array($orderStatus, OrderModel::statusOptions(), true)) {
+                $state['adminMailerError'] = 'Neplatný stav objednávky.';
+            } elseif ((new OrderModel($pdo))->updateStatus((int) $orderId, $orderStatus)) {
+                $state['adminMailerNotice'] = 'Stav objednávky bol aktualizovaný.';
+            } else {
+                $state['adminMailerError'] = 'Stav objednávky sa nepodarilo zmeniť.';
+            }
+        }
+
         if ($formType !== '') {
             $_SESSION['adminMailerNotice'] = (string) ($state['adminMailerNotice'] ?? '');
             $_SESSION['adminMailerError'] = (string) ($state['adminMailerError'] ?? '');
@@ -350,6 +365,7 @@ class DashboardHelper
                 'delete_discount_code' => '#coupons',
                 'approve_shop_review' => '#reviews',
                 'delete_shop_review' => '#reviews',
+                'update_order_status' => '#orders',
             ];
 
             $state['redirectTo'] = '/dashboard' . ($redirectAnchors[$formType] ?? '');

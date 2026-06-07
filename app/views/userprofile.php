@@ -1,11 +1,11 @@
 <?php
-require_once dirname(__DIR__, 2) . '/app/core/session_helper.php';
+require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
 require_once dirname(__DIR__, 2) . '/app/core/Redirect.php';
 
 SessionHelper::bootstrap();
 
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__) . '/models/contact_message.model.php';
+require_once dirname(__DIR__) . '/models/ContactMessageModel.php';
 $sessionUser = SessionHelper::user();
 $avatarFile = (string) ($sessionUser['image'] ?? '');
 $avatarFsPath = $avatarFile !== ''

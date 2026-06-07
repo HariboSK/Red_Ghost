@@ -1,6 +1,6 @@
 <?php
-require_once dirname(__DIR__) . '/core/middleware/function.php';
-require_once dirname(__DIR__) . '/core/assetHelper.php';
+require_once dirname(__DIR__) . '/core/middleware/Function.php';
+require_once dirname(__DIR__) . '/core/AssetHelper.php';
 ?>
 
 <!DOCTYPE html>

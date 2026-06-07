@@ -1,9 +1,9 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-require_once dirname(__DIR__) . '/core/session_helper.php';
-require_once dirname(__DIR__) . '/core/middleware/function.php';
-require_once dirname(__DIR__) . '/core/assetHelper.php';
+require_once dirname(__DIR__) . '/core/SessionHelper.php';
+require_once dirname(__DIR__) . '/core/middleware/Function.php';
+require_once dirname(__DIR__) . '/core/AssetHelper.php';
 
 $sessionUser = SessionHelper::user();
 $forgotPasswordNotice = '';

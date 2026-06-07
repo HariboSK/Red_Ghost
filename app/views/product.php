@@ -4,9 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__) . '/core/session_helper.php';
-require_once dirname(__DIR__) . '/core/shopService.php';
-require_once dirname(__DIR__) . '/models/product_review.model.php';
+require_once dirname(__DIR__) . '/core/SessionHelper.php';
+require_once dirname(__DIR__) . '/core/ShopService.php';
+require_once dirname(__DIR__) . '/models/ProductReviewModel.php';
 
 SessionHelper::bootstrap();
 

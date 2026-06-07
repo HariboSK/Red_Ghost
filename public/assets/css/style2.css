@@ -1067,10 +1067,7 @@ button[disabled] {
 /* Footer */
 .footer-shop {
   margin-top: 100px;
-  background:
-    radial-gradient(circle at top left, rgba(255, 138, 42, 0.14), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(98, 196, 106, 0.1), transparent 26%),
-    linear-gradient(180deg, #090909 0%, #050505 100%);
+  background: var(--primary-color);
   color: #fff;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
