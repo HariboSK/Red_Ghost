@@ -105,7 +105,7 @@ include __DIR__ . '/partials/header.php';
 
 <main class="shop-review-page">
   <section class="contact-section review-section" id="shop-review-form">
-    <h2 class="section-title autoshow">Pridat recenziu</h2>
+    <h2 class="section-title autoshow">Pridať recenziu</h2>
     <p class="section-description">Zdieľaj svoj názor o našom obchode s ostatnými zákazníkmi.</p>
     <h3 class="section-subtitle">Ak tvoja recenzia bude schvalovaná, získavaš 100 bodov.</h3>
     <div class="section-content review-section-content">
@@ -120,8 +120,8 @@ include __DIR__ . '/partials/header.php';
 
         <textarea name="review_text" placeholder="Tvoja recenzia na obchod" class="form-input" required><?php echo htmlspecialchars($reviewFormData['review_text'], ENT_QUOTES, 'UTF-8'); ?></textarea>
 
-        <button type="submit" class="submit-button">Odoslat recenziu</button>
-        <a href="<?php echo route('/home#testimonials'); ?>" class="submit-button review-back-link">Spat na recenzie</a>
+        <button type="submit" class="submit-button">Odoslať recenziu</button>
+        <a href="<?php echo route('/home#testimonials'); ?>" class="submit-button review-back-link">Späť na recenzie</a>
       </form>
 
       <?php if (!empty($reviewFormSuccess)): ?>

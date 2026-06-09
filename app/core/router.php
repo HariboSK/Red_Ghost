@@ -40,6 +40,7 @@ class Router
         '/404.php' => ['errors.css', 'style.css'],
         '/error500' => ['errors.css', 'style.css'],
         '/error500.php' => ['errors.css', 'style.css'],
+        '/profile-edit' => ['style.css','profileEdit.css'],
     ];
 
     public function __construct()
@@ -76,6 +77,8 @@ class Router
             '/forgot-password.php' => 'app/views/forgot_password.php',
             '/shop-review' => 'app/views/shop_review.php',
             '/shop-review.php' => 'app/views/shop_review.php',
+            '/profile-edit' => 'app/views/profile-edit.php',
+            '/profile-edit.php' => 'app/views/profile-edit.php',
             '/login-register' => 'app/core/LoginRegister.php',
             '/login-register.php' => 'app/core/LoginRegister.php',
             '/login_register' => 'app/core/LoginRegister.php',

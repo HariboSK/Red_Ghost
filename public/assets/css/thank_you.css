@@ -107,7 +107,7 @@ body.thank-you-page {
 
 .thank-you-primary {
     color: #050505;
-    background: linear-gradient(135deg, #ffffff 0%, #ff8a2a 44%, #62c46a 100%);
+    background: #62c46a;
 }
 
 .thank-you-secondary {

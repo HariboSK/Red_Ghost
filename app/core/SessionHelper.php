@@ -38,6 +38,7 @@ class SessionHelper
         $email = self::getString(['user_email', 'email', 'userEmail', 'mail']);
         $name = self::getString(['user_name', 'name', 'username', 'full_name']);
         $image = self::getString(['image']);
+        $phone = self::getString(['phone']);
         $role = self::getString(['user_role', 'role']);
         $id = self::getInt(['user_id', 'id']);
         $points = self::getInt(['loyalty_points']);
@@ -52,6 +53,7 @@ class SessionHelper
             'email' => $email,
             'role' => $role,
             'image' => $image,
+            'phone' => $phone,
             'points' => $points,
             'is_logged_in' => $isLoggedIn,
         ];
@@ -66,11 +68,13 @@ class SessionHelper
         $email = (string) ($user['email'] ?? '');
         $image = (string) ($user['image'] ?? '');
         $role = (string) ($user['role'] ?? 'user');
+        $phone = (string) ($user['phone'] ?? $user['telephone'] ?? '');
 
         $_SESSION['user_id'] = $id;
         $_SESSION['name'] = $name;
         $_SESSION['email'] = $email;
         $_SESSION['role'] = $role;
+        $_SESSION['phone'] = $phone;
         $_SESSION['image'] = $image;
         $_SESSION['user']['image'] = $image;
         $_SESSION['loyalty_points'] = $points;

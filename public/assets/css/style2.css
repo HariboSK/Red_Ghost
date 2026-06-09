@@ -1359,6 +1359,7 @@ button[disabled] {
   text-align: right;
 }
 
+/* Responsive */
 @media screen and (max-width: 980px) {
   .footer-shell {
     grid-template-columns: 1fr 1fr;
@@ -1471,30 +1472,6 @@ button[disabled] {
 }
 
 /* Responsive */
-@media screen and (max-width: 1400px) {
-  .showcase-image img {
-    width: 45vw;
-    height: 100%;
-  }
-
-  .showcase-info {
-    right: 35px;
-    flex: 0 0 35%;
-    max-width: 250px;
-    padding: 8px;
-  }
-
-  .diagonal-left {
-    width: 500px;
-    left: -90px;
-  }
-
-  .diagonal-right {
-    width: 500px;
-    right: -90px;
-  }
-}
-
 @media screen and (max-width: 980px) {
   .navbar {
     gap: 10px;
@@ -1514,38 +1491,6 @@ button[disabled] {
     padding: 30px;
     padding-left: 60px;
     padding-right: 60px;
-  }
-
-  .showcase-image {
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform: none;
-    width: 100%;
-    height: 100%;
-  }
-
-  .showcase-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .showcase-info {
-    right: 50px;
-    flex: 0 0 35%;
-    max-width: 200px;
-    padding: 12px;
-  }
-
-  .diagonal-left {
-    width: 400px;
-    left: -140px;
-  }
-
-  .diagonal-right {
-    width: 400px;
-    right: -140px;
   }
 
 }
@@ -1635,11 +1580,6 @@ button[disabled] {
     display: none;
   }
 
-  .diagonal-left,
-  .diagonal-right {
-    display: none;
-  }
-
   .shop-catalog {
     grid-template-columns: 1fr;
   }
@@ -1700,7 +1640,7 @@ button[disabled] {
   }
 
   .shop-header-search {
-    margin: 0;
+    margin-top: 10px;
   }
 
   .shop-header-search-field {
@@ -1769,30 +1709,10 @@ button[disabled] {
     min-height: 0;
   }
 
-  .shopBannerSwiper .swiper-pagination {
-    position: static;
-    margin-top: -120px;
-    margin-bottom: 0;
-  }
-
   .showcase-image {
     width: 100%;
     height: 40%;
     margin-bottom: 6px;
-  }
-
-  .showcase-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border: 2px solid var(--light-red-color);
-    border-radius: var(--border-radius-m);
-  }
-
-  .showcase-info {
-    max-width: 100%;
-    padding: 10px;
-    margin-bottom: 0;
   }
 
   .showcase-info h2 {
@@ -2386,7 +2306,6 @@ button[disabled] {
 
   .shopBannerSwiper .swiper-slide.shop-banner-slide {
     padding: 16px;
-    border-radius: 22px;
     gap: 16px;
   }
 

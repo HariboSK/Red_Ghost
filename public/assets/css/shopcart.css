@@ -333,7 +333,7 @@ body.shopcart-page {
     padding: 10px 14px;
     border-radius: 10px;
     border: 1px solid rgba(98, 196, 106, 0.18);
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(98,196,106,0.08));
+    background: transparent;
     color: #ffffff;
     font-weight: 700;
     cursor: pointer;
@@ -342,7 +342,7 @@ body.shopcart-page {
 
 .cart-page .apply-discount-btn:hover {
     transform: translateY(-2px);
-    background: linear-gradient(180deg, rgba(255,138,42,0.14), rgba(98,196,106,0.08));
+    background: green;
     border-color: rgba(98, 196, 106, 0.36);
     color: #ffffff;
 }
@@ -408,6 +408,7 @@ body.shopcart-page {
 }
 
 .checkout-btn {
+    display: inline-block;
     width: 100%;
     border: none;
     border-radius: 14px;
@@ -415,7 +416,7 @@ body.shopcart-page {
     font-weight: 700;
     letter-spacing: 0.02em;
     color: #050505;
-    background: linear-gradient(135deg, #ffffff 0%, #ff8a2a 44%, #62c46a 100%);
+    background: #ff7300;
     box-shadow: 0 14px 30px rgba(98, 196, 106, 0.18);
     cursor: pointer;
     transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
@@ -424,7 +425,8 @@ body.shopcart-page {
 .checkout-btn:hover {
     transform: translateY(-1px);
     filter: brightness(1.03);
-    box-shadow: 0 18px 34px rgba(255, 138, 42, 0.22);
+    background: #17c625;
+    box-shadow: 0 18px 34px #17c62658;
 }
 
 .checkout-btn:disabled {

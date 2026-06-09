@@ -340,7 +340,7 @@ include __DIR__ . '/partials/header-shop.php';
                     </div>
                     <div class="review-box review-box--wide">
                         <span>Poznámka</span>
-                        <strong>Sem si doplníš vlastnú serverovú logiku alebo potvrdenie objednávky.</strong>
+                        <strong>Stav objednávky môžeš sledovať v tvojom účte. V uživatelskom profile nájdeš všetky svoje objednávky.</strong>
                     </div>
                 </div>
 

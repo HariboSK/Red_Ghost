@@ -10,7 +10,7 @@ function NormalizeImagePath(string $image): string
     $image = trim($image);
 
     if ($image === '') {
-        return '/assets/images/omacka3.webp';
+        return '/assets/images/155555.webp';
     }
 
     if (preg_match('~^(https?:)?//~i', $image) === 1 || strpos($image, '/') === 0) {
@@ -69,7 +69,7 @@ if ($cartSummary['discount'] <= 0 && $discountFromFlash !== null) {
 $subtotalAfterDiscount = max(0, $cartSummary['subtotal'] - $cartSummary['discount']);
 $cartSummary['total'] = $subtotalAfterDiscount + $cartSummary['shipping'];
 
-include __DIR__ . '/partials/header-shop.php';
+include __DIR__ . '/partials/header-product.php';
 ?>
 
 <main class="cart-page">
@@ -79,8 +79,6 @@ include __DIR__ . '/partials/header-shop.php';
                 <h1>Tvoj košík</h1>
                 <p class="items-count" id="cartPageCount"><?php echo (int) $cartSummary['count']; ?> položiek</p>
             </div>
-
-            <p class="cart-notice" id="cartPageMessage"><?php echo $cartSummary['count'] > 0 ? 'Košík je pripravený.' : 'Košík je prázdny.'; ?></p>
 
             <div class="cart-items" id="cartPageItemsList">
                 <?php if (!empty($cartItems)): ?>
@@ -159,7 +157,12 @@ include __DIR__ . '/partials/header-shop.php';
                 <?php endif; ?>
             </form>
 
-            <button type="button" class="checkout-btn" id="checkoutBtn" data-payment-url="<?php echo route('/payment'); ?>" <?php echo $cartSummary['count'] <= 0 ? 'disabled' : ''; ?>>Pokračovať na objednávku</button>
+           <?php if ($cartSummary['count'] > 0): ?>
+                <a href="<?php echo route('/payment'); ?>" class="checkout-btn" id="checkoutBtn">Pokračovať na objednávku</a>
+            <?php else: ?>
+                <button type="button" class="checkout-btn" id="checkoutBtn" disabled>Pokračovať na objednávku</button>
+            <?php endif; ?>
+
             <a class="continue-link" href="<?php echo route('/e-shop'); ?>">Späť do e-shopu</a>
         </aside>
     </section>

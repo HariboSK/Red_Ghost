@@ -4,17 +4,20 @@ require_once __DIR__ . '/../models/DiscountCodeModel.php';
 require_once __DIR__ . '/../models/OrderModel.php';
 require_once __DIR__ . '/../models/ShopReviewModel.php';
 require_once __DIR__ . '/../models/UserModel.php';
+require_once __DIR__ . '/../models/ProductModel.php';
+
+$productModel = new ProductModel($pdo ?? $conn ?? null);
 
 class DashboardHelper
 {
     private static ?array $baseDashboardState = null;
 
+
     public static function h(mixed $value): string
     {
-
-    if(is_array($value)) {
-        throw new Error('Error:Cannot be an array');
-    }
+        if (is_array($value)) {
+            throw new Error('Error: Cannot be an array');
+        }
         return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 
@@ -22,7 +25,6 @@ class DashboardHelper
     {
         return count($discountCodes);
     }
-
 
     public static function buildDashboardState(?PDO $pdo, array $sessionUser, array $server, array $post): array
     {
@@ -180,7 +182,7 @@ class DashboardHelper
             }
         }
 
-        if($formType === 'delete_message') {
+        if ($formType === 'delete_message') {
             $messageId = filter_var($post['message_id'] ?? null, FILTER_VALIDATE_INT);
 
             if (!$messageId || $messageId < 1) {
@@ -188,7 +190,7 @@ class DashboardHelper
             } else {
                 try {
                     $contactMessageModel->delete((int) $messageId);
-                    $state['adminMailerNotice'] = 'Správa bola odstranena.';
+                    $state['adminMailerNotice'] = 'Správa bola odstránená.';
                 } catch (PDOException $exception) {
                     $state['adminMailerError'] = 'Správu sa nepodarilo odstrániť.';
                 }
@@ -253,16 +255,19 @@ class DashboardHelper
                     $productId = filter_var($post['product_id'] ?? null, FILTER_VALIDATE_INT);
                     try {
                         if ($formType === 'create_product') {
+                            // zápis do DB
                             $productModel->create($productValidation['payload']);
                             $state['productNotice'] = 'Produkt bol úspešne pridaný.';
                         } elseif ($productId && $productId > 0) {
+                            // volanie modelu pre úpravu v DB
                             $productModel->update((int) $productId, $productValidation['payload']);
                             $state['productNotice'] = 'Produkt bol úspešne upravený.';
                         } else {
                             $state['productError'] = 'Neplatné ID produktu.';
                         }
                     } catch (PDOException $exception) {
-                        $state['productError'] = 'Produkt sa nepodarilo uložiť.';
+                        // Ak by zlyhala databáza (napr. chýbajúca tabuľka), vypíše sa toto:
+                        $state['productError'] = 'Produkt sa nepodarilo uložiť do databázy: ' . $exception->getMessage();
                     }
                 }
             }
@@ -393,7 +398,7 @@ class DashboardHelper
             $state['adminUsers'] = $userModel->getAdmins();
             $state['totalAdmins'] = count($state['adminUsers']);
         } catch (PDOException $exception) {
-            $state['adminUsersError'] = 'Nepodarilo sa nacitat admin pouzivatelov.';
+            $state['adminUsersError'] = 'Nepodarilo sa načítať admin používateľov.';
         }
 
         try {
@@ -442,6 +447,7 @@ class DashboardHelper
     }
 }
 
+// Procedurálne funkcie na spodu súboru
 function dash_h($value): string
 {
     return DashboardHelper::h($value);

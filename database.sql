@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`user` (
   `name` VARCHAR(100) NULL DEFAULT NULL,
   `email` VARCHAR(50) NULL DEFAULT NULL,
   `password` VARCHAR(255) NULL DEFAULT NULL,
+  `telephone` VARCHAR(20) NULL DEFAULT NULL,
   `image` VARCHAR(255) NULL DEFAULT NULL,
   `loyalty_points` INT(11) NULL DEFAULT 0,
   `role` ENUM('customer', 'admin') NULL DEFAULT 'customer',

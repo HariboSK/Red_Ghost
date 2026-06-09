@@ -590,14 +590,14 @@ header .navbar {
   border: 1px solid transparent;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   position: absolute;
-  margin-left: 50%;
+  margin-left: 45%;
   margin-top: 330px;
 }
 
 .contact-section .form-feedback--success {
   background: var(--primary-color);
   color: var(--ok-color);
-  border-color: #9ad2ab;
+  border-color: var(--ok-color);
 }
 
 .form-feedback--success{
@@ -607,7 +607,7 @@ header .navbar {
 .contact-section .form-feedback--error {
   background: var(--primary-color);
   color: var(--alert-color);
-  border-color: #f2a5a8;
+  border-color: var(--alert-color);
 }
 
 .section-description {
@@ -616,10 +616,11 @@ header .navbar {
   font-size: var(--font-size-m);
 }
 
-.section-subtitle {
+.section-subtitle{
   text-align: center;
   margin: 0 auto 10px;
-  font-size: var(--font-size-l);
+  font-size: 30px;
+  font-family: "Pacifico", cursive;
   color: var(--light-red-color);
 }
 

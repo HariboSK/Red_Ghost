@@ -80,11 +80,15 @@ class ProductReviewModel extends BaseModel
         return is_array($row) ? $row : null;
     }
 
-    public function saveReview(int $productId, int $userId, int $rating, string $title, string $content, bool $verifiedPurchase = false, ?int $orderItemId = null): bool
+    // PRIDANÝ PARAMETER $autoApprove NA KONIEC FUNKCIE
+    public function saveReview(int $productId, int $userId, int $rating, string $title, string $content, bool $verifiedPurchase = false, ?int $orderItemId = null, bool $autoApprove = false): bool
     {
         if ($productId <= 0 || $userId <= 0) {
             return false;
         }
+
+        // Dynamická kontrola statusu podľa zaslaného parametra
+        $statusValue = $autoApprove ? 'approved' : 'pending';
 
         $existing = $this->getUserReview($productId, $userId);
 
@@ -105,7 +109,7 @@ class ProductReviewModel extends BaseModel
                 ':rating' => $rating,
                 ':title' => $title,
                 ':content' => $content,
-                ':status' => 'pending',
+                ':status' => $statusValue, // Použije sa schválený/čakajúci status
                 ':verified' => $verifiedPurchase ? 1 : 0,
                 ':order_item' => $orderItemId,
                 ':id_review' => (int) ($existing['id'] ?? 0),
@@ -142,7 +146,7 @@ class ProductReviewModel extends BaseModel
             ':rating' => $rating,
             ':title' => $title,
             ':content' => $content,
-            ':status' => 'pending',
+            ':status' => $statusValue, // Použije sa schválený/čakajúci status
             ':verified' => $verifiedPurchase ? 1 : 0,
             ':id_product' => $productId,
             ':id_user' => $userId,

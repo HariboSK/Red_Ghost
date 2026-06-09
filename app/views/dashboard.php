@@ -57,9 +57,10 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <strong><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></strong>
                         <span>Administrator</span>
                     </div>
+                    <a href="<?php echo route('/home'); ?>">Domov</a>
+                    <a href="<?php echo route('/e_shop'); ?>">Obchod</a>
                     <a href="<?php echo route('/userprofile'); ?>">Uživateľsky profil</a>
                     <a href="<?php echo route('/logout'); ?>">Odhlásiť</a>
-                    <a href="<?php echo route('/home'); ?>">Domov</a>
                 </div>
             </details>
         </div>
@@ -502,7 +503,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <label for="quick-product-rating">Hodnotenie (1-5)</label>
                             <input id="quick-product-rating" name="rating" type="number" min="1" max="5" value="4">
 
-                            <label><input type="checkbox" name="featured"> Odporúčaný produkt</label>
+                            <label class="checkbox-field"><input type="checkbox" name="featured"> Odporúčaný produkt</label>
 
                             <button type="submit" class="management-submit">Uložiť produkt</button>
                         </form>

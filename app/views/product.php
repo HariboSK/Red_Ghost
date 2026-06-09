@@ -93,18 +93,19 @@ if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string) ($_POS
                 (int) $ratingValue,
                 $reviewData['title'],
                 $reviewData['content'],
-                false,
-                null
+                false, //
+                null,  //
+                true   // <--- TOTO POSIELA $autoApprove
             );
 
             if ($saved) {
-                $_SESSION['product_review_success'] = 'Recenzia bola odoslaná na schválenie.';
+                $_SESSION['product_review_success'] = 'Recenzia bola úspešne pridaná.';
                 $_SESSION['product_review_data'] = [
                     'rating' => '5',
                     'title' => '',
                     'content' => '',
                 ];
-                header('Location: ' . route('/product?id=' . $productId));
+                header('Location: ' . route('/product?id=' . $productId . '#btn-reviews'));
                 exit;
             }
 
@@ -115,7 +116,7 @@ if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string) ($_POS
     if (!empty($reviewErrors)) {
         $_SESSION['product_review_errors'] = $reviewErrors;
         $_SESSION['product_review_data'] = $reviewData;
-        header('Location: ' . route('/product?id=' . $productId));
+        header('Location: ' . route('/product?id=' . $productId . '#btn-reviews'));
         exit;
     }
 }
@@ -139,7 +140,7 @@ if ($productId > 0 && $pdo instanceof PDO) {
     }
 }
 
-include __DIR__ . '/partials/header-shop.php';
+include __DIR__ . '/partials/header-product.php';
 ?>
 
 <main class="product-page product-page-content">
@@ -190,21 +191,25 @@ include __DIR__ . '/partials/header-shop.php';
             <span class="label">Cena</span>
             <span class="value"><?php echo number_format((float) ($product['price'] ?? 0), 2, '.', ''); ?> EUR</span>
           </div>
-        </div>
+        </div> 
 
-        <div class="actions">
+        <div class="actions" style="display: block; width: 100%; margin-top: 20px; clear: both;">
           <?php if ((int) ($product['stock'] ?? 0) > 0): ?>
-            <form method="POST" action="<?php echo route('/api/AddToCart.php'); ?>" class="add_to_cart_form">
+            <form method="POST" action="<?php echo route('/api/AddToCart.php'); ?>" class="add_to_cart_form" style="width: 100%;">
               <input type="hidden" name="id" value="<?php echo (int) ($product['id'] ?? 0); ?>">
               <input type="hidden" name="return_to" value="<?php echo htmlspecialchars(route('/product?id=' . (int) ($product['id'] ?? 0)), ENT_QUOTES, 'UTF-8'); ?>">
-              <button type="submit" class="add-to-cart-btn">Pridať do košíka</button>
+              <button type="submit" class="add-to-cart-btn">
+                Pridať do košíka
+              </button>
             </form>
           <?php else: ?>
-            <button class="add-to-cart-btn" disabled>Vypredané</button>
+            <button class="add-to-cart-btn-vypredane" disabled>
+              Vypredané
+            </button>
           <?php endif; ?>
-        </div>
-      </div>
-    </section>
+        </div> 
+
+      </div> </section>
 
     <section class="product-lower">
       <article class="detail-card">
@@ -217,18 +222,6 @@ include __DIR__ . '/partials/header-shop.php';
           <h2>Recenzie produktu</h2>
           <span><?php echo (int) ($reviewSummary['count'] ?? 0); ?> schválených recenzií</span>
         </div>
-
-        <?php if ($reviewSuccess !== ''): ?>
-          <p class="review-feedback review-feedback--success"><?php echo htmlspecialchars($reviewSuccess, ENT_QUOTES, 'UTF-8'); ?></p>
-        <?php endif; ?>
-
-        <?php if (!empty($reviewErrors)): ?>
-          <div class="review-feedback review-feedback--error" role="alert">
-            <?php foreach ($reviewErrors as $reviewError): ?>
-              <p><?php echo htmlspecialchars((string) $reviewError, ENT_QUOTES, 'UTF-8'); ?></p>
-            <?php endforeach; ?>
-          </div>
-        <?php endif; ?>
 
         <div class="review-list">
           <?php if (empty($reviews)): ?>
@@ -279,13 +272,25 @@ include __DIR__ . '/partials/header-shop.php';
                 <textarea name="content" class="review-input review-textarea" rows="5" maxlength="2000" required><?php echo htmlspecialchars((string) $reviewData['content'], ENT_QUOTES, 'UTF-8'); ?></textarea>
               </label>
 
-              <button type="submit" class="cart-view-btn"><?php echo is_array($userReview) ? 'Upraviť recenziu' : 'Odoslať recenziu'; ?></button>
+              <button type="submit" class="cart-view-btn" id="btn-reviews"><?php echo is_array($userReview) ? 'Upraviť recenziu' : 'Odoslať recenziu'; ?></button>
             </form>
           <?php endif; ?>
         </div>
       </article>
     </section>
   <?php endif; ?>
+
+        <?php if ($reviewSuccess !== ''): ?>
+          <p class="review-feedback review-feedback--success"><?php echo htmlspecialchars($reviewSuccess, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php endif; ?>
+
+        <?php if (!empty($reviewErrors)): ?>
+          <div class="review-feedback review-feedback--error" role="alert">
+            <?php foreach ($reviewErrors as $reviewError): ?>
+              <p><?php echo htmlspecialchars((string) $reviewError, ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
 </main>
 
 <div class="zoom-modal" id="zoomModal" aria-hidden="true">
