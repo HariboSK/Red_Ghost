@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 // Server-side handler pre upravu/mazanie poloziek v kosiku cez POST formular
 // Podpora akcii: decrement, increment, set, remove, clear
 

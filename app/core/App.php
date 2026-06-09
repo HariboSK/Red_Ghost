@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 class App
 {
     private static bool $initialized = false;

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 function set_flash(string $type, string $message): void {
     if (session_status() === PHP_SESSION_NONE) session_start();
     $_SESSION['flash'] = ['type' => $type, 'message' => $message];
