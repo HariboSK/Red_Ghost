@@ -23,6 +23,9 @@ $activeForm = $auth->getActiveForm();
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon"
         href="./assets/images/favicon.webp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
 </head>
 
@@ -91,8 +94,7 @@ $activeForm = $auth->getActiveForm();
                             </div>
 
                             <!--Zabudnute heslo link-->
-                            <a class="forgot-password" href="<?php echo route('/forgot-password'); ?>">Zabudli ste
-                                heslo?</a>
+                            <a class="forgot-password" href="<?php echo route('/forgot-password'); ?>">Zabudli ste heslo?</a>
 
                             <button type="submit" name="login" class="auth-submit">Prihlásiť sa</button>
                             <?= $auth->showError($errors['login']); ?>

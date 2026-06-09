@@ -1,1 +1,0 @@
-[2026-06-09 02:36:46] ERROR: Uncaught exception {"type":"Error","message":"Call to undefined method ContactMessageModel::create()","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\views\\userprofile.php","line":68,"uri":"/userprofile"}

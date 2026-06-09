@@ -150,6 +150,16 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`contact_replies` (
     REFERENCES `red_ghost`.`contact_messages` (`id_contact_msg`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
+
+-- -----------------------------------------------------
+-- Table `red_ghost`.`password_resets`
+-- -----------------------------------------------------
+CREATE TABLE `red_ghost`.`password_resets` (
+    `email` VARCHAR(255) NOT NULL,
+    `token` VARCHAR(64) NOT NULL,
+    `expires_at` DATETIME NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
 -- -----------------------------------------------------
 -- Table `red_ghost`.`shop_review`
 -- -----------------------------------------------------

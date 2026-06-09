@@ -822,8 +822,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <span>Denné tržby, objednávky a rýchle akcie</span>
                     </div>
                     <div class="quick-tools-buttons">
-                        <button type="button" class="tool-btn">Pridať admina</button>
-                        <button type="button" class="tool-btn">Resetovať heslo</button>
+                        <a href="<?php echo route('/forgot-password'); ?>" class="tool-btn">Resetovať heslo</a>
                         <a href="<?php echo route('/e-shop'); ?>" class="tool-btn ghost-link">Otvoriť obchod</a>
                         <a href="<?php echo route('/shopcart'); ?>" class="tool-btn ghost-link">Zobraziť košík</a>
                     </div>
