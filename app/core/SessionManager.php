@@ -5,6 +5,10 @@ class SessionManager
 {
     public static function start(array $options = []): void
     {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return;
+        }
+
         $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 
         $defaults = [

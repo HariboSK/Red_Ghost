@@ -1,15 +1,17 @@
 <?php
 declare(strict_types=1);
-// Server-side handler pre upravu/mazanie poloziek v kosiku cez POST formular
-// Podpora akcii: decrement, increment, set, remove, clear
 
-// Load config (DB connection etc.)
-require_once __DIR__ . '/../../../config/config.php';
+require_once dirname(__DIR__, 1) . '/App.php'; 
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+App::init();
+
+// Poistka pre DB pripojenie z config.php
+if (!isset($conn) || !($conn instanceof PDO)) {
+    $back = $_POST['return_to'] ?? '/shop';
+    set_flash('error', 'Košík sa nepodarilo aktualizovať.');
+    header('Location: ' . $back);
+    exit;
 }
-
 // Akceptujeme iba POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $back = $_POST['return_to'] ?? '/shopcart';
@@ -112,12 +114,12 @@ switch ($action) {
         break;
 
     default:
-        // neznama akcia -> nic
+        http_response_code(400);
+        set_flash('error', 'Neplatná akcia');
         break;
 }
 
-// Volitelne: pridat flash spravu
-// $_SESSION['flash'] = 'Košík bol aktualizovaný.';
+set_flash('success', 'Produkt bol odstránený z košíka.');
 
 header('Location: ' . $returnTo);
 exit;

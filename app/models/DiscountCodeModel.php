@@ -17,6 +17,22 @@ class DiscountCodeModel extends BaseModel
         return is_array($rows) ? $rows : [];
     }
 
+    public function findByCode(string $code): ?array
+    {
+        if (!$this->hasDiscountCodesTable()) {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT * 
+                                    FROM discount_code 
+                                    WHERE LOWER(code) = LOWER(:code) 
+                                    LIMIT 1');
+        $stmt->execute([':code' => $code]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return is_array($row) ? $row : null;
+    }
+
     public function create(array $data): void
     {
         if (!$this->hasDiscountCodesTable()) {
@@ -24,8 +40,23 @@ class DiscountCodeModel extends BaseModel
         }
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO discount_code (code, description, discount_type, value, min_order_value, is_active, valid_from, valid_to)
-             VALUES (:code, :description, :discount_type, :value, :min_order_value, :is_active, :valid_from, :valid_to)'
+            'INSERT INTO discount_code 
+                        (code, 
+                        description, 
+                        discount_type, 
+                        value, 
+                        min_order_value, 
+                        is_active, 
+                        valid_from, 
+                        valid_to)
+             VALUES (:code, 
+                    :description, 
+                    :discount_type, 
+                    :value, 
+                    :min_order_value, 
+                    :is_active, 
+                    :valid_from, 
+                    :valid_to)'
         );
 
         $stmt->execute([

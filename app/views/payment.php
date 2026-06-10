@@ -52,13 +52,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     }
 }
 
-// Ak je košík prázdny, nepustíme ho platiť (voliteľné, ale odporúčané)
+// Ak je košík prázdny, nepustíme ho platiť
 if ($cartSummary['count'] <= 0) {
-    header('Location: ' . route('/shopcart'));
+    header('Location: ' . Router::url('/shopcart'));
     exit;
 }
 
-// Výpočet súhrnu (identický s košíkom)
+// Výpočet súhrnu
 $cartSummary['shipping'] = $cartSummary['count'] > 0 ? 3.9 : 0.0;
 $cartSummary['discount'] = abs((float) ($_SESSION['applied_discount_amount'] ?? 0));
 
@@ -69,21 +69,33 @@ include __DIR__ . '/partials/header-shop.php';
 ?>
 
 <main class="payment-page-shell">
+    <!-- Debug: Zobrazí chybu z Session, ak existuje -->
+    <?php if (isset($_SESSION['checkout_error'])): ?>
+        <div class="checkout-error" role="alert">
+            CHYBA:<br>
+            <span class="error-message">
+                <?php 
+                    echo htmlspecialchars($_SESSION['checkout_error']); 
+                    unset($_SESSION['checkout_error']); 
+                ?>
+            </span>
+        </div>
+    <?php endif; ?>
     <section class="payment-layout">
         <aside class="payment-rail">
-            <span class="payment-kicker">Krok 2 z 2</span>
+            <span class="payment-kicker" id="payment-kicker-text">Krok 1 z 3</span>
             <h1>Dokonči objednávku</h1>
             <p>Tu si môžeš doplniť vlastnú logiku. Stránka je pripravená ako čistý template s prehľadným rozložením.</p>
 
             <div class="payment-stepper" aria-label="Kroky objednávky">
-                <button type="button" class="payment-step is-done" data-step-target="address">
+                <button type="button" class="payment-step is-active" data-step-target="address" aria-current="step">
                     <span class="step-dot"></span>
                     <div>
                         <strong>Adresa</strong>
                         <small>Dodacie údaje</small>
                     </div>
                 </button>
-                <button type="button" class="payment-step is-active" data-step-target="payment" aria-current="step">
+                <button type="button" class="payment-step" data-step-target="payment">
                     <span class="step-dot"></span>
                     <div>
                         <strong>Platba</strong>
@@ -101,8 +113,9 @@ include __DIR__ . '/partials/header-shop.php';
         </aside>
 
         <div class="payment-content">
-        <form class="payment-form" action="<?php echo route('/api/checkout.php'); ?>" method="POST" novalidate>
-            <input type="hidden" name="return_to" value="<?php echo route('/payment'); ?>">
+        <form class="payment-form" action="<?php echo Router::url('/api/checkout'); ?>" method="POST" novalidate>
+            <input type="hidden" name="return_to" value="<?php echo Router::url('/payment'); ?>">
+            <input type="hidden" name="delivery_method" id="delivery_method_hidden" value="courier">
             <article class="payment-stage is-visible" data-step-panel="address">
                 <div class="payment-panel">
                 <div class="panel-head">

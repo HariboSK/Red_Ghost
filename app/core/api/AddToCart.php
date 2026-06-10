@@ -1,17 +1,12 @@
 <?php
 declare(strict_types=1);
 
-// Load application config (project root `config/config.php`).
-require_once __DIR__ . '/../../../config/config.php';
-require_once __DIR__ . '/../Flash.php';
+require_once dirname(__DIR__, 1) . '/App.php'; 
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+App::init();
 
-// Minimal DB connection from config
+// Poistka pre DB pripojenie z config.php
 if (!isset($conn) || !($conn instanceof PDO)) {
-    // Can't proceed; redirect back with error param if provided
     $back = $_POST['return_to'] ?? '/shop';
     set_flash('error', 'Košík sa nepodarilo aktualizovať.');
     header('Location: ' . $back);
@@ -42,7 +37,7 @@ if ($productId <= 0) {
     exit;
 }
 
-// check product exists and stock
+// Kontrola existencie produktu a skladu
 $stmt = $conn->prepare('SELECT id_product AS id, name, price, stock, image FROM product WHERE id_product = :id LIMIT 1');
 $stmt->execute(['id' => $productId]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -63,7 +58,6 @@ $currentQty = isset($_SESSION['cart'][$productId]['quantity']) ? (int) $_SESSION
 $requested = $currentQty + 1;
 
 if ($requested > $stock) {
-    // not enough stock; redirect back
     set_flash('error', 'Na sklade nie je dostatok kusov.');
     header('Location: ' . $returnTo);
     exit;
@@ -80,7 +74,6 @@ if (!isset($_SESSION['cart'][$productId])) {
 }
 
 $_SESSION['cart'][$productId]['quantity'] += 1;
-// ensure latest name/price
 $_SESSION['cart'][$productId]['name'] = $product['name'];
 $_SESSION['cart'][$productId]['price'] = (float) $product['price'];
 $_SESSION['cart'][$productId]['image'] = NormalizeImagePath((string) ($product['image'] ?? ''));

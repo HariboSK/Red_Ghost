@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-//ROOTY
 class Router
 {
     private $routes = [];
@@ -96,10 +95,14 @@ class Router
             '/api/RemoveCart.php' => 'app/core/api/RemoveCart.php',
             '/api/ApplyDiscount' => 'app/core/api/ApplyDiscount.php',
             '/api/ApplyDiscount.php' => 'app/core/api/ApplyDiscount.php',
+            // PRIDANÉ TRASY PRE CHECKOUT:
+            '/api/checkout' => 'app/core/api/Checkout.php',
+            '/api/checkout.php' => 'app/core/api/Checkout.php',
+            '/api/Checkout' => 'app/core/api/Checkout.php',
+            '/api/Checkout.php' => 'app/core/api/Checkout.php',
             '/logout' => 'app/views/logout.php',
             '/UploadAvatar.php' => 'app/core/UploadAvatar.php',
         ];
-
     }
 
     public static function assetsFor(string $path): array
@@ -160,13 +163,12 @@ class Router
         if (file_exists($notFoundViewPath)) {
             include $notFoundViewPath;
             return;
-        }
+            }
 
         echo '404 - Stranka nenajdena';
         exit;
     }
 
-    // helper to generate normalized application URLs
     public static function url($path)
     {
         $basePath = function_exists('app_base_path') ? app_base_path() : '';

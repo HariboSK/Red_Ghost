@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const cardNumberInput = document.querySelector('input[name="card_number"]');
   const cardExpiryInput = document.querySelector('input[name="card_expiry"]');
   const cardNumberPreview = document.querySelector('.card-digits--ghost');
+  // Nájdeme textový kicker
+  const kickerText = document.getElementById('payment-kicker-text');
 
   function digitsOnly(value) {
     return String(value || '').replace(/\D/g, '');
@@ -43,6 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function activateStep(stepName) {
+    // DYNAMICKÁ ZMENA KROKU V TEXTE
+    if (kickerText) {
+      if (stepName === 'address') {
+        kickerText.textContent = 'Krok 1 z 3';
+      } else if (stepName === 'payment') {
+        kickerText.textContent = 'Krok 2 z 3';
+      } else if (stepName === 'review') {
+        kickerText.textContent = 'Krok 3 z 3';
+      }
+    }
+
     steps.forEach(function (step) {
       const isActive = step.dataset.stepTarget === stepName;
       step.classList.toggle('is-active', isActive);
@@ -78,6 +91,33 @@ document.addEventListener('DOMContentLoaded', function () {
     deliveryOptionPanels.forEach(function (panel) {
       panel.classList.toggle('is-visible', panel.dataset.deliveryPanel === methodName);
     });
+  }
+
+  function updateDeliveryMethod(method) {
+    const hiddenInput = document.getElementById('delivery_method_hidden');
+    if (hiddenInput) {
+      hiddenInput.value = method;
+    }
+  }
+
+  // Uprav funkciu activateCashDelivery v tvojom JS takto:
+  function activateCashDelivery(methodName) {
+    deliveryOptionInputs.forEach(function (input) {
+      input.checked = input.value === methodName;
+    });
+
+    deliveryOptionCards.forEach(function (card) {
+      const input = card.querySelector('input[name="cash_delivery"]');
+      const isActive = Boolean(input && input.value === methodName);
+      card.classList.toggle('is-active', isActive);
+    });
+
+    deliveryOptionPanels.forEach(function (panel) {
+      const isVisible = panel.dataset.deliveryPanel === methodName;
+      panel.classList.toggle('is-visible', isVisible);
+    });
+
+    updateDeliveryMethod(methodName); 
   }
 
   function activatePaymentMethod(methodName) {
@@ -179,8 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  const activeStep = document.querySelector('.payment-step.is-active');
-  activateStep(activeStep ? activeStep.dataset.stepTarget : 'payment');
+  activateStep('address');
 
   const activeMethod = document.querySelector('input[name="payment_method"]:checked');
   activatePaymentMethod(activeMethod ? activeMethod.value : 'card');

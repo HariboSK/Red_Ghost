@@ -1,15 +1,9 @@
 <?php
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 3) . '/config/config.php';
-require_once dirname(__DIR__) . '/SessionHelper.php';
-require_once dirname(__DIR__, 3) . '/app/models/DiscountCodeModel.php';
+require_once dirname(__DIR__, 1) . '/App.php'; 
+App::init();
 
-SessionHelper::bootstrap();
-
-$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
-
-// Prefer explicit return_to from POST, then Referer, then default
 $returnTo = trim((string) ($_POST['return_to'] ?? ($_SERVER['HTTP_REFERER'] ?? '/shopcart')));
 
 $code = trim((string) ($_POST['code'] ?? ''));
@@ -23,27 +17,27 @@ if ($code === '') {
     exit;
 }
 
-if (!($pdo instanceof PDO)) {
+// Poistka pre databázové pripojenie
+if (!isset($conn) || !($conn instanceof PDO)) {
     $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Databázové pripojenie nie je dostupné.', 'amount' => 0];
     header('Location: ' . $returnTo);
     exit;
 }
 
-// Find the discount code with a case-insensitive match (DB-side)
-$stmt = $pdo->prepare('SELECT * FROM discount_code WHERE LOWER(code) = LOWER(:code) LIMIT 1');
-$stmt->execute([':code' => $code]);
-$found = $stmt->fetch(PDO::FETCH_ASSOC);
+$discountModel = new DiscountCodeModel($conn);
+$found = $discountModel->findByCode($code);
 
-if (!is_array($found)) {
+if (!$found) {
     $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Kód nebol nájdený.', 'amount' => 0];
     header('Location: ' . $returnTo);
     exit;
 }
 
-// basic validation: active + min order
+// Základná validácia: aktívny + minimálna hodnota objednávky
 $isActive = (bool) ($found['is_active'] ?? false);
 $minOrder = (float) ($found['min_order_value'] ?? 0);
 
+// Výpočet medzisúčtu košíka zo Session
 $cartSubtotal = 0.0;
 foreach ($_SESSION['cart'] ?? [] as $id => $item) {
     $qty = max(0, (int) ($item['quantity'] ?? 0));
@@ -71,7 +65,6 @@ if (($found['discount_type'] ?? '') === 'percent') {
     $discountValue = (float) ($found['value'] ?? 0);
 }
 
-// ensure discount never exceeds subtotal
 $discountValue = min($discountValue, $cartSubtotal);
 
 $_SESSION['applied_discount_code'] = (string) ($found['code'] ?? '');

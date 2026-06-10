@@ -28,16 +28,20 @@ class App
         require_once $projectRoot . '/config/config.php';
 
         $coreFiles = [
-            '/app/core/middleware/Function.php',
-            '/app/core/SessionManager.php',
-            '/app/core/SessionHelper.php',
-            '/app/core/Redirect.php',
-            '/app/core/Helper.php',
             '/app/core/AssetHelper.php',
-            '/app/core/ShopService.php',
-            '/app/core/DashboardHelper.php',
             '/app/core/AuthView.php',
+            '/app/core/DashboardHelper.php',
+            '/app/core/Flash.php',
+            '/app/core/Helper.php',
+            '/app/core/LoginRegister.php',
+            '/app/core/Redirect.php',
+            '/app/core/ResetPassword.php',
             '/app/core/Router.php',
+            '/app/core/SessionHelper.php',
+            '/app/core/SessionManager.php',
+            '/app/core/ShopService.php',
+            '/app/core/UploadAvatar.php',
+            '/app/core/middleware/Function.php',
         ];
 
         foreach ($coreFiles as $file) {
@@ -48,13 +52,15 @@ class App
     private static function loadModels(string $projectRoot): void
     {
         $modelFiles = [
+            '/app/models/AvatarManager.php',
             '/app/models/BaseModel.php',
             '/app/models/ContactMessageModel.php',
             '/app/models/DiscountCodeModel.php',
-            '/app/models/UserModel.php',
             '/app/models/OrderModel.php',
-            '/app/models/PaymentModel.php',
-            '/app/models/AvatarManager.php',
+            '/app/models/ProductModel.php',
+            '/app/models/ProductReviewModel.php',
+            '/app/models/ShopReviewModel.php',
+            '/app/models/UserModel.php',
         ];
 
         foreach ($modelFiles as $file) {
