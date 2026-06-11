@@ -1,10 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
-require_once dirname(__DIR__, 2) . '/app/core/Redirect.php';
-
 SessionHelper::bootstrap();
-
-require_once dirname(__DIR__, 2) . '/config/config.php';
 
 $sessionUser = SessionHelper::user();
 $isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);

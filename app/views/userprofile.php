@@ -1,14 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
-require_once dirname(__DIR__, 2) . '/app/core/Redirect.php';
-
 SessionHelper::bootstrap();
-
-require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__) . '/models/ContactMessageModel.php';
-// Načítanie nových modelov pre objednávky a používateľa
-require_once dirname(__DIR__) . '/models/OrderModel.php';
-require_once dirname(__DIR__) . '/models/UserModel.php';
 
 $sessionUser = SessionHelper::user();
 $avatarFile = (string) ($sessionUser['image'] ?? '');

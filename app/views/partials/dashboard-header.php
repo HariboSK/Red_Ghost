@@ -1,6 +1,10 @@
 <?php
-require_once dirname(__DIR__, 2) . '/core/middleware/Function.php';
-require_once dirname(__DIR__, 2) . '/core/AssetHelper.php';
+declare(strict_types=1);
+
+require_once dirname(__DIR__, 2) . '/core/App.php';
+
+App::init();
+
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +34,7 @@ require_once dirname(__DIR__, 2) . '/core/AssetHelper.php';
     <!-- Header / Navbar -->
     <header>
         <nav class="navbar section-content">
-            <a href="<?php echo route('/dashboard'); ?>" class="nav-logo">
+            <a href="<?php echo route('/e_shop'); ?>" class="nav-logo">
                 <img src="/assets/images/logo-text.webp" class="logo" alt="Red Ghost logo">
                 <h2 class="logo-text">Red Ghost</h2>
             </a>

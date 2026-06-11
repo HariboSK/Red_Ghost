@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-require_once dirname(__DIR__, 2) . '/config/config.php';
 require_once __DIR__ . '/SessionHelper.php';
 require_once __DIR__ . '/Redirect.php';
 
@@ -84,7 +81,11 @@ class LoginRegister
         $user = $result->fetch();
 
         if ($user && password_verify($password, (string) ($user['password'] ?? ''))) {
-            SessionManager::regenerate(true);
+            
+            // OPRAVA: Použitie natívnej, bezpečnej PHP funkcie namiesto chýbajúcej triedy
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
 
             $points = isset($user['loyalty_points']) ? (int) $user['loyalty_points'] : 0;
             SessionHelper::storeUser($user, $points);
@@ -102,17 +103,16 @@ class LoginRegister
     }
 }
 
+// Spustenie spracovania formulárov až po overení pripojenia a deklarácii triedy
 if (!($conn instanceof PDO)) {
     if (function_exists('app_render_friendly_error')) {
         app_render_friendly_error('Databázové pripojenie nie je dostupné. Skúste neskôr.');
     }
 
     http_response_code(500);
-    echo 'Chyba aplikacie\nPrepacte, nieco sa pokazilo. Skuste to prosim znova o chvilu.';
+    echo "Chyba aplikacie\nPrepacte, nieco sa pokazilo. Skuste to prosim znova o chvilu.";
     exit(1);
 }
 
 $loginRegister = new LoginRegister($conn);
 $loginRegister->handleRequest();
-
-?>

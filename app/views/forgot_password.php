@@ -1,12 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-require_once dirname(__DIR__) . '/core/SessionHelper.php';
-require_once dirname(__DIR__) . '/core/middleware/Function.php';
-require_once dirname(__DIR__) . '/core/AssetHelper.php';
-require_once dirname(__DIR__) . '/core/ResetPassword.php';
-require_once dirname(__DIR__, 2) . '/config/config.php'; 
-
 $pdo = $GLOBALS['conn']; 
 $sessionUser = SessionHelper::user();
 

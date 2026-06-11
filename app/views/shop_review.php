@@ -1,10 +1,4 @@
 <?php
-require_once dirname(__DIR__, 2) . '/config/config.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
-
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 $reviewFormErrors = [];
 $reviewFormSuccess = '';

@@ -552,13 +552,13 @@ input[type="search"]::-webkit-search-cancel-button:hover {
   z-index: 100;
 }
 .flash--success {
-  background: #e9f9ef;
-  color: #065032;
-  border: 1px solid #9ef3b9;
+  background: #226b00;
+  color: #ffffff;
+  border: 1px solid #628000;
 }
 .flash--error {
-  background: #fff3f2;
-  color: #6d0f10;
+  background: #6d0f10;
+  color: #ffffff;
   border: 1px solid #ffb5a0;
 }
 .flash--info {
@@ -1217,7 +1217,7 @@ button[disabled] {
 }
 
 .footer h3 {
-  color: var(--ok-color);
+  color: var(--ok-color) !important;
   margin-bottom: 18px;
   font-size: 1rem;
   letter-spacing: 0.02em;

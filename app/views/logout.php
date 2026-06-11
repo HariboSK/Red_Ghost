@@ -1,7 +1,4 @@
 <?php
-require_once dirname(__DIR__) . '/core/Redirect.php';
-if (session_status() === PHP_SESSION_NONE) SessionManager::start();
-
 $_SESSION = [];
 
 if (ini_get('session.use_cookies')) {

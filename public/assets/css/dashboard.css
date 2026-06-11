@@ -1,112 +1,145 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap");
 
 :root {
-  --dash-bg: #060807;
-  --dash-surface: rgba(255, 255, 255, 0.045);
-  --dash-surface-strong: rgba(255, 255, 255, 0.075);
-  --dash-border: rgba(47, 158, 68, 0.2);
-  --dash-text: #f8f5f2;
-  --dash-muted: rgba(248, 245, 242, 0.68);
-  --dash-accent: #2f9e44;
-  --dash-accent-2: #b42318;
-  --dash-accent-soft: rgba(47, 158, 68, 0.16);
-  --dash-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+  /* Farebná paleta - Premium Clean Dark & Orange */
+  --dash-bg: #0b0b0c;
+  --dash-surface: #141416;
+  --dash-surface-strong: #1c1c1f;
+  --dash-border: rgba(255, 255, 255, 0.06);
+  --dash-border-glow: rgba(255, 94, 0, 0.2);
+  --dash-text: #ffffff;
+  --dash-muted: #8a8a93;
+  
+  /* Akcenty a čisté farby bez gradientov */
+  --dash-accent: #ff5e00;
+  --dash-accent-hover: #e05300;
+  --dash-accent-soft: rgba(255, 94, 0, 0.1);
+  --dash-accent-2: #ff4a4a; /* Deštruktívne akcie */
+  --dash-accent-2-hover: #e74c3c;
+  
+  /* Efekty a animácie */
+  --dash-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --dash-glow: 0 0 12px rgba(255, 94, 0, 0.3);
+  --anim-speed: 0.2s;
+  --anim-curve: ease;
 }
 
+/* Globálne a reset nastavenia */
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  margin: 0;
+  background-color: var(--dash-bg);
+  color: var(--dash-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hlavná štruktúra Dashboardu - Prechod na 240px prémiový sidebar */
 .admin-dashboard-ui {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 18px;
-  padding: 146px 18px 28px;
-  background: var(--dash-bg);
-  color: var(--dash-text);
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  padding: 120px 24px 32px;
+  background: radial-gradient(circle at 50% -20%, rgba(255, 94, 0, 0.04) 0%, transparent 60%), var(--dash-bg);
   font-family: "Inter", sans-serif;
 }
 
+/* Sidebar Navigácia - Kompletne redizajnovaná pre lepšiu prehľadnosť */
 .admin-sidebar {
   position: sticky;
-  top: 150px;
-  height: calc(100vh - 174px);
+  top: 120px;
+  height: calc(100vh - 152px);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
-  gap: 20px;
-  padding: 15px 0;
-  border-radius: 15px;
-  border: 1px solid rgba(47, 158, 68, 0.22);
-  background: rgba(15, 11, 11, 0.74);
-  backdrop-filter: blur(12px);
+  gap: 16px;
+  padding: 24px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--dash-border);
+  background: rgba(20, 20, 22, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: var(--dash-shadow);
   z-index: 40;
+  transition: border-color var(--anim-speed) var(--anim-curve);
+}
+
+.admin-sidebar:hover {
+  border-color: rgba(255, 94, 0, 0.2);
 }
 
 .sidebar-brand {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px 12px;
   color: #fff;
   text-decoration: none;
   font-family: "Oswald", sans-serif;
-  font-size: 1rem;
+  font-size: 1.2rem;
   letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--dash-border);
 }
 
-.sidebar-brand img{
-  border: 1px solid rgba(47, 158, 68, 0.35);
-  width: 45px;
-  height: 45px;
-  border-radius: 100%;
-  background: transparent;
+.sidebar-brand img {
+  border: 2px solid var(--dash-border);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform var(--anim-speed) var(--anim-curve);
+}
+
+.sidebar-brand:hover img {
+  transform: scale(1.05);
+  border-color: var(--dash-accent);
 }
 
 .sidebar-nav {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .sidebar-bottom {
   margin-top: auto;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-bottom: 6px;
 }
 
+/* Odkazy v menu - podpora pre text + ikonu */
 .sidebar-link {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 15px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 16px;
+  border-radius: 12px;
   text-decoration: none;
-  color: var(--dash-text);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(47, 158, 68, 0.22);
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease;
+  color: var(--dash-muted);
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid transparent;
+  font-size: 0.92rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
 .sidebar-link:hover,
 .sidebar-link.active {
-  transform: translateY(-1px);
-  color: #071009;
+  color: #ffffff;
   background: var(--dash-accent);
-  border-color: rgba(47, 158, 68, 0.45);
+  border-color: var(--dash-accent-hover);
+  box-shadow: var(--dash-glow);
 }
 
+/* Hlavný obsah */
 .admin-main {
   display: grid;
-  gap: 14px;
+  gap: 20px;
   align-content: start;
   position: relative;
   z-index: 1;
@@ -118,18 +151,30 @@ html {
 
 .dashboard-panel {
   display: none;
-  animation: dashboardPanelFade 0.22s ease;
+  animation: dashboardPanelFade var(--anim-speed) var(--anim-curve);
 }
 
 .dashboard-panel.is-active {
   display: grid;
-  gap: 14px;
+  gap: 20px;
 }
 
+@keyframes dashboardPanelFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Layouty a mriežky */
 .overview-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 20px;
 }
 
 .overview-info-card,
@@ -140,48 +185,42 @@ html {
 .overview-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .overview-pill {
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--dash-surface-strong);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   color: var(--dash-text);
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
 }
 
 .compact-feed li {
-  padding: 9px 11px;
+  padding: 12px 14px;
 }
 
-@keyframes dashboardPanelFade {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Topbar */
 .admin-topbar {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 18px;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 16px;
   border: 1px solid var(--dash-border);
-  background: rgba(15, 11, 11, 0.72);
-  backdrop-filter: blur(12px);
+  background: rgba(20, 20, 22, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: var(--dash-shadow);
 }
 
+/* Profilové menu a Fix pre skrytý/orezaný obsah popup okna */
 .admin-profile-menu {
   position: relative;
   z-index: 1200;
@@ -191,18 +230,18 @@ html {
   list-style: none;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  border-radius: 50%;
-  padding: 6px 12px 6px 6px;
-  background: rgba(47, 158, 68, 0.1);
-  border: 1px solid rgba(47, 158, 68, 0.16);
-  transition: ease 1s;
+  border-radius: 999px;
+  padding: 6px 16px 6px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--dash-border);
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
 .admin-profile-menu summary:hover {
-  background: var(--dash-accent-2);
-  border: 1px solid rgba(180, 35, 24, 0.45);
+  background: var(--dash-surface-strong);
+  border-color: rgba(255, 94, 0, 0.4);
 }
 
 .admin-profile-menu summary::-webkit-details-marker {
@@ -214,89 +253,101 @@ html {
 }
 
 .sidebar-profile-menu .admin-avatar {
-  width: 38px;
-  height: 38px;
+  width: 60px;
+  height: 60px;
 }
 
 .admin-avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   color: #fff;
-  font-weight: 800;
-  background: var(--dash-accent-2);
-}
-
-.admin-profile-name {
   font-weight: 700;
-  color: var(--dash-text);
+  background: var(--dash-accent); /* Odstránený gradient */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
+/* OPRAVENÝ POPUP: Pridané scrollovanie a maximálna výška aby držal na displeji */
 .admin-profile-dropdown {
   position: absolute;
   right: 0;
-  top: calc(100% + 8px);
-  min-width: 170px;
-  padding: 6px;
+  top: calc(100% + 10px);
+  min-width: 220px;
+  max-height: 380px; 
+  overflow-y: auto; 
+  padding: 8px;
   display: grid;
   gap: 4px;
-  border-radius: 12px;
-  background: #0b0f0d;
-  border: 1px solid rgba(47, 158, 68, 0.18);
+  border-radius: 14px;
+  background: #141416;
+  border: 1px solid rgba(255, 94, 0, 0.25);
   box-shadow: var(--dash-shadow);
   z-index: 9999;
 }
 
+/* Custom mini scrollbar pre popup, aby nezavadzal */
+.admin-profile-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+.admin-profile-dropdown::-webkit-scrollbar-thumb {
+  background: var(--dash-border);
+  border-radius: 2px;
+}
+
 .sidebar-profile-dropdown {
   right: auto;
-  left: calc(100% + 10px);
-  top: 50%;
+  left: calc(100% + 20px);
+  top: 130%;
   transform: translateY(-50%);
 }
 
 .profile-meta {
-  padding: 6px 10px 8px;
+  padding: 8px 12px;
   display: grid;
-  gap: 2px;
-  border-bottom: 1px solid rgba(47, 158, 68, 0.18);
-  margin-bottom: 4px;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 6px;
 }
 
 .profile-meta strong {
   text-transform: uppercase;
-  color: #86efac;
-  font-size: 1rem;
+  color: var(--dash-accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
 .profile-meta span {
-  color: #f87171;
-  font-size: 1rem;
+  color: var(--dash-muted);
+  font-size: 0.85rem;
 }
 
 .admin-profile-dropdown a {
-  padding: 9px 10px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
   color: var(--dash-text);
   text-decoration: none;
+  font-size: 0.9rem;
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
 .admin-profile-dropdown a:hover {
-  color: var(--dash-bg);
+  color: #fff;
   background: var(--dash-accent);
 }
 
+/* Metriky a Karty */
 .admin-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 .overview-intro-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 16px;
+  gap: 20px;
   align-items: stretch;
 }
 
@@ -304,142 +355,139 @@ html {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.metric-card,
+.admin-card {
+  border-radius: 16px;
+  border: 1px solid var(--dash-border);
+  background: var(--dash-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--dash-shadow);
+  transition: border-color var(--anim-speed) var(--anim-curve), transform var(--anim-speed) var(--anim-curve);
+}
+
+.metric-card:hover,
+.admin-card:hover {
+  border-color: rgba(255, 94, 0, 0.25);
+}
+
+.metric-card {
+  padding: 20px;
+}
+
+.metric-card p {
+  margin: 0;
+  color: var(--dash-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-card h2 {
+  margin: 12px 0 6px;
+  font-family: "Oswald", sans-serif;
+  font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.metric-card small {
+  font-size: 0.85rem;
+  color: var(--dash-muted);
+}
+
+.metric-card.is-accent {
+  background: linear-gradient(145deg, rgba(255, 94, 0, 0.04), rgba(217, 45, 32, 0.02)), var(--dash-surface);
+  border-color: rgba(255, 94, 0, 0.25);
+}
+
+/* Používateľská bočná karta */
 .user-avatar-side-card {
   display: grid;
   justify-items: center;
   grid-template-rows: auto auto auto 1fr;
-  gap: 12px;
+  gap: 16px;
   align-content: start;
-  padding: 22px 18px;
-  border-color: rgba(47, 158, 68, 0.18);
+  padding: 28px 20px;
   position: sticky;
-  top: 146px;
-  height: 100%;
+  top: 120px;
+  height: max-content;
 }
 
 .user-avatar-side-card form {
   width: 100%;
   display: grid;
   justify-items: center;
-  gap: 12px;
-}
-
-.mailer-bulk-delete-form {
-  margin: 0;
-}
-
-.mailer-bulk-delete-form-bottom {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.mailer-bulk-delete-btn {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border-color: rgba(180, 35, 24, 0.42);
-  background: rgba(255, 92, 92, 0.16);
-  color: #ffe0e0;
-  transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.18s ease;
-}
-
-.mailer-bulk-delete-btn i {
-  font-size: 0.95rem;
-}
-
-.mailer-bulk-delete-btn:hover {
-  background: rgba(255, 92, 92, 0.24);
-  border-color: rgba(180, 35, 24, 0.6);
-  transform: translateY(-1px);
+  gap: 14px;
 }
 
 .user-avatar-frame {
-  width: 136px;
-  height: 136px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   overflow: hidden;
   margin-inline: auto;
   display: grid;
   place-items: center;
-  border: 2px solid rgba(47, 158, 68, 0.38);
-  background: linear-gradient(
-    140deg,
-    rgba(47, 158, 68, 0.16),
-    rgba(180, 35, 24, 0.16)
-  );
-  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.28);
+  border: 3px solid rgba(255, 94, 0, 0.3);
+  background: var(--dash-surface-strong); /* Čisté jednofarebné pozadie */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .user-avatar-frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center center;
-  display: block;
 }
 
 .user-avatar-frame span {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: "Oswald", sans-serif;
-  font-size: 3.15rem;
+  font-size: 2.8rem;
   font-weight: 700;
-  line-height: 1;
   color: #fff;
-  text-align: center;
-  transform: translateY(-1px);
-}
-
-.user-avatar-note {
-  margin: 2px 0 0;
-  max-width: 220px;
-  text-align: center;
-  font-size: 0.92rem;
-  line-height: 1.35;
-  color: var(--dash-muted);
-}
-
-.user-avatar-note--error {
-  color: #ffd0d0;
-  background: rgba(180, 35, 24, 0.14);
-  border: 1px solid rgba(180, 35, 24, 0.28);
-  border-radius: 12px;
-  padding: 8px 10px;
 }
 
 .user-avatar-name {
   margin: 0;
   font-family: "Oswald", sans-serif;
-  font-size: 1.3rem;
-  letter-spacing: 0.03em;
-  color: var(--dash-text);
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  color: #fff;
   text-align: center;
 }
 
-.user-avatar-name Strong{
-  color: #2f9e44;
+.user-avatar-name strong, 
+.user-avatar-name Strong {
+  color: var(--dash-accent);
   text-transform: uppercase;
 }
 
+.user-avatar-note {
+  margin: 0;
+  max-width: 240px;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--dash-muted);
+}
+
+.user-avatar-note--error {
+  color: #fca5a5;
+  background: rgba(217, 45, 32, 0.15);
+  border: 1px solid rgba(217, 45, 32, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
 .user-avatar-edit-btn {
-  min-width: 170px;
+  min-width: 160px;
   min-height: 40px;
-  margin-inline: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(47, 158, 68, 0.2);
+  letter-spacing: 0.06em;
 }
 
 .user-avatar-input {
@@ -448,17 +496,17 @@ html {
 
 .user-avatar-meta {
   width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
   display: grid;
-  gap: 6px;
+  gap: 4px;
   text-align: center;
 }
 
 .user-avatar-meta p {
   margin: 0;
   color: var(--dash-muted);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -466,314 +514,277 @@ html {
 .user-avatar-meta h3 {
   margin: 0;
   font-family: "Oswald", sans-serif;
-  font-size: 1.75rem;
-  line-height: 1.15;
-  color: var(--dash-text);
+  font-size: 1.8rem;
+  color: #fff;
 }
 
-.user-avatar-meta small {
-  color: rgba(248, 245, 242, 0.7);
-  font-size: 0.92rem;
-}
-
-.metric-card,
-.admin-card {
-  border-radius: 18px;
-  border: 1px solid rgba(47, 158, 68, 0.2);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
-}
-
-.metric-card {
-  padding: 16px 18px;
-  background: var(--dash-bg);
-}
-
-.metric-card p {
-  margin: 0;
-  color: #86efac;
-  font-size: 1.10rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.metric-card h2 {
-  margin: 8px 0 4px;
-  font-family: "Oswald", sans-serif;
-  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
-  letter-spacing: 0.02em;
-}
-
-.metric-card small {
-  font-size: 0.9rem;
-  color: var(--dash-text);
-}
-
-.metric-card.is-accent {
-  background: linear-gradient(
-    145deg,
-    rgba(47, 158, 68, 0.14),
-    rgba(180, 35, 24, 0.1)
-  );
-}
-
+/* Sekcia Objednávok a Tabuľky */
 .admin-content-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-}
-
-.recent-orders-section {
-  width: 100%;
-}
-
-.recent-orders-table {
-  min-width: 100%;
-}
-
-.activity-panel {
-  width: 100%;
+  gap: 16px;
 }
 
 .orders-summary-strip {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0 0 14px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .orders-summary-item {
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .orders-summary-item span {
   display: block;
   margin-bottom: 6px;
   color: var(--dash-muted);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 .orders-summary-item strong {
   font-family: "Oswald", sans-serif;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
+  color: #fff;
 }
 
 .admin-card {
-  padding: 16px;
+  padding: 20px;
 }
 
 .admin-card-head {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
+
+.admin-card-head h1 { font-size: 1.5rem; }
+.admin-card-head h2, .management-card h3 { font-size: 1.2rem; }
 
 .admin-card-head h1,
 .admin-card-head h2,
 .management-card h3 {
   margin: 0;
   font-family: "Oswald", sans-serif;
-  letter-spacing: 0.03em;
-  color: var(--dash-text);
-}
-
-.admin-card-head h1 {
-  font-size: 1.55rem;
-}
-
-.admin-card-head h2,
-.management-card h3 {
-  font-size: 1.18rem;
+  letter-spacing: 0.02em;
+  color: #fff;
 }
 
 .admin-card-head span {
   color: var(--dash-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .table-wrap {
   overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .admin-table {
   width: 100%;
   min-width: 640px;
   border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .admin-table th,
 .admin-table td {
-  padding: 12px 10px;
+  padding: 14px 16px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .admin-table th {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(248, 245, 242, 0.66);
+  color: var(--dash-muted);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .admin-table td {
-  color: rgba(248, 245, 242, 0.94);
+  color: rgba(244, 246, 245, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.admin-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .empty-cell {
   text-align: center;
-  color: rgba(248, 245, 242, 0.65);
-  padding: 18px 10px;
+  color: var(--dash-muted);
+  padding: 32px 16px;
+  font-size: 0.9rem;
 }
 
+/* Mailer a Správy */
 .contact-mailer-section {
   display: grid;
-  gap: 12px;
-}
-
-.contact-mailer-wrap {
-  overflow-x: auto;
+  gap: 16px;
 }
 
 .contact-mailer-table th:nth-child(5),
 .contact-mailer-table td:nth-child(5) {
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .message-detail summary {
   cursor: pointer;
-  color: #b8ffcd;
-  font-weight: 700;
+  color: var(--dash-accent);
+  font-weight: 600;
+  outline: none;
 }
 
 .message-detail p {
-  margin: 8px 0 0;
-  color: rgba(248, 245, 242, 0.88);
-  max-width: 440px;
+  margin: 10px 0 0;
+  color: rgba(244, 246, 245, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 500px;
 }
 
 .message-reply-form {
   display: grid;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .message-reply-form textarea {
   width: 100%;
-  min-height: 96px;
+  min-height: 100px;
   resize: vertical;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--dash-text);
-  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  padding: 12px;
   font: inherit;
-}
-
-.message-reply-form textarea::placeholder {
-  color: rgba(248, 245, 242, 0.5);
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
 .message-reply-form textarea:focus {
   outline: none;
-  border-color: rgba(47, 158, 68, 0.44);
-  box-shadow: 0 0 0 3px rgba(47, 158, 68, 0.14);
-}
-
-.message-reply-btn {
-  width: 100%;
-}
-
-.message-status-form {
-  margin: 0;
-}
-
-.message-done-btn {
-  width: 100%;
-  min-width: 160px;
-}
-
-.message-status-cell {
-  display: grid;
-  gap: 8px;
-  align-items: start;
+  border-color: var(--dash-accent);
+  box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.15);
 }
 
 .message-status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: fit-content;
-  padding: 6px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--dash-text);
+  letter-spacing: 0.05em;
 }
 
 .message-status-unread {
-  background: rgba(47, 158, 68, 0.88);
-  box-shadow: 0 4 12px rgba(47, 158, 68, 0.28);
-  color: #06110a;
+  background: rgba(255, 94, 0, 0.1);
+  border: 1px solid var(--dash-accent);
+  color: var(--dash-accent);
 }
 
 .message-status-read {
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4 12px rgba(0, 0, 0, 0.18);
-  color: #f2f5f1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--dash-muted);
 }
 
 .message-status-replied {
-  background: rgba(180, 35, 24, 0.82);
-  box-shadow: 0 4 12px rgba(180, 35, 24, 0.24);
-  color: #ffe1df;
+  background: rgba(217, 45, 32, 0.12);
+  border: 1px solid rgba(217, 45, 32, 0.3);
+  color: #fca5a5;
 }
 
+/* Bulk Delete a Formuláre */
+.mailer-bulk-delete-form-bottom {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mailer-bulk-delete-btn , .btn-edit{
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid rgba(217, 45, 32, 0.4);
+  background: rgba(217, 45, 32, 0.1);
+  color: #fca5a5;
+  transition: all var(--anim-speed) var(--anim-curve);
+}
+
+.mailer-bulk-delete-btn:hover {
+  background: var(--dash-accent-2);
+  border-color: var(--dash-accent-2-hover);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Tlačidlá a Nástroje - Odstránené prechody (linear-gradients) */
 .quick-tools-buttons {
   display: grid;
   gap: 10px;
 }
 
 .tool-btn,
-.management-submit {
+.management-submit,
+.user-avatar-edit-btn {
   border: none;
-  border-radius: 12px;
-  padding: 11px 12px;
-  font-weight: 700;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
   cursor: pointer;
   text-decoration: none;
   text-align: center;
-  transition:
-    transform 0.18s ease,
-    filter 0.18s ease,
-    background-color 0.18s ease;
-}
-
-.tool-btn:hover,
-.management-submit:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
 .tool-btn {
   color: #fff;
-  background: linear-gradient(135deg, var(--dash-accent), var(--dash-accent-2));
+  background: var(--dash-accent); /* Čistá akcentová farba */
+}
+
+.tool-btn:hover,
+.management-submit:hover:not(.management-submit--muted) {
+  background: var(--dash-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--dash-glow);
 }
 
 .tool-btn.ghost-link {
-  color: #d7f5de;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(47, 158, 68, 0.15);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.tool-btn.ghost-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--dash-accent);
+  box-shadow: none;
+}
+
+/* Activity Feed */
 .activity-feed {
   list-style: none;
   padding: 0;
@@ -783,666 +794,664 @@ html {
 }
 
 .activity-feed li {
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .activity-feed time {
   display: block;
   margin-bottom: 4px;
-  color: rgba(248, 245, 242, 0.64);
-  font-size: 0.75rem;
+  color: var(--dash-muted);
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 .activity-feed p {
   margin: 0;
-  color: rgba(248, 245, 242, 0.94);
+  font-size: 0.9rem;
+  color: rgba(244, 246, 245, 0.95);
 }
 
+/* Manažment a Produkty */
 .management-section {
   width: 100%;
-  padding: 18px;
 }
 
 .management-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: 20px;
 }
 
 .management-card {
   border-radius: 16px;
-  padding: 18px;
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.06),
-    rgba(255, 255, 255, 0.03)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.new-product-card,
-.product-overview-card {
-  min-height: 100%;
+  padding: 20px;
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border);
 }
 
 .card-subtitle {
-  margin: -2px 0 12px;
-  color: rgba(248, 245, 242, 0.7);
-  font-size: 0.9rem;
+  margin: -4px 0 16px;
+  color: var(--dash-muted);
+  font-size: 0.85rem;
 }
 
 .product-overview-card {
-  background: linear-gradient(
-    160deg,
-    rgba(8, 12, 10, 0.96),
-    rgba(22, 10, 10, 0.92)
-  );
-  border-color: rgba(47, 158, 68, 0.14);
+  background: var(--dash-surface-strong);
 }
 
-.product-overview-card .admin-card-head span,
-.product-overview-card .card-subtitle {
-  color: rgba(248, 245, 242, 0.68);
-}
-
+/* Custom Checkbox */
 .checkbox-field {
   display: flex;
   align-items: center;
-  gap: 20px;
-  color: white;
+  gap: 12px;
+  color: #fff;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.9rem;
   user-select: none;
-  width: max-content; /* Zabezpečí, že label nezaberie celú šírku riadku */
-  margin-top: 5px;   /* Drobný odstup od horného inputu */
+  width: max-content;
+  margin-top: 8px;
 }
 
-
 .checkbox-field input {
-  /* Reset vzhľadu */
   appearance: none;
   -webkit-appearance: none;
-  
-  /* Pevné rozmery (prebije to globálnych 100% šírky) */
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px;
-  min-height: 18px;
-  padding: 15px !important; /* Zrušíme veľké paddingy z textových inputov */
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0 !important;
   margin: 0;
-  
-  /* Dizajn */
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(248, 245, 242, 0.3);
-  border-radius: 4px;
-  
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
   display: inline-grid;
   place-content: center;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
-/* Hover efekt */
 .checkbox-field:hover input {
   border-color: var(--dash-accent);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* Checked stav */
 .checkbox-field input:checked {
   background-color: var(--dash-accent);
   border-color: var(--dash-accent);
 }
 
-/* Biela fajka vo vnútri */
 .checkbox-field input::before {
   content: "";
-  width: 9px;
-  height: 5px;
+  width: 10px;
+  height: 6px;
   border-left: 2px solid #fff;
   border-bottom: 2px solid #fff;
   transform: rotate(-45deg) scale(0);
   transform-origin: center;
-  transition: transform 0.1s ease-in-out;
-  margin-top: -2px; 
+  transition: transform 0.1s var(--anim-curve);
+  margin-top: -3px;
 }
 
 .checkbox-field input:checked::before {
   transform: rotate(-45deg) scale(1);
 }
 
-.product-table-wrap {
-  margin-top: 10px;
-  overflow-x: hidden;
+/* Tabuľka produktov */
+/* Prázdna tabuľka ak nie sú produkty */
+.products-table-body .empty-cell {
+    padding: 20px;
+    text-align: center;
+    color: var(--medium-gray-color);
 }
 
-.product-table {
-  width: 100%;
-  min-width: 0;
-  table-layout: fixed;
+/* Riadok tabuľky produktov */
+.product-row {
+    border-bottom: 1px solid var(--border-color, #333);
+    padding: 5px 0;
 }
 
-.product-table thead th {
-  padding-top: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(47, 158, 68, 0.16);
+/* Grid layout pre zobrazenie riadku (predpokladám, že grid-template-columns už máš definované v .products-grid-layout) */
+.products-grid-layout {
+    display: grid;
+    align-items: center;
 }
 
-.product-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+/* Detaily produktu */
+.product-name {
+    font-weight: 600;
 }
 
-.product-table td {
-  vertical-align: top;
+.product-category {
+    color: var(--medium-gray-color);
 }
 
-.product-table td:first-child {
-  color: rgba(248, 245, 242, 0.56);
-  width: 60px;
+/* Ceny a zľavy */
+.price-old {
+    text-decoration: line-through;
+    font-size: 0.8rem;
+    color: #888;
 }
 
-.create-product-form {
-  display: none;
-  margin-top: 15px;
+.price-new {
+    color: #5cdb95;
+    font-weight: bold;
 }
 
-.product-view-cell {
-  padding: 0;
+/* Akcie (Edit / Delete) */
+.product-actions {
+    text-align: right;
+    padding-right: 12px;
 }
 
-.product-row-layout {
-  display: flex;
-  gap: 15px;
-  padding: 12px;
-  align-items: center;
+.product-actions .delete-form {
+    display: inline;
 }
 
-.product-col-id {
-  flex: 0 0 40px;
-  text-align: center;
+.product-actions .delete-btn{
+    padding: 15px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.product-col-main {
-  flex: 1;
+/* Schovaný editovací formulár */
+.product-edit-container {
+    display: none;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed #379683;
+    margin: 10px 0;
+    border-radius: 6px;
 }
 
-.product-col-price {
-  flex: 0 0 100px;
-  text-align: right;
+/* Rozloženie inputov vo formulári */
+.product-edit-container .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-.product-col-stock {
-  flex: 0 0 60px;
-  text-align: center;
+.product-edit-container .form-group label {
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 4px;
 }
 
-.product-col-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.product-edit-container .form-group input {
+    width: 100%;
+    padding: 6px;
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
 }
 
-.product-delete-form {
-  margin: 0;
+/* Akčné tlačidlá vo formulári */
+.product-edit-container .form-actions {
+    text-align: right;
 }
 
-.product-edit-mode {
-  display: none;
-  background-color: #f5f5f5;
+.product-edit-container .btn-cancel,
+.product-edit-container .btn-save {
+    padding: 6px 15px;
+    width: auto;
+    display: inline-block;
 }
 
-.product-edit-cell {
-  padding: 15px;
+.product-edit-container .btn-cancel {
+    margin-right: 5px;
 }
 
-.product-edit-grid {
-  display: grid;
-  gap: 12px;
-  align-items: end;
-}
-
-.product-edit-grid--four {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.product-edit-grid--two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 12px;
-}
-
-.product-edit-grid--three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 12px;
-}
-
-.product-edit-label {
+/* Čipy, pilulky a detaily */
+.product-table strong {
   display: block;
-  font-weight: 600;
-  margin-bottom: 5px;
-  font-size: 12px;
-  color: #d7f5de;
-}
-
-.product-edit-label--checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 0;
-}
-
-.product-edit-input,
-.product-edit-textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #ffffff;
-  color: #08110b;
-  font: inherit;
-}
-
-.product-edit-textarea {
-  resize: vertical;
-}
-
-.product-edit-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.product-edit-action {
-  flex: 1;
-}
-
-.management-submit--muted {
-  background-color: #4b5563;
+  margin-bottom: 4px;
   color: #fff;
 }
 
-.product-table strong {
-  display: block;
-  margin-bottom: 3px;
-}
-
 .product-meta {
-  color: rgba(248, 245, 242, 0.6);
-  font-size: 0.82rem;
+  color: var(--dash-muted);
+  font-size: 0.8rem;
 }
 
 .product-category-pill,
 .product-price-chip,
 .product-stock-chip,
-.product-action-link {
+.product-action-link,
+.coupon-status {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 4px 10px;
+  justify-content: center;
+  min-height: 26px;
+  padding: 2px 10px;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   border: 1px solid transparent;
 }
 
 .product-category-pill {
-  margin-top: 2px;
-  background: rgba(47, 158, 68, 0.1);
-  color: #b8ffcd;
-  border-color: rgba(47, 158, 68, 0.18);
+  background: var(--dash-accent-soft);
+  color: #fff;
+  border-color: rgba(255, 94, 0, 0.2);
 }
 
 .product-price-chip {
-  background: rgba(180, 35, 24, 0.14);
-  color: #ffb7b2;
-  border-color: rgba(180, 35, 24, 0.2);
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .product-price-old {
   display: block;
-  margin-bottom: 4px;
-  color: rgba(248, 245, 242, 0.48);
+  margin-bottom: 2px;
+  color: rgba(217, 45, 32, 0.8);
   text-decoration: line-through;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
-.product-stock-chip {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--dash-text);
-  border-color: rgba(255, 255, 255, 0.08);
-  font-weight: 700;
+.product-stock-chip.in-stock,
+.coupon-status.is-active {
+  color: #4ade80;
+  border-color: rgba(43, 175, 74, 0.3);
+  background: rgba(43, 175, 74, 0.1);
 }
 
-.product-stock-chip.in-stock {
-  color: #b8ffcd;
-  border-color: rgba(74, 186, 110, 0.22);
-  background: rgba(74, 186, 110, 0.12);
-}
-
-.product-stock-chip.out-of-stock {
-  color: #ffb0b0;
-  border-color: rgba(255, 92, 92, 0.24);
-  background: rgba(255, 92, 92, 0.12);
-}
-
-.product-actions-cell {
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 8px;
+.product-stock-chip.out-of-stock,
+.coupon-status.is-disabled {
+  color: #fca5a5;
+  border-color: rgba(217, 45, 32, 0.3);
+  background: rgba(217, 45, 32, 0.1);
 }
 
 .product-action-link {
-  color: #bdf4cb;
-  background: rgba(74, 186, 110, 0.12);
-  border-color: rgba(74, 186, 110, 0.2);
-  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
 }
 
-.coupon-status {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.coupons-section {
-  display: grid;
-  gap: 14px;
-}
-
-.coupons-grid {
-  display: grid;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
-  gap: 14px;
-}
-
-.coupon-table-wrap {
-  overflow-x: hidden;
-}
-
-.coupon-table {
-  width: 100%;
-  min-width: 0;
-  table-layout: fixed;
-}
-
-.coupon-table td,
-.coupon-table th {
-  vertical-align: top;
-}
-
-.coupon-status.is-active {
-  color: #b8ffcd;
-  border: 1px solid rgba(74, 186, 110, 0.22);
-  background: rgba(74, 186, 110, 0.12);
-}
-
-.coupon-status.is-disabled {
-  color: #ffb0b0;
-  border: 1px solid rgba(255, 92, 92, 0.24);
-  background: rgba(255, 92, 92, 0.12);
+.product-action-link:hover {
+  background: var(--dash-accent);
+  border-color: var(--dash-accent-hover);
 }
 
 .product-actions-detail summary {
   cursor: pointer;
-  color: #b8ffcd;
-  font-weight: 700;
-  margin-bottom: 8px;
+  color: #4ade80;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: inline-block;
 }
 
-.product-inline-form {
-  margin-top: 8px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.product-inline-form label {
-  color: rgba(248, 245, 242, 0.72);
-  font-size: 0.78rem;
-}
-
-.product-inline-form textarea {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(12, 8, 8, 0.88);
-  color: var(--dash-text);
-  padding: 10px 12px;
-  outline: none;
-  font: inherit;
-  resize: vertical;
-}
-
-.delete-form {
-  margin-top: 0;
-}
-
-.delete-btn {
-  width: auto;
-  border: 1px solid rgba(255, 92, 92, 0.35);
-  border-radius: 12px;
-  background: rgba(255, 92, 92, 0.12);
-  color: #ffd6d6;
-  padding: 7px 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background: rgba(255, 92, 92, 0.18);
-}
-
+/* Formuláre všeobecne */
 .management-form {
   display: grid;
-  gap: 9px;
+  gap: 12px;
 }
 
 .management-form label {
-  color: rgba(248, 245, 242, 0.82);
-  font-size: 0.84rem;
+  color: rgba(244, 246, 245, 0.85);
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .management-form input,
-.management-form select {
+.management-form select,
+.management-form textarea,
+.product-inline-form textarea {
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(12, 8, 8, 0.88);
-  color: var(--dash-text);
-  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  padding: 12px;
   outline: none;
   font: inherit;
-}
-
-.management-form select {
-  appearance: none;
-}
-
-.management-form textarea {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(12, 8, 8, 0.88);
-  color: var(--dash-text);
-  padding: 11px 12px;
-  outline: none;
-  font: inherit;
-  resize: vertical;
-}
-
-.management-form input::placeholder {
-  color: rgba(248, 245, 242, 0.34);
+  font-size: 0.9rem;
+  transition: all var(--anim-speed) var(--anim-curve);
 }
 
 .management-form input:focus,
-.management-form select:focus {
-  border-color: rgba(47, 158, 68, 0.55);
-  box-shadow: 0 0 0 3px rgba(47, 158, 68, 0.12);
+.management-form select:focus,
+.management-form textarea:focus {
+  border-color: var(--dash-accent);
+  box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.15);
 }
 
 .management-form select option {
-  background: #0c110f;
+  background: #141416;
   color: #fff;
 }
 
 .management-submit {
-  color: #08110b;
-  background: linear-gradient(135deg, #b8ffcd, var(--dash-accent));
-  min-height: 46px;
-}
-
-.panel-error {
-  margin: 0 0 10px;
-  padding: 10px 12px;
-  border-radius: 11px;
-  color: #ffd6d6;
-  background: rgba(255, 92, 92, 0.14);
-  border: 1px solid rgba(255, 92, 92, 0.24);
-}
-
-.panel-success {
-  margin: 0 0 10px;
-  padding: 10px 12px;
-  border-radius: 11px;
-  color: #d6ffe2;
-  background: rgba(36, 146, 84, 0.18);
-  border: 1px solid rgba(36, 146, 84, 0.28);
-}
-
-.product-overview-card .admin-table {
-  min-width: 0;
-}
-
-.product-overview-card td:last-child {
-  min-width: 0;
-}
-
-.product-actions-detail summary {
-  display: inline-block;
-  margin-bottom: 0;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(255, 207, 170, 0.12);
-  border: 1px solid rgba(255, 207, 170, 0.2);
-}
-
-.product-inline-form {
-  margin-top: 10px;
-}
-
-.product-inline-form input,
-.product-inline-form textarea {
-  width: 100%;
-}
-
-.delete-btn {
-  min-height: 46px;
+  color: #fff;
+  background: var(--dash-accent); /* Odstránený gradient */
+  font-weight: 700;
   font-size: 0.95rem;
 }
 
+/* Deštruktívne akcie (Zmazanie) */
+.delete-btn {
+  border: 1px solid rgba(217, 45, 32, 0.4);
+  border-radius: 10px;
+  background: rgba(217, 45, 32, 0.08);
+  color: #fca5a5;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--anim-speed) var(--anim-curve);
+}
+
+.delete-btn:hover {
+  background: var(--dash-accent-2);
+  border-color: var(--dash-accent-2-hover);
+  color: #fff;
+}
+
+/* Notifikácie */
+.panel-error {
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #fca5a5;
+  background: rgba(217, 45, 32, 0.12);
+  border: 1px solid rgba(217, 45, 32, 0.25);
+  font-size: 0.9rem;
+}
+
+.panel-success {
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #4ade80;
+  background: rgba(43, 175, 74, 0.12);
+  border: 1px solid rgba(43, 175, 74, 0.25);
+  font-size: 0.9rem;
+}
+
+/* Kalendár a Čas */
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    z-index: 2;
-    position: relative;
-    cursor: pointer;
+  opacity: 0;
+  z-index: 2;
+  position: relative;
+  cursor: pointer;
 }
 
 input[type="datetime-local"] {
-    position: relative;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" class="bi bi-calendar" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 16px;
+  position: relative;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23ff5e00" class="bi bi-calendar" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+
+/* ==========================================================================
+   INTEGROVANÉ: PREHĽAD PRODUKTOV & FORMULÁR NOVÉHO PRODUKTU
+   ========================================================================== */
+
+.profile-page {
+  min-height: 100vh;
+  padding: 120px 20px 48px;
+  background-color: var(--dash-bg);
+  color: var(--dash-text);
+  font-family: "Inter", sans-serif;
+}
+
+.profile-shell {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.admin-main > .management-submit,
+.profile-shell .management-submit {
+  margin-bottom: 24px;
+  display: inline-flex;
+}
+
+.products-container {
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--dash-shadow);
+}
+
+.products-title-area {
+  margin-bottom: 24px;
+}
+
+.products-title-area h2 {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.products-title-area p {
+  color: var(--dash-muted);
+  font-size: 0.9rem;
+}
+
+/* Layout pre upravenú 240px mriežku produktov */
+.products-grid-layout {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px 180px;
+  gap: 16px;
+  align-items: center;
+}
+
+.products-table-header {
+  color: var(--dash-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--dash-border);
+}
+
+.product-row {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  margin-top: 8px;
+  transition: background var(--anim-speed) var(--anim-curve), border-color var(--anim-speed) var(--anim-curve);
+}
+
+.product-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--dash-border-glow);
+}
+
+.product-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-name {
+  font-weight: 600;
+  color: #fff;
+}
+
+.product-category {
+  font-size: 0.75rem;
+  color: var(--dash-accent);
+  background: var(--dash-accent-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+  border: 1px solid rgba(255, 94, 0, 0.2);
+}
+
+.product-price, 
+.product-stock {
+  font-weight: 600;
+  color: #fff;
+}
+
+.product-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Akčné buttony riadkov - čisté jednofarebné */
+.btn-action {
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  text-transform: uppercase;
+  transition: all var(--anim-speed) var(--anim-curve);
+}
+
+.btn-action:hover {
+  transform: translateY(-1px);
+}
+
+.btn-edit {
+  background: rgba(255, 94, 0, 0.15);
+  color: var(--dash-accent);
+  border: 1px solid rgba(255, 94, 0, 0.3);
+}
+
+.btn-edit:hover {
+  background: var(--dash-accent);
+  color: #fff;
+  box-shadow: var(--dash-glow);
+}
+
+.btn-delete {
+  background: rgba(217, 45, 32, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(217, 45, 32, 0.3);
+}
+
+.btn-delete:hover {
+  background: var(--dash-accent-2);
+  color: #fff;
+}
+
+/* Kontajner formulára pre vytvorenie produktu */
+#create-product-form {
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--dash-shadow);
+}
+
+#create-product-form input,
+#create-product-form select,
+#create-product-form textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-top: 6px;
+  margin-bottom: 18px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all var(--anim-speed) var(--anim-curve);
+}
+
+#create-product-form input:focus,
+#create-product-form select:focus,
+#create-product-form textarea:focus {
+  border-color: var(--dash-accent);
+  box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.15);
+}
+
+#create-product-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dash-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+/* --- RESPONZIVITA (Media Queries) --- */
+
+@media screen and (max-width: 1200px) {
+  .overview-intro-layout {
+    grid-template-columns: 1fr;
+  }
+  .user-avatar-side-card {
+    position: static;
+    height: auto;
+  }
 }
 
 @media screen and (max-width: 1080px) {
   .admin-dashboard-ui {
-    grid-template-columns: 68px minmax(0, 1fr);
-  }
-
-  .admin-metrics,
-  .admin-content-grid,
-  .management-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .orders-summary-strip {
-    grid-template-columns: 1fr;
-  }
-
-  .overview-grid,
-  .coupons-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .overview-intro-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 16px;
   }
 
   .admin-metrics-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .user-avatar-side-card {
-    position: static;
-    justify-items: flex-start;
-    height: auto;
-  }
-
-  .user-avatar-name {
-    text-align: left;
-  }
-
-  .user-avatar-meta {
-    text-align: left;
-  }
-
-  .mailer-bulk-delete-form-bottom {
-    justify-content: flex-start;
-  }
-
-  .management-section {
-    padding: 16px;
-  }
-
-  .sidebar-profile-dropdown {
-    left: auto;
-    right: 0;
-    top: calc(100% + 8px);
-    transform: none;
+  
+  .products-grid-layout {
+    grid-template-columns: 50px 1fr 90px 80px 140px;
+    gap: 10px;
   }
 }
 
 @media screen and (max-width: 760px) {
   .admin-dashboard-ui {
     grid-template-columns: 1fr;
-    padding: 128px 14px 22px;
+    padding: 100px 14px 80px;
   }
 
+  /* Mobilná transformácia: Sidebar sa zmení na čistý spodný panel */
   .admin-sidebar {
-    position: static;
+    position: fixed;
+    bottom: 12px;
     top: auto;
-    width: 100%;
-    height: auto;
+    left: 12px;
+    right: 12px;
+    width: calc(100% - 24px);
+    height: 64px;
     flex-direction: row;
-    justify-content: space-between;
-    padding: 10px 12px;
+    justify-content: center;
+    padding: 0 16px;
+    border-radius: 16px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
   }
 
   .sidebar-nav {
     display: flex;
+    gap: 8px;
+  }
+
+  .sidebar-link span,
+  .sidebar-brand {
+    display: none; /* Schováme texty na mobile pre ušetrenie miesta */
   }
 
   .sidebar-bottom {
@@ -1453,24 +1462,36 @@ input[type="datetime-local"] {
   .sidebar-profile-dropdown {
     left: auto;
     right: 0;
-    top: calc(100% + 8px);
+    top: auto;
+    bottom: calc(100% + 10px);
     transform: none;
   }
 
-  .admin-metrics {
+  .admin-metrics,
+  .admin-metrics-overview,
+  .overview-grid,
+  .orders-summary-strip {
     grid-template-columns: 1fr;
-  }
-
-  .admin-metrics-overview {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-panel.is-active {
-    gap: 12px;
   }
 
   .sidebar-link {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .products-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+  }
+  
+  .products-table-header {
+    display: none;
+  }
+  
+  .product-actions {
+    justify-content: flex-start;
+    margin-top: 8px;
   }
 }

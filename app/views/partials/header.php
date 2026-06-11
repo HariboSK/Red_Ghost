@@ -1,15 +1,14 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+declare(strict_types=1);
 
-require_once dirname(__DIR__, 2) . '/core/middleware/Function.php';
-require_once dirname(__DIR__, 2) . '/core/Helper.php';
-require_once dirname(__DIR__, 2) . '/core/AssetHelper.php';
+require_once dirname(__DIR__, 2) . '/core/App.php';
+
+App::init();
 
 $resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
   ? $pageTitle
   : Helper::getPageTitle() . ' - E-shop';
-
-require_once dirname(__DIR__, 2) . '/core/SessionHelper.php';
+  
 SessionHelper::bootstrap();
 
 $sessionUser = SessionHelper::user();

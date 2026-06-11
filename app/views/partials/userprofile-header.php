@@ -1,6 +1,9 @@
 <?php
-require_once dirname(__DIR__, 2) . '/core/middleware/Function.php';
-require_once dirname(__DIR__, 2) . '/core/AssetHelper.php';
+declare(strict_types=1);
+
+require_once dirname(__DIR__, 2) . '/core/App.php';
+
+App::init();
 ?>
 
 <!DOCTYPE html>

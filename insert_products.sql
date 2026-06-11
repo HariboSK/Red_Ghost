@@ -5,7 +5,7 @@ INSERT INTO user (name, email, password, role) VALUES
 ('Petra', 'petra@test.com', '$2y$10$hash2', 'customer'),
 ('Roman', 'roman@test.com', '$2y$10$hash3', 'customer');
 INSERT INTO user (name, email, password, role) VALUES
-('Admin', 'admin@test.com', '$2y$10$VygWHaBLmYW2w1dxDqVkJ.L0j6xDEyGLY5q5xyUEjpZKf6Vy9VC1i', 'admin');
+('Admin', 'admin@test.com', '$2y$10$VygWHaBLmYW2w1dxDqVkJ.L0j6xDEyGLY5q5xyUEjpZKf6Vy9VC1i', 'admin'); -- heslo: admin123
 
 
 -- Pridaj kategórie

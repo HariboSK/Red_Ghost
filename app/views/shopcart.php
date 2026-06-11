@@ -1,8 +1,5 @@
 <?php
 $bodyClass = 'shopcart-page';
-require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
-
 SessionHelper::bootstrap();
 
 function NormalizeImagePath(string $image): string

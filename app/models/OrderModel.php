@@ -38,6 +38,7 @@ class OrderModel extends BaseModel
         ];
     }
 
+    // Posledn pridane objednavky
     public function getRecentOrders(int $limit = 50): array
     {
         $limit = max(1, min($limit, 200));
@@ -51,6 +52,7 @@ class OrderModel extends BaseModel
                 o.total_price,
                 o.status,
                 o.created_at,
+                o.delivery_method,
                 p.payment_method,
                 p.status AS payment_status
             FROM `order` o
@@ -68,6 +70,7 @@ class OrderModel extends BaseModel
         return is_array($rows) ? $rows : [];
     }
 
+    // Objednávky konkretneho uživatela
     public function getOrdersByUserId(int $userId, int $limit = 12): array
     {
         if ($userId <= 0) {

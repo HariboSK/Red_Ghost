@@ -1,15 +1,6 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../models/ContactMessageModel.php';
-require_once __DIR__ . '/../models/DiscountCodeModel.php';
-require_once __DIR__ . '/../models/OrderModel.php';
-require_once __DIR__ . '/../models/ShopReviewModel.php';
-require_once __DIR__ . '/../models/UserModel.php';
-require_once __DIR__ . '/../models/ProductModel.php';
-
-$productModel = new ProductModel($pdo ?? $conn ?? null);
-
 class DashboardHelper
 {
     private static ?array $baseDashboardState = null;
@@ -108,6 +99,8 @@ class DashboardHelper
                 'adminDisplayName' => '',
                 'adminDisplayEmail' => '',
                 'adminDisplayRole' => '',
+                'deliveryMethods' => [],
+                'deliveryMethodsError' => '',
             ];
         }
 

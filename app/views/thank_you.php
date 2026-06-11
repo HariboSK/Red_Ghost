@@ -3,9 +3,6 @@ $bodyClass = 'thank-you-page';
 $pageTitle = 'Ďakujeme za objednávku';
 $fixedPointsAwarded = 50;
 
-require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
-
 SessionHelper::bootstrap();
 include __DIR__ . '/partials/header-shop.php';
 

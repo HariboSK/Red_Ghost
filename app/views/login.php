@@ -1,12 +1,12 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-require_once dirname(__DIR__) . '/core/AuthView.php';
-require_once dirname(__DIR__) . '/core/middleware/Function.php';
-require_once dirname(__DIR__) . '/core/AssetHelper.php';
 $auth = new AuthView();
 $errors = $auth->getErrors();
 $activeForm = $auth->getActiveForm();
+
+$forgotPasswordFlash = $_SESSION['forgot_password_notice'] ?? '';
+$forgotPasswordFlashError = $_SESSION['forgot_password_error'] ?? '';
+
+unset($_SESSION['forgot_password_notice'], $_SESSION['forgot_password_error']);
 ?>
 
 <!DOCTYPE html>
@@ -95,6 +95,13 @@ $activeForm = $auth->getActiveForm();
 
                             <!--Zabudnute heslo link-->
                             <a class="forgot-password" href="<?php echo route('/forgot-password'); ?>">Zabudli ste heslo?</a>
+                                <?php if ($forgotPasswordFlash !== ''): ?>
+                                    <p class="forgot-password-message forgot-password-message--success"><?php echo htmlspecialchars($forgotPasswordFlash, ENT_QUOTES, 'UTF-8'); ?></p>
+                                <?php endif; ?>
+
+                                <?php if ($forgotPasswordFlashError !== ''): ?>
+                                    <p class="forgot-password-message forgot-password-message--error"><?php echo htmlspecialchars($forgotPasswordFlashError, ENT_QUOTES, 'UTF-8'); ?></p>
+                                <?php endif; ?>
 
                             <button type="submit" name="login" class="auth-submit">Prihlásiť sa</button>
                             <?= $auth->showError($errors['login']); ?>

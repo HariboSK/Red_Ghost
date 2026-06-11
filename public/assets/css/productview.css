@@ -1,98 +1,119 @@
 :root {
-  /*Farby*/
-  --white-color: #fff;
-  --dark-color: #373737;
-  --primary-color: #000000;
-  --secondary-color: rgb(162, 49, 27);
+  /* Farby aplikácie */
+  --white-color: #ffffff;
+  --dark-color: #1a1513;
+  --primary-color: #0a0908;
+  --secondary-color: #a2311b;
   --light-red-color: #fa6e17;
-  --medium-gray-color: #ccc;
+  --medium-gray-color: #a69285;
   --third-color: #4f0000;
-  --ok-color: #74f7a5;
+  
+  /* Stavové farby */
   --alert-color: #00c6ff;
-  --off-color: #ff0000;
+  --off-color: #ff3333;
+  
+  /* Dizajnové tokeny */
+  --card-bg: rgba(18, 15, 14, 0.65);
+  --border-glow: rgba(250, 110, 23, 0.2);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: Poppins, sans-serif;
+  font-family: 'Poppins', sans-serif;
   color: #f7ece7;
   background:
-    radial-gradient(
-      circle at 10% 10%,
-      rgba(250, 110, 23, 0.14),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 90% 12%,
-      rgba(162, 49, 27, 0.14),
-      transparent 30%
-    ),
-    linear-gradient(180deg, #12100f 0%, #1c1513 100%);
+    radial-gradient(circle at 10% 15%, rgba(250, 110, 23, 0.12), transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(162, 49, 27, 0.15), transparent 40%),
+    linear-gradient(180deg, #0a0908 0%, #16100e 100%);
+  background-attachment: fixed;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar - unify with shop theme */
+/* Slick Modern Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #0a0908;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: red;
-  border-radius: 5px;
+  background: linear-gradient(180deg, var(--secondary-color), var(--light-red-color));
+  border-radius: 20px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #fa6e17;
+  background: var(--light-red-color);
 }
 
+/* Header a navigácia */
 .product-header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 10;
-  padding: 14px 18px;
-  background: rgba(9, 9, 9, 0.84);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 100;
+  padding: 16px 24px;
+  background: rgba(10, 9, 8, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .back-link {
-  color: #ffe2ce;
+  color: var(--medium-gray-color);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-smooth);
 }
 
+.back-link:hover {
+  color: var(--light-red-color);
+  transform: translateX(-3px);
+}
+
+/* Hlavný layout */
 .product-page {
-  max-width: 1240px;
-  margin: 94px auto 30px;
-  padding: 0 20px;
+  max-width: 1280px;
+  margin: 110px auto 60px;
+  padding: 0 24px;
 }
 
 .product-detail {
   display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  margin-bottom: 24px;
+  gap: 32px;
+  grid-template-columns: 1.1fr 0.9fr;
+  margin-bottom: 40px;
 }
 
+/* Panely */
 .image-panel,
 .info-panel {
-  background: var(--primary-color);
-  border: 1px solid var(--light-red-color);
-  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid rgba(250, 110, 23, 0.15);
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
 }
 
+/* Obrázok a Zoom efekt */
 .image-panel {
-  height: 80vh;
+  height: 70vh;
+  min-height: 500px;
+  position: relative;
 }
 
 .zoom-trigger {
@@ -108,24 +129,18 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.35s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .zoom-trigger:hover img {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 
-.category-chip {
-  display: inline-block;
-  border: 1px solid rgba(250, 110, 23, 0.72);
-  border-radius: 999px;
-  padding: 6px 10px;
-  color: #ffd8bf;
-  font-size: 0.86rem;
-}
-
+/* Informačný panel */
 .info-panel {
-  padding: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
 }
 
 .top-meta {
@@ -133,122 +148,246 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.category-chip {
+  display: inline-block;
+  background: rgba(250, 110, 23, 0.1);
+  border: 1px solid rgba(250, 110, 23, 0.3);
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: var(--light-red-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .info-panel h1 {
-  margin: 10px 0 8px;
-  font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+  margin-bottom: 12px;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--white-color);
 }
 
+/* Pálivosť */
 .spicy-meter {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 16px;
+  border-radius: 10px;
+  width: fit-content;
 }
 
 .chilies {
   display: inline-flex;
-  gap: 6px;
-  color: #ff5b2f;
+  gap: 4px;
+  color: #ff4500;
+  filter: drop-shadow(0 0 4px rgba(255, 69, 0, 0.4));
 }
 
+/* Popis a Dostupnosť */
 .description {
-  color: #ecd7cb;
-  line-height: 1.62;
+  color: #decbc0;
+  line-height: 1.7;
+  font-size: 1rem;
 }
 
 .description.short {
-  margin-bottom: 14px;
+  margin-bottom: 24px;
 }
 
 .stock {
-  font-weight: 700;
-  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.stock.ok {
-  color: #74f7a5;
+.stock::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
-.stock.empty {
-  color: #ff8989;
-}
+.stock.ok { color: var(--ok-color); }
+.stock.ok::before { background-color: var(--ok-color); box-shadow: 0 0 8px var(--ok-color); }
 
+.stock.empty { color: var(--off-color); }
+.stock.empty::before { background-color: var(--off-color); box-shadow: 0 0 8px var(--off-color); }
+
+/* Technické parametre (Key Facts) */
 .key-facts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
 }
 
 .fact-item {
-  background: var(--dark-color);
-  border: 2px solid var(--light-red-color);
-  border-radius: 10px;
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  transition: var(--transition-smooth);
+}
+
+.fact-item:hover {
+  background: rgba(250, 110, 23, 0.03);
+  border-color: rgba(250, 110, 23, 0.2);
 }
 
 .fact-item .label {
   display: block;
-  color: var(--light-red-color);
-  font-size: 1.3rem;
-  margin-bottom: 5px;
-  font-weight: bold;
+  color: var(--medium-gray-color);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
 }
 
 .fact-item .value {
-  font-weight: bold;
-  font-size: 1.3;
-  color: var(--off-color);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--white-color);
+}
+
+/* Cena a nákupná sekcia */
+.price-box {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .price {
-  color: var(--light-red-color);
-  font-size: xx-large;
-  font-weight: bold;
+  color: var(--white-color);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
+.price::after {
+  content: ' EUR';
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--medium-gray-color);
+}
 
 .actions {
-  display: flex;
+  flex-grow: 1;
+  max-width: 260px;
 }
 
+/* Tlačidlá pridať do košíka */
+.add-to-cart-btn {
+  display: block;
+  text-align: center;
+  padding: 14px 24px;
+  width: 100%; 
+  background: linear-gradient(135deg, #fa6e17 0%, #d94100 100%);
+  color: var(--white-color);
+  border: none;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(250, 110, 23, 0.3);
+  transition: var(--transition-smooth);
+}
+
+.add-to-cart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(250, 110, 23, 0.4);
+  filter: brightness(1.1);
+}
+
+.add-to-cart-btn:active {
+  transform: translateY(0);
+}
+
+.add-to-cart-btn-vypredane {
+  display: block;
+  width: 100%; 
+  text-align: center;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--medium-gray-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: not-allowed;
+}
+
+/* Spodná sekcia (Detaily & Recenzie) */
 .product-lower {
   display: grid;
-  gap: 20px;
-  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  grid-template-columns: 1fr;
 }
 
 .detail-card {
-  background: rgba(14, 12, 12, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 16px;
-  padding: 18px;
-  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .detail-card h2 {
-  margin: 0 0 12px;
-  font-size: 1.25rem;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 8px;
+  color: var(--white-color);
+}
+
+.detail-card h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--light-red-color);
 }
 
 .description.long {
-  margin: 0 0 12px;
+  margin-bottom: 20px;
+  color: #decbc0;
 }
 
 .details-list {
-  margin: 0;
-  padding-left: 18px;
-  color: #d7c3b6;
-  line-height: 1.6;
+  padding-left: 20px;
+  color: #decbc0;
 }
 
+.details-list li {
+  margin-bottom: 8px;
+}
+
+/* Recenzie list */
 .review-item {
-  padding: 12px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .review-item:first-of-type {
@@ -258,183 +397,206 @@ body {
 
 .review-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.review-author {
+  font-weight: 600;
+  color: var(--white-color);
+  font-size: 1rem;
 }
 
 .review-date {
-  color: #c9b4a6;
+  color: var(--medium-gray-color);
   font-size: 0.8rem;
 }
 
 .review-rating {
   color: #ffb25e;
-  margin-bottom: 7px;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
 }
 
 .review-item p {
-  margin: 0 0 8px;
-  color: #decac0;
-  line-height: 1.55;
+  color: #decbc0;
+  font-size: 0.95rem;
 }
 
-.review-author {
-  font-size: 0.85rem;
-  color: #bba79a;
-}
-
+/* Formulár na recenzie */
 .review-form-wrap {
-  margin-top: 18px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .review-form-card {
   display: grid;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .review-input {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 2px solid rgba(153, 0, 0, 0.539);
-  background: rgba(128, 128, 128, 0.477);
-  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--white-color);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.review-input:focus {
+  outline: none;
+  border-color: var(--light-red-color);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 10px rgba(250, 110, 23, 0.15);
 }
 
 .review-textarea {
-  min-height: 110px;
+  min-height: 120px;
+  resize: vertical;
 }
 
+/* Feedbacky (Oznámenia) */
 .review-feedback { 
-  margin-top: 10px;
- }
+  margin-top: 16px;
+}
 
 .review-feedback--success { 
-  background: black;
-  border: 3px solid #74f7a5;
-  padding: 20px 20px;
-  border-radius: 8px;
-  color: #00ff51; 
+  background: rgba(46, 196, 182, 0.1);
+  border: 1px solid var(--ok-color);
+  padding: 16px;
+  border-radius: 10px;
+  color: var(--ok-color); 
+  font-weight: 500;
 }
 
-.review-feedback--error p{ 
-  background: black;
-  border: 3px solid #ff8989;
-  padding: 20px 20px;
-  border-radius: 8px;
-  color: #ff3700; 
+.review-feedback--error { 
+  background: rgba(255, 51, 51, 0.1);
+  border: 1px solid var(--off-color);
+  padding: 16px;
+  border-radius: 10px;
+  color: var(--off-color); 
+  font-weight: 500;
 }
 
-.review-empty { color: #d7c3b6; margin-top: 10px; }
+.review-empty { 
+  color: var(--medium-gray-color); 
+  font-style: italic;
+  margin-top: 12px; 
+}
 
+/* Zoom Lightbox Modal */
 .zoom-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.84);
+  background: rgba(5, 5, 5, 0.92);
+  backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 100;
-  padding: 20px;
+  z-index: 200;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .zoom-modal.open {
   display: flex;
+  opacity: 1;
 }
 
 .zoom-modal img {
-  max-width: min(95vw, 1200px);
-  max-height: 90vh;
+  max-width: min(90vw, 1100px);
+  max-height: 85vh;
   object-fit: contain;
-  border-radius: 12px;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.zoom-modal.open img {
+  transform: scale(1);
 }
 
 .close-modal {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 38px;
-  height: 38px;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
   border: 0;
-  border-radius: 999px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  color: var(--white-color);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.2rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
 }
 
-.not-found {
-  padding: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 12px;
-}
-
-.product-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
-.add-to-cart-btn {
-  display: block;
-  text-align: center;
-  padding: 11px 14px;
-  width: 100%; 
+.close-modal:hover {
   background: var(--light-red-color);
-  color: var(--primary-color);
-  border: 1px solid var(--light-red-color);
-  border-radius: 8px;
-  text-decoration: none;
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  transform: rotate(90deg);
 }
 
-.add-to-cart-btn:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-  background: var(--primary-color);
-  color: var(--light-red-color);
-  border: 1px solid var(--light-red-color);
-}
-
-.add-to-cart-btn-vypredane {
-  display: block;
-  width: 100%; 
+/* Chybové stavy */
+.not-found {
   text-align: center;
-  padding: 11px 14px;
-  background: var(--dark-color);
-  color: var(--error-color);
-  border: 1px solid var(--light-red-color);
-  border-radius: 8px;
-  text-decoration: none;
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  padding: 60px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: var(--card-bg);
 }
 
-@media (max-width: 880px) {
+/* Responsivita / Media Queries */
+@media (max-width: 992px) {
   .product-detail {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .image-panel {
-    min-height: 360px;
+    height: 50vh;
+    min-height: 380px;
   }
+  
+  .price-box {
+    margin-top: 24px;
+  }
+}
 
-  .product-lower {
-    grid-template-columns: 1fr;
+@media (max-width: 576px) {
+  .product-page {
+    margin-top: 90px;
+    padding: 0 16px;
+  }
+  
+  .info-panel {
+    padding: 20px;
   }
 
   .key-facts {
     grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .actions .add-to-cart-btn {
+  .price-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .actions {
+    max-width: 100%;
     width: 100%;
   }
 }

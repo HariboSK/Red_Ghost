@@ -1,10 +1,8 @@
 <?php
-$bodyClass = 'payment-page';
-require_once dirname(__DIR__, 2) . '/config/config.php';
-require_once dirname(__DIR__, 2) . '/app/core/SessionHelper.php';
 
 SessionHelper::bootstrap();
 
+$bodyClass = 'payment-page';
 $pageTitle = 'E-shop - Platba';
 
 // Zachováme format obrazkov

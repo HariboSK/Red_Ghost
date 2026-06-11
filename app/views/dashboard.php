@@ -1,10 +1,34 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/core/SessionHelper.php';
-require_once dirname(__DIR__) . '/core/Redirect.php';
-require_once dirname(__DIR__) . '/core/DashboardHelper.php';
-require_once dirname(__DIR__, 2) . '/config/config.php';
+if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['form_type'] ?? '') === 'edit_product') {
+    
+    $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
+    $productId = filter_var($_POST['product_id'] ?? null, FILTER_VALIDATE_INT);
+    
+    $productModelPath = dirname(__DIR__) . '/models/product.model.php';
+    if (is_file($productModelPath)) {
+        require_once $productModelPath;
+    }
+
+    if ($productId && class_exists('ProductModel') && ($pdo instanceof PDO)) {
+        $productModel = new ProductModel($pdo);
+        $validation = ProductModel::validateAndBuildPayload($_POST);
+        
+        if (!$validation['ok']) {
+            $_SESSION['productError'] = (string) $validation['error'];
+        } else {
+            try {
+                $productModel->update((int) $productId, $validation['payload']);
+                $_SESSION['productNotice'] = 'Produkt bol úspešne upravený.';
+            } catch (PDOException $exception) {
+                $_SESSION['productError'] = 'Produkt sa nepodarilo uložiť.';
+            }
+        }
+        header('Location: ' . $_SERVER['REQUEST_URI'] . '#products');
+        exit;
+    }
+}
 
 $sessionUser = SessionHelper::user();
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
@@ -33,25 +57,21 @@ include __DIR__ . '/partials/dashboard-header.php';
 
 <main class="admin-dashboard-ui">
     <aside class="admin-sidebar" aria-label="Primary navigation">
-        <a class="sidebar-brand" href="<?php echo route('/dashboard'); ?>" title="Dashboard">
-            <span><img src="/assets/images/logo-text.webp" alt="Red Ghost logo"></span>
-        </a>
-        <nav class="sidebar-nav">
-            <a href="#overview" class="sidebar-link active" title="Prehľad" aria-label="Prehľad"><i class="fa-solid fa-house-chimney"></i></a>
-            <a href="#products" class="sidebar-link" title="Produkty" aria-label="Produkty"><i class="fa-solid fa-boxes-stacked"></i></a>
-            <a href="#coupons" class="sidebar-link" title="Kupóny" aria-label="Kupóny"><i class="fa-solid fa-ticket"></i></a>
-            <a href="#users" class="sidebar-link" title="Používatelia" aria-label="Používatelia"><i class="fa-solid fa-users"></i></a>
-            <a href="#reviews" class="sidebar-link" title="Recenzie" aria-label="Recenzie"><i class="fa-solid fa-star"></i></a>
-            <a href="#mailer" class="sidebar-link" title="Pošta" aria-label="Pošta"><i class="fa-solid fa-envelope"></i></a>
-            <a href="#orders" class="sidebar-link" title="Objednávky" aria-label="Objednávky"><i class="fa-solid fa-chart-line"></i></a>
-            <a href="#settings" class="sidebar-link" title="Nastavenia" aria-label="Nastavenia"><i class="fa-solid fa-gear"></i></a>
-        </nav>
-
-        <div class="sidebar-bottom">
+        <div class="sidebar-top-content">
             <details class="admin-profile-menu sidebar-profile-menu">
                 <summary>
-                    <span class="admin-avatar"><?php echo strtoupper(substr((string) ($sessionUser['name'] ?? 'U'), 0, 1)); ?></span>
+                    <?php if ($avatarUrl !== ''): ?>
+                        <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Avatar" class="admin-avatar">
+                    <?php else: ?>
+                        <span class="admin-avatar">
+                            <?php 
+                                $initial = ($avatarInitial !== '') ? $avatarInitial : ($sessionUser['name'] ?? 'U');
+                                echo dash_h(strtoupper(substr((string)$initial, 0, 1))); 
+                            ?>
+                        </span>
+                    <?php endif; ?>
                 </summary>
+                
                 <div class="admin-profile-dropdown sidebar-profile-dropdown">
                     <div class="profile-meta">
                         <strong><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></strong>
@@ -64,6 +84,17 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
             </details>
         </div>
+
+        <nav class="sidebar-nav">
+            <a href="#overview" class="sidebar-link active" title="Prehľad" aria-label="Prehľad"><i class="fa-solid fa-house-chimney"></i>Prehľad</a>
+            <a href="#products" class="sidebar-link" title="Produkty" aria-label="Produkty"><i class="fa-solid fa-boxes-stacked"></i>Produkty</a>
+            <a href="#coupons" class="sidebar-link" title="Kupóny" aria-label="Kupóny"><i class="fa-solid fa-ticket"></i>Kupóny</a>
+            <a href="#users" class="sidebar-link" title="Používatelia" aria-label="Používatelia"><i class="fa-solid fa-users"></i>Používatelia</a>
+            <a href="#reviews" class="sidebar-link" title="Recenzie" aria-label="Recenzie"><i class="fa-solid fa-star"></i>Recenzie</a>
+            <a href="#mailer" class="sidebar-link" title="Pošta" aria-label="Pošta"><i class="fa-solid fa-envelope"></i>Pošta</a>
+            <a href="#orders" class="sidebar-link" title="Objednávky" aria-label="Objednávky"><i class="fa-solid fa-chart-line"></i>Objednávky</a>
+            <a href="#settings" class="sidebar-link" title="Nastavenia" aria-label="Nastavenia"><i class="fa-solid fa-gear"></i>Nastavenia</a>
+        </nav>
     </aside>
 
     <section class="admin-main dashboard-tabs-ready">
@@ -253,6 +284,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         <th>Email</th>
                                         <th>Suma</th>
                                         <th>Stav</th>
+                                        <th>Spôsob dopravy</th>
                                         <th>Platba</th>
                                         <th>Dátum</th>
                                     </tr>
@@ -270,6 +302,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                 <td><?php echo dash_h($order['customer_email'] ?? ''); ?></td>
                                                 <td><?php echo dash_h(number_format((float) ($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
                                                 <td><?php echo dash_h($order['status'] ?? ''); ?></td>
+                                                <td><span class="delivery-tag"><?php echo dash_h($order['delivery_method'] ?? 'Nezadané'); ?></span></td>
                                                 <td><?php echo dash_h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
                                                 <td><?php echo dash_h($order['created_at'] ?? ''); ?></td>
                                             </tr>
@@ -476,7 +509,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <p class="card-subtitle">Klikni na NOVÝ PRODUKT a pridaj nový produkt do databázy.</p>
                         <button type="button" class="management-submit" onclick="document.getElementById('create-product-form').style.display = document.getElementById('create-product-form').style.display === 'none' ? 'block' : 'none'; this.textContent = this.textContent === 'Nový produkt' ? 'Zrušiť' : 'Nový produkt';">Nový produkt</button>
                         
-                        <form id="create-product-form" method="POST" action="#products" class="management-form create-product-form">
+                        <form id="create-product-form" method="POST" action="#products" class="management-form create-product-form" style="display: none;">
                             <input type="hidden" name="form_type" value="create_product">
                             
                             <label for="quick-product-name">Názov produktu *</label>
@@ -513,22 +546,20 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <h3>Prehľad produktov</h3>
                         <p class="card-subtitle">Klikni EDIT na zmenu údajov priamo v tabuľke. VYMAZAŤ zmaže produkt.</p>
 
-                        <div class="table-wrap product-table-wrap">
-                            <table class="admin-table product-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Názov</th>
-                                        <th>Cena</th>
-                                        <th>Sklad</th>
-                                        <th>Akcie</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <div class="table-wrap">
+                            <div class="products-table">
+                                
+                                <div class="products-table-header products-grid-layout">
+                                    <div>ID</div>
+                                    <div>Názov</div>
+                                    <div>Cena</div>
+                                    <div>Sklad</div>
+                                    <div style="text-align: right; padding-right: 12px;">Akcie</div>
+                                </div>
+
+                                <div class="products-table-body">
                                     <?php if (empty($products)): ?>
-                                        <tr>
-                                            <td colspan="5" class="empty-cell">Žiadne produkty nie sú k dispozícii.</td>
-                                        </tr>
+                                        <div class="empty-cell">Žiadne produkty nie sú k dispozícii.</div>
                                     <?php else: ?>
                                         <?php foreach ($products as $product): ?>
                                             <?php
@@ -537,105 +568,88 @@ include __DIR__ . '/partials/dashboard-header.php';
                                             $discountPercent = (float) ($product['discount_percent'] ?? 0);
                                             $finalPrice = $discountPercent > 0 ? max(0, $basePrice * (1 - ($discountPercent / 100))) : $basePrice;
                                             ?>
-                                            <tr class="product-row" data-product-id="<?php echo dash_h($productId); ?>">
-                                                <td class="product-view-mode product-view-cell" colspan="5">
-                                                    <div class="product-row-layout">
-                                                        <div class="product-col-id">
-                                                            <strong><?php echo dash_h($productId); ?></strong>
-                                                        </div>
-                                                        <div class="product-col-main">
-                                                            <strong><?php echo dash_h($product['name'] ?? ''); ?></strong>
-                                                            <div class="product-meta product-category-pill"><?php echo dash_h($product['category'] ?? 'uncategorized'); ?></div>
-                                                        </div>
-                                                        <div class="product-col-price">
-                                                            <?php if ($discountPercent > 0): ?>
-                                                                <span class="product-price-old"><?php echo dash_h(number_format($basePrice, 2, '.', '')); ?></span><br>
-                                                                <span class="product-price-chip"><?php echo dash_h(number_format($finalPrice, 2, '.', '')); ?> €</span>
-                                                            <?php else: ?>
-                                                                <span class="product-price-chip"><?php echo dash_h(number_format($basePrice, 2, '.', '')); ?> €</span>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                        <div class="product-col-stock">
-                                                            <span class="product-stock-chip <?php echo ((int) ($product['stock'] ?? 0) > 0) ? 'in-stock' : 'out-of-stock'; ?>"><?php echo dash_h($product['stock'] ?? 0); ?> ks</span>
-                                                        </div>
-                                                        <div class="product-col-actions">
-                                                            <button type="button" class="product-action-link edit-btn" onclick="toggleProductEditMode(<?php echo dash_h($productId); ?>)">EDIT</button>
-                                                            <form method="POST" action="#products" class="product-delete-form">
-                                                                <input type="hidden" name="form_type" value="delete_product">
-                                                                <input type="hidden" name="product_id" value="<?php echo dash_h($productId); ?>">
-                                                                <button type="submit" class="delete-btn" onclick="return confirm('Naozaj chceš zmazať produkt &quot;<?php echo dash_h($product['name'] ?? ''); ?>&quot;?');">VYMAZAŤ</button>
-                                                            </form>
-                                                        </div>
+                                            
+                                            <div class="product-row" data-product-id="<?php echo dash_h($productId); ?>">
+                                                
+                                                <div id="product-view-<?php echo $productId; ?>" class="products-grid-layout">
+                                                    <div class="product-id"><strong><?php echo dash_h($productId); ?></strong></div>
+                                                    <div class="product-info">
+                                                        <span class="product-name"><?php echo dash_h($product['name'] ?? ''); ?></span><br>
+                                                        <small class="product-category"><?php echo dash_h($product['category'] ?? 'uncategorized'); ?></small>
                                                     </div>
-                                                </td>
-                                            </tr>
+                                                    <div class="product-price-box">
+                                                        <?php if ($discountPercent > 0): ?>
+                                                            <span class="price-old"><?php echo number_format($basePrice, 2, '.', ''); ?> €</span><br>
+                                                            <span class="price-new"><?php echo number_format($finalPrice, 2, '.', ''); ?> €</span>
+                                                        <?php else: ?>
+                                                            <span class="price-regular"><?php echo number_format($basePrice, 2, '.', ''); ?> €</span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="product-stock"><?php echo dash_h($product['stock'] ?? 0); ?> ks</div>
+                                                    <div class="product-actions">
+                                                        <button type="button" class="management-submit btn-edit" onclick="toggleProductEditMode(<?php echo $productId; ?>)">EDIT</button>
+                                                        
+                                                        <!-- Zmazanie produktu -->
+                                                        <form method="POST" action="#products" class="delete-form" onsubmit="return confirm('Naozaj chceš zmazať produkt &quot;<?php echo dash_h($product['name'] ?? ''); ?>&quot;?');">
+                                                            <input type="hidden" name="form_type" value="delete_product">
+                                                            <input type="hidden" name="product_id" value="<?php echo dash_h($productId); ?>">
+                                                            <button type="submit" class="delete-btn"><i class="fa-solid fa-trash-can"></i></button>
+                                                        </form>
+                                                    </div>
+                                                </div>
 
-                                            <tr class="product-edit-mode" id="edit-row-<?php echo dash_h($productId); ?>">
-                                                <td colspan="5" class="product-edit-cell">
-                                                    <form method="POST" action="#products" class="product-inline-edit-form">
-                                                        <input type="hidden" name="form_type" value="update_product">
-                                                        <input type="hidden" name="product_id" value="<?php echo dash_h($productId); ?>">
-
-                                                        <div class="product-edit-grid product-edit-grid--four">
-                                                            <div>
-                                                                <label class="product-edit-label">Názov</label>
-                                                                <input type="text" name="name" value="<?php echo dash_h($product['name'] ?? ''); ?>" required class="product-edit-input">
+                                                <div id="product-edit-<?php echo $productId; ?>" class="product-edit-container">
+                                                    <form method="POST" action="#products" class="management-form">
+                                                        <input type="hidden" name="form_type" value="edit_product">
+                                                        <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
+                                                        
+                                                        <div class="form-grid">
+                                                            <div class="form-group">
+                                                                <label>Názov</label>
+                                                                <input type="text" name="name" value="<?php echo htmlspecialchars((string)($product['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" required>
                                                             </div>
-                                                            <div>
-                                                                <label class="product-edit-label">Cena (EUR)</label>
-                                                                <input type="number" name="price" step="0.01" min="0" value="<?php echo dash_h(number_format($basePrice, 2, '.', '')); ?>" required class="product-edit-input">
+                                                            <div class="form-group">
+                                                                <label>Cena (€)</label>
+                                                                <input type="number" step="0.01" name="price" value="<?php echo htmlspecialchars((string)($product['price'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" required>
                                                             </div>
-                                                            <div>
-                                                                <label class="product-edit-label">Zľava (%)</label>
-                                                                <input type="number" name="discount_percent" min="0" max="100" step="0.01" value="<?php echo dash_h(number_format($discountPercent, 2, '.', '')); ?>" class="product-edit-input">
+                                                            <div class="form-group">
+                                                                <label>Zľava (%)</label>
+                                                                <input type="number" step="0.01" name="discount_percent" value="<?php echo htmlspecialchars((string)($product['discount_percent'] ?? '0'), ENT_QUOTES, 'UTF-8'); ?>">
                                                             </div>
-                                                            <div>
-                                                                <label class="product-edit-label">Skladom (ks)</label>
-                                                                <input type="number" name="stock" min="0" value="<?php echo dash_h($product['stock'] ?? 0); ?>" required class="product-edit-input">
+                                                            <div class="form-group">
+                                                                <label>Skladom</label>
+                                                                <input type="number" name="stock" value="<?php echo htmlspecialchars((string)($product['stock'] ?? '0'), ENT_QUOTES, 'UTF-8'); ?>" required>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Kategória</label>
+                                                                <input type="text" name="category" value="<?php echo htmlspecialchars((string)($product['category'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" required>
                                                             </div>
                                                         </div>
+                                                        
+                                                        <input type="hidden" name="description" value="<?php echo htmlspecialchars((string)($product['description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <input type="hidden" name="image" value="<?php echo htmlspecialchars((string)($product['image'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <input type="hidden" name="rating" value="<?php echo htmlspecialchars((string)($product['rating'] ?? '4'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <input type="hidden" name="featured" value="<?php echo (int)($product['featured'] ?? 0); ?>">
 
-                                                        <div class="product-edit-grid product-edit-grid--two">
-                                                            <div>
-                                                                <label class="product-edit-label">Kategória</label>
-                                                                <input type="text" name="category" value="<?php echo dash_h($product['category'] ?? 'uncategorized'); ?>" class="product-edit-input">
-                                                            </div>
-                                                            <div>
-                                                                <label class="product-edit-label">Popis</label>
-                                                                <textarea name="description" rows="2" class="product-edit-textarea"><?php echo dash_h($product['description'] ?? ''); ?></textarea>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="product-edit-grid product-edit-grid--three">
-                                                            <div>
-                                                                <label class="product-edit-label">Obrázok (URL)</label>
-                                                                <input type="text" name="image" value="<?php echo dash_h($product['image'] ?? ''); ?>" class="product-edit-input">
-                                                            </div>
-                                                            <div>
-                                                                <label class="product-edit-label">Hodnotenie (1-5)</label>
-                                                                <input type="number" name="rating" min="1" max="5" value="<?php echo dash_h($product['rating'] ?? '4'); ?>" class="product-edit-input">
-                                                            </div>
-                                                            <div>
-                                                                <label class="product-edit-label product-edit-label--checkbox"><input type="checkbox" name="featured" <?php echo ((int) ($product['featured'] ?? 0) === 1) ? 'checked' : ''; ?>> Odporúčaný</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="product-edit-actions">
-                                                            <button type="submit" class="management-submit product-edit-action">ULOŽIŤ ZMENY</button>
-                                                            <button type="button" class="management-submit management-submit--muted product-edit-action" onclick="toggleProductEditMode(<?php echo dash_h($productId); ?>)">ZRUŠIŤ</button>
+                                                        <div class="form-actions">
+                                                            <button type="button" class="delete-btn btn-cancel" onclick="toggleProductEditMode(<?php echo $productId; ?>)">Zrušiť</button>
+                                                            <button type="submit" class="management-submit btn-save">Uložiť zmeny</button>
                                                         </div>
                                                     </form>
-                                                </td>
-                                            </tr>
+                                                </div>
+
+                                            </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
-                                </tbody>
-                            </table>
+                                </div>
+
+                            </div>
                         </div>
                     </article>
                 </div>
             </section>
         </section>
+
 
         <!-- SEKCIA COUPONS -->
         <section class="dashboard-panel" id="coupons" data-dashboard-panel="coupons">
@@ -831,19 +845,6 @@ include __DIR__ . '/partials/dashboard-header.php';
 
 </main>
 
-<script>
-function toggleProductEditMode(productId) {
-    const viewRow = document.querySelector(`tr[data-product-id="${productId}"] .product-view-mode`).closest('tr');
-    const editRow = document.getElementById(`edit-row-${productId}`);
-    
-    if (editRow.style.display === 'none') {
-        editRow.style.display = 'table-row';
-        viewRow.style.display = 'none';
-    } else {
-        editRow.style.display = 'none';
-        viewRow.style.display = 'table-row';
-    }
-}
-</script>
+<script src="/assets/js/dashboard.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
