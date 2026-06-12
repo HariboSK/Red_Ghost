@@ -109,6 +109,12 @@ body {
   width: 100%;
 }
 
+.product-col-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 /* Odkazy v menu - podpora pre text + ikonu */
 .sidebar-link {
   height: 44px;

@@ -4,6 +4,14 @@ SessionHelper::bootstrap();
 
 $bodyClass = 'payment-page';
 $pageTitle = 'E-shop - Platba';
+$cartItems = [];
+$cartSummary = [
+    'count' => 0,
+    'subtotal' => 0.0,
+    'shipping' => 0.0,
+    'discount' => 0.0,
+    'total' => 0.0,
+];
 
 // Zachováme format obrazkov
 function NormalizeImagePath(string $image): string
@@ -17,15 +25,6 @@ function NormalizeImagePath(string $image): string
     }
     return preg_replace('~\.(jpe?g)$~i', '.webp', '/assets/images/' . ltrim($image, '/'));
 }
-
-$cartItems = [];
-$cartSummary = [
-    'count' => 0,
-    'subtotal' => 0.0,
-    'shipping' => 0.0,
-    'discount' => 0.0,
-    'total' => 0.0,
-];
 
 // Načítanie položiek zo SESSION
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
@@ -59,7 +58,6 @@ if ($cartSummary['count'] <= 0) {
 // Výpočet súhrnu
 $cartSummary['shipping'] = $cartSummary['count'] > 0 ? 3.9 : 0.0;
 $cartSummary['discount'] = abs((float) ($_SESSION['applied_discount_amount'] ?? 0));
-
 $subtotalAfterDiscount = max(0, $cartSummary['subtotal'] - $cartSummary['discount']);
 $cartSummary['total'] = $subtotalAfterDiscount + $cartSummary['shipping'];
 

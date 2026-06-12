@@ -95,7 +95,6 @@ class Router
             '/api/RemoveCart.php' => 'app/core/api/RemoveCart.php',
             '/api/ApplyDiscount' => 'app/core/api/ApplyDiscount.php',
             '/api/ApplyDiscount.php' => 'app/core/api/ApplyDiscount.php',
-            // PRIDANÉ TRASY PRE CHECKOUT:
             '/api/checkout' => 'app/core/api/Checkout.php',
             '/api/checkout.php' => 'app/core/api/Checkout.php',
             '/api/Checkout' => 'app/core/api/Checkout.php',

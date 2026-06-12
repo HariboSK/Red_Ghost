@@ -98,21 +98,17 @@ if ($pdo instanceof PDO) {
 
     if ($userId && $userId > 0) {
         try {
-            // SPOLOČNÝ FIX: Vytiahneme najaktuálnejšie dáta priamo z DB (vyrieši tel. číslo, vernostné body aj správny rok)
             $userStmt = $pdo->prepare("SELECT telephone, loyalty_points, created_at FROM `user` WHERE id = :id");
             $userStmt->execute([':id' => $userId]);
             $dbUser = $userStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($dbUser) {
-                // Fix pre telefónne číslo z DB stĺpca telephone
                 if (isset($dbUser['telephone']) && trim((string)$dbUser['telephone']) !== '') {
                     $profilePhone = trim((string)$dbUser['telephone']);
                 }
                 
-                // Fix pre presné body priamo z databázy
                 $loyaltyPoints = (int) ($dbUser['loyalty_points'] ?? 0);
                 
-                // Fix pre dynamický rok registrácie
                 if (!empty($dbUser['created_at'])) {
                     $customerSinceYear = date('Y', strtotime($dbUser['created_at']));
                 }

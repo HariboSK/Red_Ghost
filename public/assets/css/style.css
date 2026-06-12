@@ -557,7 +557,7 @@ header .navbar {
 }
 
 .contact-section .contact-form textarea.form-input {
-  height: 100px;
+  max-height: 300px;
   padding: 12px;
   resize: vertical;
 }

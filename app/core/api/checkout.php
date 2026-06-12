@@ -27,7 +27,6 @@ if (!$conn) {
     header('Location: /payment');
     exit;
 }
-// --------------------------------------------
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: /payment');
@@ -57,60 +56,75 @@ $street = '';
 $city = ''; 
 $zip = '';
 
-if ($deliveryMethod === 'alzabox') {
-    $boxName = trim((string) ($_POST['alzabox_name'] ?? ''));
-    $boxCode = trim((string) ($_POST['alzabox_code'] ?? ''));
-    if ($boxName === '' || $boxCode === '') {
-        $_SESSION['checkout_error'] = 'Vyberte prosím konkrétny AlzaBox.'; header('Location: /payment'); exit;
-    }
-    $street = "AlzaBox: $boxName ($boxCode)";
-    $city = "Odberné miesto";
-    $zip = "00000";
-
-} elseif ($deliveryMethod === 'post') {
-
-    $pName = trim((string) ($_POST['post_name'] ?? ''));
-    $pStreet = trim((string) ($_POST['post_street'] ?? ''));
-    $pCity = trim((string) ($_POST['post_city'] ?? ''));
-    $pZip = trim((string) ($_POST['post_zip'] ?? ''));
-
-    if ($pName === '' || $pStreet === '' || $pCity === '' || $pZip === '') {
-        $_SESSION['checkout_error'] = 'Vyplňte všetky údaje pre poštu.';
-        header('Location: /payment');
-        exit;
-    }
-
-    $street = "Pošta: {$pName}, {$pStreet}";
-    $city = $pCity;
-    $zip = $pZip;
-
-} elseif ($deliveryMethod === 'courier') {
-
-    $street = trim((string) ($_POST['courier_street'] ?? ''));
-    $city = trim((string) ($_POST['courier_city'] ?? ''));
-    $zip = trim((string) ($_POST['courier_zip'] ?? ''));
-
-    if ($street === '' || $city === '' || $zip === '') {
-        $_SESSION['checkout_error'] = 'Vyplňte adresu kuriéra.';
-        header('Location: /payment');
-        exit;
-    }
-
-} else {
-
+// --- UPRAVENÁ LOGIKA ADRESY PODĽA SPÔSOBU PLATBY ---
+if ($paymentMethod === 'card' || $paymentMethod === 'transfer') {
+    // Platba kartou alebo prevodom -> berieme základnú adresu z 1. kroku
     $street = trim((string) ($_POST['street'] ?? ''));
     $city = trim((string) ($_POST['city'] ?? ''));
     $zip = trim((string) ($_POST['zip'] ?? ''));
 
     if ($street === '' || $city === '' || $zip === '') {
-        $_SESSION['checkout_error'] = 'Vyplňte adresu doručenia.';
+        $_SESSION['checkout_error'] = 'Vyplňte dodaciu adresu v prvom kroku.';
         header('Location: /payment');
         exit;
     }
+} else {
+    // Platba na dobierku (cash) -> rozlišujeme špecifické spôsoby dopravy
+    if ($deliveryMethod === 'alzabox') {
+        $boxName = trim((string) ($_POST['alzabox_name'] ?? ''));
+        $boxCode = trim((string) ($_POST['alzabox_code'] ?? ''));
+        if ($boxName === '' || $boxCode === '') {
+            $_SESSION['checkout_error'] = 'Vyberte prosím konkrétny AlzaBox.'; 
+            header('Location: /payment'); 
+            exit;
+        }
+        $street = "AlzaBox: $boxName ($boxCode)";
+        $city = "Odberné miesto";
+        $zip = "00000";
+
+    } elseif ($deliveryMethod === 'post') {
+        $pName = trim((string) ($_POST['post_name'] ?? ''));
+        $pStreet = trim((string) ($_POST['post_street'] ?? ''));
+        $pCity = trim((string) ($_POST['post_city'] ?? ''));
+        $pZip = trim((string) ($_POST['post_zip'] ?? ''));
+
+        if ($pName === '' || $pStreet === '' || $pCity === '' || $pZip === '') {
+            $_SESSION['checkout_error'] = 'Vyplňte všetky údaje pre poštu.';
+            header('Location: /payment');
+            exit;
+        }
+        $street = "Pošta: {$pName}, {$pStreet}";
+        $city = $pCity;
+        $zip = $pZip;
+
+    } elseif ($deliveryMethod === 'courier') {
+        // Kuriér pre dobierku
+        $street = trim((string) ($_POST['courier_street'] ?? ''));
+        $city = trim((string) ($_POST['courier_city'] ?? ''));
+        $zip = trim((string) ($_POST['courier_zip'] ?? ''));
+
+        if ($street === '' || $city === '' || $zip === '') {
+            $_SESSION['checkout_error'] = 'Vyplňte adresu kuriéra pre dobierku.';
+            header('Location: /payment');
+            exit;
+        }
+    } else {
+        // Záložné riešenie (ak by zlyhala hodnota deliveryMethod)
+        $street = trim((string) ($_POST['street'] ?? ''));
+        $city = trim((string) ($_POST['city'] ?? ''));
+        $zip = trim((string) ($_POST['zip'] ?? ''));
+
+        if ($street === '' || $city === '' || $zip === '') {
+            $_SESSION['checkout_error'] = 'Vyplňte adresu doručenia.';
+            header('Location: /payment');
+            exit;
+        }
+    }
 }
 
+// Spoločná finálna kontrola základných osobných údajov a priradenej adresy
 if ($customerName === '' || $customerEmail === '' || $customerPhone === '' || $city === '' || $street === '' || $zip === '') {
-    $_SESSION['checkout_error'] = 'Vyplň všetky dodacie údaje. JavaScript ti ich mohol skryť, ale PHP ich vyžaduje!';
+    $_SESSION['checkout_error'] = 'Vyplň všetky povinné dodacie údaje.';
     header('Location: /payment');
     exit;
 }
