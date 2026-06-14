@@ -8,7 +8,6 @@ $data = $controller->getCheckoutData();
 $cartItems = $data['items'];
 $cartSummary = $data['summary'];
 
-// Presmerovanie ak je košík prázdny (tvoja pôvodná logika)
 if ($cartSummary['count'] <= 0) {
     header('Location: ' . Router::url('/shopcart'));
     exit;
