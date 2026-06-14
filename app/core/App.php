@@ -43,6 +43,7 @@ class App
             '/app/core/UploadAvatar.php',
             '/app/core/CartService.php',
             '/app/core/ProductController.php',
+            '/app/core/PaymentController.php',
             '/app/core/middleware/Function.php',
         ];
 

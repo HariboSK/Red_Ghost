@@ -1,71 +1,26 @@
 <?php
+App::init();
 
-SessionHelper::bootstrap();
+// Inštancia controllera
+$controller = new PaymentController();
+$data = $controller->getCheckoutData();
 
-$bodyClass = 'payment-page';
-$pageTitle = 'E-shop - Platba';
-$cartItems = [];
-$cartSummary = [
-    'count' => 0,
-    'subtotal' => 0.0,
-    'shipping' => 0.0,
-    'discount' => 0.0,
-    'total' => 0.0,
-];
+$cartItems = $data['items'];
+$cartSummary = $data['summary'];
 
-// Zachováme format obrazkov
-function NormalizeImagePath(string $image): string
-{
-    $image = trim($image);
-    if ($image === '') {
-        return '/assets/images/omacka3.webp';
-    }
-    if (preg_match('~^(https?:)?//~i', $image) === 1 || strpos($image, '/') === 0) {
-        return preg_replace('~\.(jpe?g)$~i', '.webp', $image);
-    }
-    return preg_replace('~\.(jpe?g)$~i', '.webp', '/assets/images/' . ltrim($image, '/'));
-}
-
-// Načítanie položiek zo SESSION
-if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $productId => $item) {
-        $quantity = max(0, (int) ($item['quantity'] ?? 0));
-        if ($quantity <= 0) {
-            continue;
-        }
-
-        $productId = (int) ($item['id'] ?? $productId);
-        $price = (float) ($item['price'] ?? 0);
-        $cartItems[] = [
-            'id' => $productId,
-            'name' => (string) ($item['name'] ?? 'Produkt'),
-            'price' => $price,
-            'quantity' => $quantity,
-            'image' => NormalizeImagePath((string) ($item['image'] ?? '')),
-        ];
-
-        $cartSummary['count'] += $quantity;
-        $cartSummary['subtotal'] += $price * $quantity;
-    }
-}
-
-// Ak je košík prázdny, nepustíme ho platiť
+// Presmerovanie ak je košík prázdny (tvoja pôvodná logika)
 if ($cartSummary['count'] <= 0) {
     header('Location: ' . Router::url('/shopcart'));
     exit;
 }
 
-// Výpočet súhrnu
-$cartSummary['shipping'] = $cartSummary['count'] > 0 ? 3.9 : 0.0;
-$cartSummary['discount'] = abs((float) ($_SESSION['applied_discount_amount'] ?? 0));
-$subtotalAfterDiscount = max(0, $cartSummary['subtotal'] - $cartSummary['discount']);
-$cartSummary['total'] = $subtotalAfterDiscount + $cartSummary['shipping'];
+$bodyClass = 'payment-page';
+$pageTitle = 'E-shop - Platba';
 
 include __DIR__ . '/partials/header-shop.php';
 ?>
 
 <main class="payment-page-shell">
-    <!-- Debug: Zobrazí chybu z Session, ak existuje -->
     <?php if (isset($_SESSION['checkout_error'])): ?>
         <div class="checkout-error" role="alert">
             CHYBA:<br>
