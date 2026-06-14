@@ -14,12 +14,30 @@ class ProductController
         $this->sessionUser = $sessionUser;
     }
 
+    // Získa dáta pre produktovú stránku vrátane výpočtu zliav.
     public function getProductPageData(int $productId): array
     {
+        $product = $this->productModel->findById($productId);
+
+        // Logika pre výpočet zľavy (ak existuje)
+        if (!empty($product) && is_array($product)) {
+            $originalPrice = (float) ($product['price'] ?? 0);
+            $discount = (float) ($product['discount'] ?? 0);
+
+            if ($discount > 0) {
+                // Výpočet: cena - (cena * percento / 100)
+                $product['discounted_price'] = $originalPrice - ($originalPrice * ($discount / 100));
+                $product['has_discount'] = true;
+            } else {
+                $product['discounted_price'] = $originalPrice;
+                $product['has_discount'] = false;
+            }
+        }
+
         return [
-            'product' => $this->productModel->findById($productId),
-            'reviews' => $this->reviewModel->getApprovedByProduct($productId),
-            'summary' => $this->reviewModel->getSummary($productId),
+            'product'    => $product,
+            'reviews'    => $this->reviewModel->getApprovedByProduct($productId),
+            'summary'    => $this->reviewModel->getSummary($productId),
             'userReview' => ($this->sessionUser['id'] ?? 0) > 0 
                             ? $this->reviewModel->getUserReview($productId, (int)$this->sessionUser['id']) 
                             : null
@@ -68,7 +86,6 @@ class ProductController
             $_SESSION['product_review_errors'] = ['Recenziu sa nepodarilo uložiť.'];
         }
 
-        // 4. Presmerovanie späť (PRG Pattern - Post/Redirect/Get)
         header('Location: ' . route('/product?id=' . $productId . '#reviews'));
         exit;
     }

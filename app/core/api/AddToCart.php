@@ -91,5 +91,5 @@ $_SESSION['cart'][$productId]['image'] = NormalizeImagePath((string) ($product['
 
 set_flash('success', 'Produkt bol pridaný do košíka.');
 
-header('Location: ' . $returnTo);
+header('Location: ' . $_SERVER['HTTP_REFERER'] ?? route('/e-shop'));
 exit;

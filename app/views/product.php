@@ -59,7 +59,18 @@ include __DIR__ . '/partials/header-product.php';
         </div>
 
         <h1 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h1>
-        <p class="price"><?php echo number_format((float) $product['price'], 2); ?></p>
+        <p class="price">
+            <?php if ($product['has_discount'] ?? false): ?>
+                <span class="original-price" style="text-decoration: line-through; color: #888; font-size: 0.9em; margin-right: 10px;">
+                    <?php echo number_format((float)$product['price'], 2); ?> €
+                </span>
+                <span class="discounted-price" style="color: #d9534f; font-weight: bold;">
+                    <?php echo number_format((float)$product['discounted_price'], 2); ?> €
+                </span>
+            <?php else: ?>
+                <?php echo number_format((float)$product['price'], 2); ?> €
+            <?php endif; ?>
+        </p>
         <p class="description short"><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
         
         <div class="actions">

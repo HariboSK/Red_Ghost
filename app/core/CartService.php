@@ -21,9 +21,8 @@ class CartService
         $this->syncCartPrices();
     }
 
-    /**
-     * Pomocná metóda na výpočet ceny so zľavou
-     */
+    //Pomocná metóda na výpočet ceny so zľavou
+
     private function calculateDiscountedPrice(float $price, int $discount): float
     {
         if ($discount <= 0) return $price;
@@ -108,9 +107,8 @@ class CartService
         $_SESSION['cart'] = [];
     }
 
-    /**
-     * Synchronizuje ceny v session s aktuálnymi cenami a zľavami v DB
-     */
+    //Synchronizuje ceny v session s aktuálnymi cenami a zľavami v DB
+
     private function syncCartPrices(): void
     {
         foreach ($_SESSION['cart'] as $productId => $item) {

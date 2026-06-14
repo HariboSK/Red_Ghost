@@ -147,7 +147,7 @@ class ProductReviewModel extends BaseModel
             ':rating' => $rating,
             ':title' => $title,
             ':content' => $content,
-            ':status' => $statusValue, // Použije sa schválený/čakajúci status
+            ':status' => $statusValue,
             ':verified' => $verifiedPurchase ? 1 : 0,
             ':id_product' => $productId,
             ':id_user' => $userId,

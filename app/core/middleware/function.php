@@ -15,7 +15,6 @@ function app_base_path() {
 
 //kompletne cesty pre odkay v aplikacii
 function route($path) {
-    // If an absolute URL was provided, return it unchanged (safe-escaped)
     if (preg_match('#^(https?:)?//#i', (string) $path) === 1) {
         return htmlspecialchars((string) $path, ENT_QUOTES, 'UTF-8');
     }
@@ -24,8 +23,7 @@ function route($path) {
     if (class_exists('Router') && method_exists('Router', 'url')) {
         return Router::url($path);
     }
-
-    // Fallback to previous behavior when Router::url isn't available
+    
     $basePath = app_base_path();
     $normalizedPath = '/' . ltrim((string) $path, '/');
 
