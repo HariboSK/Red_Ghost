@@ -512,6 +512,7 @@ body {
 }
 
 .zoom-modal img {
+  margin-top: 40px;
   max-width: min(90vw, 1100px);
   max-height: 85vh;
   object-fit: contain;
@@ -527,27 +528,34 @@ body {
 
 .close-modal {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 100px;
+  right: 480px;
   width: 44px;
   height: 44px;
   border: 0;
   border-radius: 50%;
-  color: var(--white-color);
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 1.2rem;
+  
+  /* Zabezpečenie viditeľnosti a vrstvy */
+  z-index: 9999; 
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-smooth);
+  
+  /* Farby a dizajn */
+  color: #ffffff;
+  background: var(--off-color);
+  font-size: 28px;
+  font-weight: bold;
+  
+  /* Animácie */
+  transition: all 0.3s ease;
 }
 
 .close-modal:hover {
   background: var(--light-red-color);
-  transform: rotate(90deg);
+  transform: rotate(90deg) scale(1.1);
 }
-
 /* Chybové stavy */
 .not-found {
   text-align: center;

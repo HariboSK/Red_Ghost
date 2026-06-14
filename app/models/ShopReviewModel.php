@@ -82,6 +82,23 @@ class ShopReviewModel extends BaseModel
         }
     }
 
+    // vytvorenie novej recenzie pre shop
+    public function create(string $name, int $rating, string $text, ?int $userId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO shop_review (reviewer_name, rating, review_text, status, id_user)
+            VALUES (:reviewer_name, :rating, :review_text, :status, :id_user)'
+        );
+
+        return $stmt->execute([
+            ':reviewer_name' => $name,
+            ':rating'        => $rating,
+            ':review_text'   => $text,
+            ':status'        => 'pending',
+            ':id_user'       => $userId,
+        ]);
+    }
+
     public function deleteReview(int $reviewId): bool
     {
         $stmt = $this->pdo->prepare(
@@ -92,6 +109,25 @@ class ShopReviewModel extends BaseModel
         return $stmt->execute([
             ':id' => $reviewId,
         ]);
+    }
+
+    // Vytiahne iba schválené recenzie obchodu pre zobrazenie na domovskej stránke
+    public function getLatestApproved(int $limit = 8): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT reviewer_name, rating, review_text, created_at
+             FROM shop_review
+             WHERE status = :status
+             ORDER BY created_at DESC, id_shop_review DESC
+             LIMIT :limit'
+        );
+
+        $stmt->bindValue(':status', 'approved', PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return is_array($rows) ? $rows : [];
     }
 
 }

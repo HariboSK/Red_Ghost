@@ -10,6 +10,6 @@ class Helper
         if (strtolower($page) === 'index') {
             $page = 'Home';
         }
-        return 'Red Ghost - ' . $page;
+        return 'Red Ghost';
     }
 }

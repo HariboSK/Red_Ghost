@@ -1,144 +1,87 @@
 <?php
-$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
+declare(strict_types=1);
 
+// 1. INTELIGENTNÉ VYHĽADANIE DATABÁZOVÉHO SPOJENIA
+$databaseConnection = $conn ?? ($pdo ?? ($db ?? ($GLOBALS['conn'] ?? ($GLOBALS['pdo'] ?? ($GLOBALS['db'] ?? null)))));
 
+if (!($databaseConnection instanceof PDO)) {
+    die('Systémová chyba: Databázové pripojenie zlyhalo. Uistite sa, že súbor s pripojením k DB je načítaný pred týmto súborom (napr. v index.php alebo routeri).');
+}
+
+// 2. INICIALIZÁCIA MODELOV
+$shopReviewModel = new ShopReviewModel($databaseConnection);
+$contactMessageModel = new ContactMessageModel($databaseConnection);
+
+// Načítanie schválených recenzií na web
+$shopReviews = $shopReviewModel->getLatestApproved(8);
+
+// Príprava relácií pre formulár
 $contactFormErrors = [];
 $contactFormSuccess = '';
-$contactFormData = [
-  'name' => '',
-  'email' => '',
-  'subject' => '',
-  'message' => '',
-];
+$contactFormData = ['name' => '', 'email' => '', 'subject' => '', 'message' => ''];
 
 if (isset($_SESSION['contact_form_success'])) {
-  $contactFormSuccess = (string) $_SESSION['contact_form_success'];
-  unset($_SESSION['contact_form_success']);
+    $contactFormSuccess = (string) $_SESSION['contact_form_success'];
+    unset($_SESSION['contact_form_success']);
 }
-
 if (isset($_SESSION['contact_form_errors']) && is_array($_SESSION['contact_form_errors'])) {
-  $contactFormErrors = $_SESSION['contact_form_errors'];
-  unset($_SESSION['contact_form_errors']);
+    $contactFormErrors = $_SESSION['contact_form_errors'];
+    unset($_SESSION['contact_form_errors']);
 }
-
 if (isset($_SESSION['contact_form_data']) && is_array($_SESSION['contact_form_data'])) {
-  $contactFormData = array_merge($contactFormData, $_SESSION['contact_form_data']);
-  unset($_SESSION['contact_form_data']);
+    $contactFormData = array_merge($contactFormData, $_SESSION['contact_form_data']);
+    unset($_SESSION['contact_form_data']);
 }
 
-$shopReviews = [];
-if ($pdo instanceof PDO) {
-  try {
-    $stmt = $pdo->prepare(
-      'SELECT reviewer_name, rating, review_text, created_at
-       FROM shop_review
-       WHERE status = :status
-       ORDER BY created_at DESC, id_shop_review DESC
-       LIMIT 8'
-    );
-    $stmt->execute([':status' => 'approved']);
-    $shopReviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  } catch (PDOException $exception) {
-    $shopReviews = [];
-  }
-}
+// 3. SPRACOVANIE ODOSLANIA FORMULÁRA
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_type'] ?? '') === 'contact_message') {
+    
+    // Validácia dát pomocou modelu
+    $contactFormErrors = $contactMessageModel->validate($_POST);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['form_type'] ?? '') === 'contact_message') {
-  $contactFormData['name'] = trim((string) ($_POST['name'] ?? ''));
-  $contactFormData['email'] = trim((string) ($_POST['email'] ?? ''));
-  $contactFormData['subject'] = trim((string) ($_POST['subject'] ?? ''));
-  $contactFormData['message'] = trim((string) ($_POST['message'] ?? ''));
+    if (empty($contactFormErrors)) {
+        // Uloženie dát pomocou modelu
+        $success = $contactMessageModel->createNewMessage(
+            trim((string)($_POST['name'] ?? '')),
+            trim((string)($_POST['email'] ?? '')),
+            trim((string)($_POST['subject'] ?? '')),
+            trim((string)($_POST['message'] ?? ''))
+        );
 
-  $nameLength = function_exists('mb_strlen') ? mb_strlen($contactFormData['name']) : strlen($contactFormData['name']);
-  $subjectLength = function_exists('mb_strlen') ? mb_strlen($contactFormData['subject']) : strlen($contactFormData['subject']);
-  $messageLength = function_exists('mb_strlen') ? mb_strlen($contactFormData['message']) : strlen($contactFormData['message']);
-
-  if ($contactFormData['name'] === '' || $nameLength < 2 || $nameLength > 100) {
-    $contactFormErrors[] = 'Meno musí mať aspoň 2 znaky a najviac 100 znakov.';
-  }
-
-  if (!filter_var($contactFormData['email'], FILTER_VALIDATE_EMAIL)) {
-    $contactFormErrors[] = 'Zadajte platnú emailovú adresu.';
-  }
-
-  if ($contactFormData['subject'] === '' || $subjectLength < 3 || $subjectLength > 150) {
-    $contactFormErrors[] = 'Predmet musí mať aspoň 3 znaky a najviac 150 znakov.';
-  }
-
-  if ($contactFormData['message'] === '' || $messageLength < 10 || $messageLength > 5000) {
-    $contactFormErrors[] = 'Správa musí mať aspoň 10 znakov a najviac 5000 znakov.';
-  }
-
-  if (!$pdo instanceof PDO) {
-    $contactFormErrors[] = 'Databázové pripojenie nie je dostupné.';
-  }
-
-  if (empty($contactFormErrors) && $pdo instanceof PDO) {
-    try {
-      $pdo->beginTransaction();
-
-      $stmt = $pdo->prepare(
-        'INSERT INTO contact_messages (sender_name, sender_email, subject, status, id_user)
-         VALUES (:sender_name, :sender_email, :subject, :status, :id_user)'
-      );
-      $stmt->execute([
-        ':sender_name' => $contactFormData['name'],
-        ':sender_email' => $contactFormData['email'],
-        ':subject' => $contactFormData['subject'],
-        ':status' => 'new',
-        ':id_user' => null,
-      ]);
-
-      $messageId = (int) $pdo->lastInsertId();
-      $stmt = $pdo->prepare(
-        'INSERT INTO contact_replies (sender_type, message_text, id_message)
-         VALUES (:sender_type, :message_text, :id_message)'
-      );
-      $stmt->execute([
-        ':sender_type' => 'user',
-        ':message_text' => $contactFormData['message'],
-        ':id_message' => $messageId,
-      ]);
-
-      $pdo->commit();
-
-      $_SESSION['contact_form_success'] = 'Správa bola úspešne odoslaná.';
-      $_SESSION['contact_form_data'] = [
-        'name' => '',
-        'email' => '',
-        'subject' => '',
-        'message' => '',
-      ];
-      header('Location: ' . route('/home#contact'));
-      exit;
-    } catch (PDOException $exception) {
-      if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-      }
-      $contactFormErrors[] = 'Správu sa nepodarilo uložiť. Skúste to prosím neskôr.';
+        if ($success) {
+            $_SESSION['contact_form_success'] = 'Vaša správa bola úspešne odoslaná.';
+            $_SESSION['contact_form_data'] = ['name' => '', 'email' => '', 'subject' => '', 'message' => ''];
+        } else {
+            $contactFormErrors[] = 'Chyba pri ukladaní správy. Skúste to znova.';
+        }
     }
-  }
 
-  if (!empty($contactFormErrors)) {
-    $_SESSION['contact_form_errors'] = $contactFormErrors;
-    $_SESSION['contact_form_data'] = $contactFormData;
+    if (!empty($contactFormErrors)) {
+        $_SESSION['contact_form_errors'] = $contactFormErrors;
+        $_SESSION['contact_form_data'] = [
+            'name' => $_POST['name'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'subject' => $_POST['subject'] ?? '',
+            'message' => $_POST['message'] ?? '',
+        ];
+    }
+
+    // Presmerovanie späť na formulár
     header('Location: ' . route('/home#contact'));
     exit;
-  }
 }
 
 include __DIR__ . '/partials/header.php';
 ?>
 
 <main>
-  <!-- Hero section -->
-    <section class="hero-section">
+  <section class="hero-section">
     <div class="section-content">
       <div class="hero-details">
         <div class="typewriter-box">
           <h2 class="title" id="typewriter">Red Ghost - kde každé sústo rozpráva príbeh ohňa!</h2>
         </div>
-          <h3 class="subtitle">Ohnivé chute, ktoré ťa dostanú! Predaj chilli papričiek a chilli omáčiek rôznych príchutí</h3>
+        <h3 class="subtitle">Ohnivé chute, ktoré ťa dostanú! Predaj chilli papričiek a chilli omáčiek rôznych príchutí</h3>
         <p class="description"> Ohnivá explózia chutí! Zaži skutočný pikantný zážitok s našimi prémiovými chilli omáčkami a čerstvými papričkami! Každá kvapka našich omáčok je dokonale vyvážená - od jemnej pikantnosti až po extrémne ohnivé kúsky, ktoré rozohrejú tvoje chuťové bunky! </p>
         
         <div class="buttons">
@@ -147,16 +90,14 @@ include __DIR__ . '/partials/header.php';
         </div>
       </div>
       <div class="hero-image-wrapper">
-          <img src="/assets/images/hero.webp" alt="Hero" 
-          class="hero-image">
+          <img src="/assets/images/hero.webp" alt="Hero" class="hero-image">
       </div>
     </div>
   </section>
 
   <div class="gradient-transition"></div>
 
-  <!-- About section-->
-    <section class="about-section" id="about">
+  <section class="about-section" id="about">
     <br>
     <div class="section-content">
       <div class="about-image-wrapper imageReveal">
@@ -176,12 +117,11 @@ include __DIR__ . '/partials/header.php';
         </div>
       </div>
     </div>
-    </section>
+  </section>
 
   <div class="gradient-transition2"></div>
 
-  <!-- Menu section -->
-    <section class="menu-section" id="menu">
+  <section class="menu-section" id="menu">
     <br>
     <h2 class="section-title autoshow">NAŠE PONUKY</h2>
     <div class="section-content">
@@ -194,13 +134,13 @@ include __DIR__ . '/partials/header.php';
         <li class="menu-item fadeUp">
           <img src="/assets/images/omacka3.webp" alt="CHILLI OMÁČKY" class="menu-image">
           <h3 class="name">CHILLI OMÁČKY</h3>
-          <p class="text">Rôzne príchute a druhy chilli omáčiek podľa preferencie intenzity pálivosti a chute</p>
+          <p class="text">Rôzne príchute and druhy chilli omáčiek podľa preferencie intenzity pálivosti a chute</p>
         </li>
         <li class="menu-item fadeUp">
           <img src="/assets/images/chutney.webp" alt="CHUTNEY" class="menu-image">
           <h3 class="name">CHUTNEY</h3>
         </li>
-          <li class="menu-item fadeUp">
+        <li class="menu-item fadeUp">
           <img src="/assets/images/susene-chilli-Picsart-AiImageEnhancer.webp" alt="SUŠENÉ PAPRIČKY" class="menu-image">
           <h3 class="name">SUŠENÉ PAPRIČKY</h3>
         </li>
@@ -208,7 +148,7 @@ include __DIR__ . '/partials/header.php';
           <img src="/assets/images/sadenice-Picsart-AiImageEnhancer.webp" alt=" CHILLI SADENICE" class="menu-image">
           <h3 class="name"> CHILLI SADENICE</h3>
         </li>
-          <li class="menu-item fadeUp">
+        <li class="menu-item fadeUp">
           <img src="/assets/images/mlete-chilli-Picsart-AiImageEnhancer.webp" alt=" MLETE CHILLI" class="menu-image">
           <h3 class="name"> MLETE CHILLI</h3>
         </li>
@@ -226,78 +166,75 @@ include __DIR__ . '/partials/header.php';
 
   <div class="gradient-transition3"></div>
 
-  <!-- Testimonials section -->
   <section class="testimonials-section" id="testimonials">
-  <br>
-  <h2 class="section-title autoshow">Recenzie</h2>
-  <div class="section-content fadeUp2">
-    <div class="slider-container swiper">
-      <div class="slider-wrapper">
-        <ul class="testimonials-list swiper-wrapper">
-          <?php if (empty($shopReviews)): ?>
-            <li class="testimonial swiper-slide">
-              <h3 class="name">Zatiaľ bez recenzií</h3>
-              <i class="feedback">"Buď prvý, kto pridá recenziu na obchod."</i>
-            </li>
-          <?php else: ?>
-            <?php foreach ($shopReviews as $shopReview): ?>
+    <br>
+    <h2 class="section-title autoshow">Recenzie</h2>
+    <div class="section-content fadeUp2">
+      <div class="slider-container swiper">
+        <div class="slider-wrapper">
+          <ul class="testimonials-list swiper-wrapper">
+            <?php if (empty($shopReviews)): ?>
               <li class="testimonial swiper-slide">
-                <h3 class="name"><?php echo htmlspecialchars((string) ($shopReview['reviewer_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h3>
-                <div class="review-rating" aria-label="Hodnotenie <?php echo (int) ($shopReview['rating'] ?? 0); ?> z 5">
-                  <?php for ($i = 0; $i < (int) ($shopReview['rating'] ?? 0); $i++): ?>
-                    <i class="fa-solid fa-star"></i>
-                  <?php endfor; ?>
-                </div>
-                <i class="feedback">
-                  "<?php echo nl2br(htmlspecialchars((string) ($shopReview['review_text'] ?? ''), ENT_QUOTES, 'UTF-8')); ?>"
-                </i>
+                <h3 class="name">Zatiaľ bez recenzií</h3>
+                <i class="feedback">"Buď prvý, kto pridá recenziu na obchod."</i>
               </li>
-            <?php endforeach; ?>
-          <?php endif; ?>
-        </ul>
+            <?php else: ?>
+              <?php foreach ($shopReviews as $shopReview): ?>
+                <li class="testimonial swiper-slide">
+                  <h3 class="name"><?php echo htmlspecialchars((string) ($shopReview['reviewer_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h3>
+                  <div class="review-rating" aria-label="Hodnotenie <?php echo (int) ($shopReview['rating'] ?? 0); ?> z 5">
+                    <?php for ($i = 0; $i < (int) ($shopReview['rating'] ?? 0); $i++): ?>
+                      <i class="fa-solid fa-star"></i>
+                    <?php endfor; ?>
+                  </div>
+                  <i class="feedback">
+                    "<?php echo nl2br(htmlspecialchars((string) ($shopReview['review_text'] ?? ''), ENT_QUOTES, 'UTF-8')); ?>"
+                  </i>
+                </li>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </ul>
 
-        <!-- If we need pagination -->
-        <div class="swiper-pagination"></div>
-        <!-- If we need navigation buttons -->
-        <div class="swiper-slide-button swiper-button-prev"></div>
-        <div class="swiper-slide-button swiper-button-next"></div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-slide-button swiper-button-prev"></div>
+          <div class="swiper-slide-button swiper-button-next"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="section-content fadeUp2 testimonials-cta-wrap">
-    <a href="<?php echo route('/shop-review'); ?>" class="testimonials-cta-button">Pridať recenziu</a>
-  </div>
+    <div class="section-content fadeUp2 testimonials-cta-wrap">
+      <a href="<?php echo route('/shop-review'); ?>" class="testimonials-cta-button">Pridať recenziu</a>
+    </div>
   </section>
 
   <div class="gradient-transition4"></div>
 
-  <!-- Contact section -->
-    <section class="contact-section fadeUp3" id="contact">
+  <section class="contact-section fadeUp3" id="contact">
     <br>
     <h2 class="section-title autoshow">Kontaktujte nás</h2>
     <div class="section-content">
       <ul class="contact-info-list">
         <li class="contact-info">
           <i class="fa-solid fa-location-crosshairs"></i>
-            <p>SLOVENSKO</p>
+          <p>SLOVENSKO</p>
         </li>
         <li class="contact-info">
           <i class="fa-regular fa-envelope"> </i>
-            <p>info@gmail.com</p>
+          <p>info@gmail.com</p>
         </li>
         <li class="contact-info">
           <i class="fa-solid fa-phone"></i>
-            <p>421 000 000</p>
+          <p>421 000 000</p>
         </li>
         <li class="contact-info">
           <i class="fa-regular fa-clock"></i>
-            <p>Pondelok - Piatok</p>
-            <p>9:00 - 19:00</p>
+          <p>Pondelok - Piatok</p>
+          <p>9:00 - 19:00</p>
         </li>
       </ul>
 
       <form action="<?php echo route('/home#contact'); ?>" class="contact-form" method="POST">
+        <?php echo SessionHelper::csrfField(); ?>
         <input type="hidden" name="form_type" value="contact_message">
         
         <input type="text" name="name" placeholder="Tvoje meno" class="form-input" required 
@@ -309,8 +246,7 @@ include __DIR__ . '/partials/header.php';
         <input type="text" name="subject" placeholder="Predmet" class="form-input" required 
         value="<?php echo htmlspecialchars($contactFormData['subject'], ENT_QUOTES, 'UTF-8'); ?>">
 
-        <textarea name="message" placeholder="Tvoja správa" class="form-input" required 
-        value="<?php echo htmlspecialchars($contactFormData['message'], ENT_QUOTES, 'UTF-8'); ?>" ></textarea>
+        <textarea name="message" placeholder="Tvoja správa" class="form-input" required><?php echo htmlspecialchars($contactFormData['message'], ENT_QUOTES, 'UTF-8'); ?></textarea>
 
         <button type="submit" class="submit-button">Poslať</button>
       </form>
@@ -330,7 +266,8 @@ include __DIR__ . '/partials/header.php';
       <?php endif; ?>
     
     </div>
-    </section>
+  </section>
+</main>
 
 <?php
 include __DIR__ . '/partials/footer.php';

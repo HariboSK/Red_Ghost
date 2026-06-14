@@ -1030,9 +1030,10 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 
 /* Product grid */
 .col-4 {
-  flex-basis: calc(33% - 12px);
+  flex-basis: calc(24% - 5px);
   padding: 8px;
   min-width: 210px;
+  min-height: 550px;
   margin-bottom: 20px;
   transition:
     transform 0.25s ease,
@@ -1065,8 +1066,44 @@ input[type="search"]::-webkit-search-cancel-button:hover {
 
 }
 
+/* Štýl pre akčný štítok na banneri */
+.shop-banner-ribbon {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    z-index: 20;
+    background-color: #ff0000;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transform: rotate(-2deg);
+    pointer-events: none;
+}
+
+/* Voliteľné: Ak chceš, aby pri prechode myšou jemne pulzoval */
+.shop-banner-ribbon:hover {
+    transform: rotate(0deg) scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.review-author {
+  margin-top: 6px;
+  display: inline-block;
+  color: var(--light-color) !important;
+}
+
+.review-author-name {
+  color: var(--ok-color) !important;
+  font-weight: bold;
+}
+
 .product-card img {
-  height: 400px;
+  height: 350px;
   width : 100%;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -1934,6 +1971,34 @@ button[disabled] {
   color: rgba(255, 255, 255, 0.78);
   line-height: 1.55;
   font-size: 0.92rem;
+}
+
+/* ==========================================================================
+   ŠTÍTOK AKCIA V PRAVOM HORNOM ROHU
+   ========================================================================== */
+
+.product-card {
+    position: relative;
+    overflow: hidden;
+}
+
+/* 2. Samotný štítok (Ribbon) */
+.action-ribbon {
+    position: absolute;
+    top: 22px;
+    right: -35px;
+    background: #ff4d4d;
+    color: #ffffff;
+    padding: 6px 40px;
+    font-weight: 900;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transform: rotate(45deg);
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    text-align: center;
 }
 
 @media screen and (max-width: 720px) {

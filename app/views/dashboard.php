@@ -1,35 +1,6 @@
 <?php
 declare(strict_types=1);
 
-if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['form_type'] ?? '') === 'edit_product') {
-    
-    $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
-    $productId = filter_var($_POST['product_id'] ?? null, FILTER_VALIDATE_INT);
-    
-    $productModelPath = dirname(__DIR__) . '/models/product.model.php';
-    if (is_file($productModelPath)) {
-        require_once $productModelPath;
-    }
-
-    if ($productId && class_exists('ProductModel') && ($pdo instanceof PDO)) {
-        $productModel = new ProductModel($pdo);
-        $validation = ProductModel::validateAndBuildPayload($_POST);
-        
-        if (!$validation['ok']) {
-            $_SESSION['productError'] = (string) $validation['error'];
-        } else {
-            try {
-                $productModel->update((int) $productId, $validation['payload']);
-                $_SESSION['productNotice'] = 'Produkt bol úspešne upravený.';
-            } catch (PDOException $exception) {
-                $_SESSION['productError'] = 'Produkt sa nepodarilo uložiť.';
-            }
-        }
-        header('Location: ' . $_SERVER['REQUEST_URI'] . '#products');
-        exit;
-    }
-}
-
 $sessionUser = SessionHelper::user();
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 
@@ -66,7 +37,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <span class="admin-avatar">
                             <?php 
                                 $initial = ($avatarInitial !== '') ? $avatarInitial : ($sessionUser['name'] ?? 'U');
-                                echo dash_h(strtoupper(substr((string)$initial, 0, 1))); 
+                                echo DashboardHelper::h(strtoupper(substr((string)$initial, 0, 1))); 
                             ?>
                         </span>
                     <?php endif; ?>
@@ -74,7 +45,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                 
                 <div class="admin-profile-dropdown sidebar-profile-dropdown">
                     <div class="profile-meta">
-                        <strong><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></strong>
+                        <strong><?php echo DashboardHelper::h($sessionUser['name'] ?? 'Admin'); ?></strong>
                         <span>Administrator</span>
                     </div>
                     <a href="<?php echo route('/home'); ?>">Domov</a>
@@ -98,59 +69,59 @@ include __DIR__ . '/partials/dashboard-header.php';
     </aside>
 
     <section class="admin-main dashboard-tabs-ready">
-        <!-- SEKCIA OVERVIEW -->
         <section class="dashboard-panel is-active" id="overview" data-dashboard-panel="overview">
             <div class="overview-intro-layout">
                 <section class="admin-metrics admin-metrics-overview">
                 <article class="metric-card">
                     <p>Počet adminov</p>
-                    <h2><?php echo dash_h($totalAdmins); ?></h2>
+                    <h2><?php echo DashboardHelper::h($totalAdmins); ?></h2>
                     <small>Zaregistrovaní administrátori</small>
                 </article>
 
                 <article class="metric-card">
                     <p>Dnešné objednávky</p>
-                    <h2><?php echo dash_h($todayOrderCount); ?></h2>
+                    <h2><?php echo DashboardHelper::h($todayOrderCount); ?></h2>
                     <small>Objednávky vytvorené dnes</small>
                 </article>
 
                 <article class="metric-card">
                     <p>Dnešné tržby</p>
-                    <h2><?php echo dash_h(number_format($todayRevenue, 2, '.', ',')); ?> €</h2>
+                    <h2><?php echo DashboardHelper::h(number_format($todayRevenue, 2, '.', ',')); ?> €</h2>
                     <small>Súčet dnešných objednávok</small>
                 </article>
 
                 <article class="metric-card">
                     <p>Prijaté správy</p>
-                    <h2><?php echo dash_h($unreadQuestionsCount); ?></h2>
+                    <h2><?php echo DashboardHelper::h($unreadQuestionsCount); ?></h2>
                     <small>Neprečítané správy z kontaktného formulára</small>
                 </article>
 
                 <article class="metric-card">
                     <p>Aktívne kupóny</p>
-                    <h2><?php echo dash_h(count($discountCodes)); ?></h2>
+                    <h2><?php echo DashboardHelper::h(count($discountCodes)); ?></h2>
                     <small>Zľavové kódy pripravené na použitie</small>
                 </article>
 
                 <article class="metric-card">
                     <p>Aktívne relácie</p>
-                    <h2><?php echo dash_h($activeSessions); ?></h2>
+                    <h2><?php echo DashboardHelper::h($activeSessions); ?></h2>
                     <small>Aktívny monitoring prihlásených používateľov</small>
                 </article>
                 </section>
 
                 <aside class="admin-card user-avatar-side-card" aria-label="Sekcia používateľa">
                     <form action="UploadAvatar.php" method="POST" enctype="multipart/form-data">
+                        <?php echo SessionHelper::csrfField(); ?>
                         <div class="user-avatar-frame">
                             <?php if ($avatarUrl !== ''): ?>
                                 <img src="<?php echo htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Avatar">
                             <?php else: ?>
-                                <span aria-hidden="true"><?php echo dash_h($avatarInitial !== '' ? $avatarInitial : 'A'); ?></span>
+                                <span aria-hidden="true"><?php echo DashboardHelper::h($avatarInitial !== '' ? $avatarInitial : 'A'); ?></span>
                             <?php endif; ?>
                         </div>
 
                         <?php if ($uploadError !== ''): ?>
-                            <p class="user-avatar-note user-avatar-note--error"><?php echo dash_h($uploadError); ?></p>
+                            <p class="user-avatar-note user-avatar-note--error"><?php echo DashboardHelper::h($uploadError); ?></p>
                         <?php endif; ?>
     
                         <label for="user-avatar-file" class="management-submit user-avatar-edit-btn">
@@ -159,12 +130,12 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <input type="file" name="avatar" id="user-avatar-file" class="user-avatar-input" accept="image/*" onchange="this.form.submit()">
                     </form>
 
-                    <p class="user-avatar-name">Vitaj späť, <strong><?php echo dash_h($sessionUser['name'] ?? 'Admin'); ?></strong></p>
+                    <p class="user-avatar-name">Vitaj späť, <strong><?php echo DashboardHelper::h($sessionUser['name'] ?? 'Admin'); ?></strong></p>
 
                     <div class="user-avatar-meta">
                         <p>Informácie o administrátorovi</p>
-                        <h3><?php echo dash_h($adminDisplayName ?: 'Admin'); ?></h3>
-                        <small><?php echo dash_h($adminDisplayEmail !== '' ? $adminDisplayEmail : $adminDisplayRole); ?></small>
+                        <h3><?php echo DashboardHelper::h($adminDisplayName ?: 'Admin'); ?></h3>
+                        <small><?php echo DashboardHelper::h($adminDisplayEmail !== '' ? $adminDisplayEmail : $adminDisplayRole); ?></small>
                     </div>
                 </aside>
             </div>
@@ -176,10 +147,10 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <span>Najdôležitejšie veci na jednom mieste</span>
                     </div>
                     <div class="overview-pills">
-                        <span class="overview-pill">Produkty: <?php echo dash_h(count($products)); ?></span>
-                        <span class="overview-pill">Kupóny: <?php echo dash_h(dashboard_get_coupon_count($discountCodes)); ?></span>
-                        <span class="overview-pill">Správy: <?php echo dash_h($unreadQuestionsCount); ?></span>
-                        <span class="overview-pill">Admini: <?php echo dash_h($totalAdmins); ?></span>
+                        <span class="overview-pill">Produkty: <?php echo DashboardHelper::h(count($products)); ?></span>
+                        <span class="overview-pill">Kupóny: <?php echo DashboardHelper::h(DashboardHelper::getCouponCount($discountCodes)); ?></span>
+                        <span class="overview-pill">Správy: <?php echo DashboardHelper::h($unreadQuestionsCount); ?></span>
+                        <span class="overview-pill">Admini: <?php echo DashboardHelper::h($totalAdmins); ?></span>
                     </div>
                 </article>
 
@@ -191,8 +162,8 @@ include __DIR__ . '/partials/dashboard-header.php';
                     <ul class="activity-feed compact-feed">
                         <?php foreach (array_slice($activityFeed, 0, 4) as $item): ?>
                             <li>
-                                <time><?php echo dash_h($item['time'] ?? ''); ?></time>
-                                <p><?php echo dash_h($item['text'] ?? ''); ?></p>
+                                <time><?php echo DashboardHelper::h($item['time'] ?? ''); ?></time>
+                                <p><?php echo DashboardHelper::h($item['text'] ?? ''); ?></p>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -200,7 +171,6 @@ include __DIR__ . '/partials/dashboard-header.php';
             </div>
         </section>
 
-        <!-- SEKCIA USERS -->
         <section class="dashboard-panel" id="users" data-dashboard-panel="users">
             <article class="admin-card user-overview-card">
                 <div class="admin-card-head">
@@ -209,7 +179,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
 
                 <?php if ($registeredUsersError !== ''): ?>
-                    <p class="panel-error"><?php echo dash_h($registeredUsersError); ?></p>
+                    <p class="panel-error"><?php echo DashboardHelper::h($registeredUsersError); ?></p>
                 <?php endif; ?>
 
                 <div class="table-wrap">
@@ -231,11 +201,11 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <?php else: ?>
                                 <?php foreach ($registeredUsers as $registeredUser): ?>
                                     <tr>
-                                        <td><?php echo dash_h($registeredUser['id'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($registeredUser['name'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($registeredUser['email'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($registeredUser['loyalty_points'] ?? 0); ?></td>
-                                        <td><?php echo dash_h($registeredUser['role'] ?? 'user'); ?></td>
+                                        <td><?php echo DashboardHelper::h($registeredUser['id'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($registeredUser['name'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($registeredUser['email'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($registeredUser['loyalty_points'] ?? 0); ?></td>
+                                        <td><?php echo DashboardHelper::h($registeredUser['role'] ?? 'user'); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -245,78 +215,6 @@ include __DIR__ . '/partials/dashboard-header.php';
             </article>
         </section>
 
-        <!-- SEKCIA ORDERS -->
-        <section class="dashboard-panel" id="orders" data-dashboard-panel="orders">
-            <div class="admin-content-grid">
-                <article class="admin-card activity-panel">
-                    <div class="admin-card-head">
-                        <h2>Systémová aktivita</h2>
-                        <span>Objednávky, tržby a posledná aktivita administrátora</span>
-                    </div>
-
-                    <?php if ($adminMailerError !== ''): ?>
-                        <p class="panel-error"><?php echo dash_h($adminMailerError); ?></p>
-                    <?php endif; ?>
-
-                    <div class="orders-summary-strip">
-                        <div class="orders-summary-item">
-                            <span>Dnešné objednávky</span>
-                            <strong><?php echo dash_h($todayOrderCount); ?></strong>
-                        </div>
-                        <div class="orders-summary-item">
-                            <span>Dnešné tržby</span>
-                            <strong><?php echo dash_h(number_format($todayRevenue, 2, '.', ',')); ?> €</strong>
-                        </div>
-                    </div>
-
-                    <article class="admin-card setting-section">
-                        <div class="admin-card-head">
-                            <h2>Posledné objednávky</h2>
-                            <span>Checkout objednávky z košíka</span>
-                        </div>
-
-                        <div class="table-wrap">
-                            <table class="admin-table setting-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Zákazník</th>
-                                        <th>Email</th>
-                                        <th>Suma</th>
-                                        <th>Stav</th>
-                                        <th>Spôsob dopravy</th>
-                                        <th>Platba</th>
-                                        <th>Dátum</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (empty($recentOrders)): ?>
-                                        <tr>
-                                            <td colspan="7" class="empty-cell">Žiadne objednávky.</td>
-                                        </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($recentOrders as $order): ?>
-                                            <tr>
-                                                <td><?php echo dash_h($order['id_order'] ?? ''); ?></td>
-                                                <td><?php echo dash_h($order['customer_name'] ?? ''); ?></td>
-                                                <td><?php echo dash_h($order['customer_email'] ?? ''); ?></td>
-                                                <td><?php echo dash_h(number_format((float) ($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
-                                                <td><?php echo dash_h($order['status'] ?? ''); ?></td>
-                                                <td><span class="delivery-tag"><?php echo dash_h($order['delivery_method'] ?? 'Nezadané'); ?></span></td>
-                                                <td><?php echo dash_h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
-                                                <td><?php echo dash_h($order['created_at'] ?? ''); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </article>
-
-            </div>
-        </section>
-
-        <!-- SEKCIA MAILER -->
         <section class="dashboard-panel" id="mailer" data-dashboard-panel="mailer">
             <section class="admin-card contact-mailer-section">
                 <div class="admin-card-head">
@@ -327,11 +225,11 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
 
                 <?php if ($adminMailerNotice !== ''): ?>
-                    <p class="panel-success"><?php echo dash_h($adminMailerNotice); ?></p>
+                    <p class="panel-success"><?php echo DashboardHelper::h($adminMailerNotice); ?></p>
                 <?php endif; ?>
 
                 <?php if ($adminMailerError !== ''): ?>
-                    <p class="panel-error"><?php echo dash_h($adminMailerError); ?></p>
+                    <p class="panel-error"><?php echo DashboardHelper::h($adminMailerError); ?></p>
                 <?php endif; ?>
 
                 <div class="table-wrap contact-mailer-wrap">
@@ -354,25 +252,27 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <?php else: ?>
                                 <?php foreach ($contactMessages as $message): ?>
                                     <tr>
-                                        <td><?php echo dash_h($message['sender_name'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($message['sender_email'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($message['subject'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($message['created_at'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($message['sender_name'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($message['sender_email'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($message['subject'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($message['created_at'] ?? ''); ?></td>
                                         <td>
                                             <details class="message-detail">
                                                 <summary>Reagovať</summary>
-                                                <p><?php echo nl2br(dash_h($message['message_text'] ?? '')); ?></p>
+                                                <p><?php echo nl2br(DashboardHelper::h($message['message_text'] ?? '')); ?></p>
 
                                                 <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-reply-form">
+                                                    <?php echo SessionHelper::csrfField(); ?>
                                                     <input type="hidden" name="form_type" value="reply_message">
-                                                    <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
+                                                    <input type="hidden" name="message_id" value="<?php echo DashboardHelper::h($message['id'] ?? ''); ?>">
                                                     <textarea name="reply_text" rows="4" placeholder="Napíš reakciu pre zákazníka" required></textarea>
                                                     <button type="submit" class="management-submit message-reply-btn">Uložiť reakciu</button>
                                                 </form>
 
                                                 <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-reply-form">
+                                                    <?php echo SessionHelper::csrfField(); ?>
                                                     <input type="hidden" name="form_type" value="delete_message">
-                                                    <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
+                                                    <input type="hidden" name="message_id" value="<?php echo DashboardHelper::h($message['id'] ?? ''); ?>">
                                                     <button type="submit" class="delete-btn">Vymazať</button>
                                                 </form>
 
@@ -380,14 +280,15 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         </td>
                                         <td>
                                             <div class="message-status-cell">
-                                                <span class="message-status-badge message-status-<?php echo dash_h((string) ($message['status'] ?? 'new')); ?>">
-                                                    <?php echo dash_h((string) ($message['status'] ?? 'new')); ?>
+                                                <span class="message-status-badge message-status-<?php echo DashboardHelper::h((string) ($message['status'] ?? 'new')); ?>">
+                                                    <?php echo DashboardHelper::h((string) ($message['status'] ?? 'new')); ?>
                                                 </span>
 
                                                 <?php if (($message['status'] ?? 'new') === 'new'): ?>
                                                     <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="message-status-form">
+                                                        <?php echo SessionHelper::csrfField(); ?>
                                                         <input type="hidden" name="form_type" value="mark_message_read">
-                                                        <input type="hidden" name="message_id" value="<?php echo dash_h($message['id'] ?? ''); ?>">
+                                                        <input type="hidden" name="message_id" value="<?php echo DashboardHelper::h($message['id'] ?? ''); ?>">
                                                         <button type="submit" class="management-submit message-done-btn">Označiť ako vybavené</button>
                                                     </form>
                                                 <?php endif; ?>
@@ -402,6 +303,7 @@ include __DIR__ . '/partials/dashboard-header.php';
 
                 <?php if (!empty($contactMessages)): ?>
                     <form method="POST" action="<?php echo route('/dashboard#mailer'); ?>" class="mailer-bulk-delete-form mailer-bulk-delete-form-bottom" onsubmit="return confirm('Naozaj chceš vymazať všetky správy?');">
+                        <?php echo SessionHelper::csrfField(); ?>
                         <input type="hidden" name="form_type" value="delete_all_messages">
                         <button type="submit" class="delete-btn mailer-bulk-delete-btn" title="Vymazať všetky správy" aria-label="Vymazať všetky správy">
                             <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
@@ -412,7 +314,6 @@ include __DIR__ . '/partials/dashboard-header.php';
             </section>
         </section>
 
-        <!-- SEKCIA REVIEWS -->
         <section class="dashboard-panel" id="reviews" data-dashboard-panel="reviews">
             <section class="admin-card contact-mailer-section">
                 <div class="admin-card-head">
@@ -423,11 +324,11 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
 
                 <?php if ($reviewNotice !== ''): ?>
-                    <p class="panel-success"><?php echo dash_h($reviewNotice); ?></p>
+                    <p class="panel-success"><?php echo DashboardHelper::h($reviewNotice); ?></p>
                 <?php endif; ?>
 
                 <?php if ($reviewError !== ''): ?>
-                    <p class="panel-error"><?php echo dash_h($reviewError); ?></p>
+                    <p class="panel-error"><?php echo DashboardHelper::h($reviewError); ?></p>
                 <?php endif; ?>
 
                 <div class="table-wrap contact-mailer-wrap">
@@ -449,20 +350,21 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <?php else: ?>
                                 <?php foreach ($shopReviews as $shopReview): ?>
                                     <tr>
-                                        <td><?php echo dash_h($shopReview['reviewer_name'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($shopReview['rating'] ?? 0); ?>/5</td>
-                                        <td><?php echo nl2br(dash_h($shopReview['review_text'] ?? '')); ?></td>
+                                        <td><?php echo DashboardHelper::h($shopReview['reviewer_name'] ?? ''); ?></td>
+                                        <td><?php echo DashboardHelper::h($shopReview['rating'] ?? 0); ?>/5</td>
+                                        <td><?php echo nl2br(DashboardHelper::h($shopReview['review_text'] ?? '')); ?></td>
                                         <td>
-                                            <span class="message-status-badge message-status-<?php echo dash_h((string) ($shopReview['status'] ?? 'pending')); ?>">
-                                                <?php echo dash_h((string) ($shopReview['status'] ?? 'pending')); ?>
+                                            <span class="message-status-badge message-status-<?php echo DashboardHelper::h((string) ($shopReview['status'] ?? 'pending')); ?>">
+                                                <?php echo DashboardHelper::h((string) ($shopReview['status'] ?? 'pending')); ?>
                                             </span>
                                         </td>
                                         <td>
                                             <div class="product-col-actions">
                                                 <?php if ((string) ($shopReview['status'] ?? 'pending') !== 'approved'): ?>
                                                     <form method="POST" action="<?php echo route('/dashboard#reviews'); ?>" class="message-status-form">
+                                                        <?php echo SessionHelper::csrfField(); ?>
                                                         <input type="hidden" name="form_type" value="approve_shop_review">
-                                                        <input type="hidden" name="review_id" value="<?php echo dash_h($shopReview['id'] ?? ''); ?>">
+                                                        <input type="hidden" name="review_id" value="<?php echo DashboardHelper::h($shopReview['id'] ?? ''); ?>">
                                                         <button type="submit" class="management-submit message-done-btn">Approve</button>
                                                     </form>
                                                 <?php else: ?>
@@ -470,8 +372,9 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                 <?php endif; ?>
 
                                                 <form method="POST" action="<?php echo route('/dashboard#reviews'); ?>" class="delete-form" onsubmit="return confirm('Naozaj chceš vymazať túto recenziu?');">
+                                                    <?php echo SessionHelper::csrfField(); ?>
                                                     <input type="hidden" name="form_type" value="delete_shop_review">
-                                                    <input type="hidden" name="review_id" value="<?php echo dash_h($shopReview['id'] ?? ''); ?>">
+                                                    <input type="hidden" name="review_id" value="<?php echo DashboardHelper::h($shopReview['id'] ?? ''); ?>">
                                                     <button type="submit" class="delete-btn" title="Vymazať recenziu" aria-label="Vymazať recenziu">
                                                         <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                                     </button>
@@ -487,7 +390,6 @@ include __DIR__ . '/partials/dashboard-header.php';
             </section>
         </section>
 
-        <!-- SEKCIA PRODUCTS -->
         <section class="dashboard-panel" id="products" data-dashboard-panel="products">
             <section class="admin-card management-section">
                 <div class="admin-card-head">
@@ -496,11 +398,11 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
 
                 <?php if ($productNotice !== ''): ?>
-                    <p class="panel-success"><?php echo dash_h($productNotice); ?></p>
+                    <p class="panel-success"><?php echo DashboardHelper::h($productNotice); ?></p>
                 <?php endif; ?>
 
                 <?php if ($productError !== ''): ?>
-                    <p class="panel-error"><?php echo dash_h($productError); ?></p>
+                    <p class="panel-error"><?php echo DashboardHelper::h($productError); ?></p>
                 <?php endif; ?>
 
                 <div class="management-grid">
@@ -510,6 +412,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <button type="button" class="management-submit" onclick="document.getElementById('create-product-form').style.display = document.getElementById('create-product-form').style.display === 'none' ? 'block' : 'none'; this.textContent = this.textContent === 'Nový produkt' ? 'Zrušiť' : 'Nový produkt';">Nový produkt</button>
                         
                         <form id="create-product-form" method="POST" action="#products" class="management-form create-product-form" style="display: none;">
+                            <?php echo SessionHelper::csrfField(); ?>
                             <input type="hidden" name="form_type" value="create_product">
                             
                             <label for="quick-product-name">Názov produktu *</label>
@@ -569,13 +472,13 @@ include __DIR__ . '/partials/dashboard-header.php';
                                             $finalPrice = $discountPercent > 0 ? max(0, $basePrice * (1 - ($discountPercent / 100))) : $basePrice;
                                             ?>
                                             
-                                            <div class="product-row" data-product-id="<?php echo dash_h($productId); ?>">
+                                            <div class="product-row" data-product-id="<?php echo DashboardHelper::h($productId); ?>">
                                                 
                                                 <div id="product-view-<?php echo $productId; ?>" class="products-grid-layout">
-                                                    <div class="product-id"><strong><?php echo dash_h($productId); ?></strong></div>
+                                                    <div class="product-id"><strong><?php echo DashboardHelper::h($productId); ?></strong></div>
                                                     <div class="product-info">
-                                                        <span class="product-name"><?php echo dash_h($product['name'] ?? ''); ?></span><br>
-                                                        <small class="product-category"><?php echo dash_h($product['category'] ?? 'uncategorized'); ?></small>
+                                                        <span class="product-name"><?php echo DashboardHelper::h($product['name'] ?? ''); ?></span><br>
+                                                        <small class="product-category"><?php echo DashboardHelper::h($product['category'] ?? 'uncategorized'); ?></small>
                                                     </div>
                                                     <div class="product-price-box">
                                                         <?php if ($discountPercent > 0): ?>
@@ -585,14 +488,14 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                             <span class="price-regular"><?php echo number_format($basePrice, 2, '.', ''); ?> €</span>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <div class="product-stock"><?php echo dash_h($product['stock'] ?? 0); ?> ks</div>
+                                                    <div class="product-stock"><?php echo DashboardHelper::h($product['stock'] ?? 0); ?> ks</div>
                                                     <div class="product-actions">
                                                         <button type="button" class="management-submit btn-edit" onclick="toggleProductEditMode(<?php echo $productId; ?>)">EDIT</button>
                                                         
-                                                        <!-- Zmazanie produktu -->
-                                                        <form method="POST" action="#products" class="delete-form" onsubmit="return confirm('Naozaj chceš zmazať produkt &quot;<?php echo dash_h($product['name'] ?? ''); ?>&quot;?');">
+                                                        <form method="POST" action="#products" class="delete-form" onsubmit="return confirm('Naozaj chceš zmazať produkt &quot;<?php echo DashboardHelper::h($product['name'] ?? ''); ?>&quot;?');">
+                                                            <?php echo SessionHelper::csrfField(); ?>
                                                             <input type="hidden" name="form_type" value="delete_product">
-                                                            <input type="hidden" name="product_id" value="<?php echo dash_h($productId); ?>">
+                                                            <input type="hidden" name="product_id" value="<?php echo DashboardHelper::h($productId); ?>">
                                                             <button type="submit" class="delete-btn"><i class="fa-solid fa-trash-can"></i></button>
                                                         </form>
                                                     </div>
@@ -600,6 +503,7 @@ include __DIR__ . '/partials/dashboard-header.php';
 
                                                 <div id="product-edit-<?php echo $productId; ?>" class="product-edit-container">
                                                     <form method="POST" action="#products" class="management-form">
+                                                        <?php echo SessionHelper::csrfField(); ?>
                                                         <input type="hidden" name="form_type" value="edit_product">
                                                         <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
                                                         
@@ -614,7 +518,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                             </div>
                                                             <div class="form-group">
                                                                 <label>Zľava (%)</label>
-                                                                <input type="number" step="0.01" name="discount_percent" value="<?php echo htmlspecialchars((string)($product['discount_percent'] ?? '0'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <input type="number" step="0.01" name="discount" value="<?php echo htmlspecialchars((string)($product['discount'] ?? '0'), ENT_QUOTES, 'UTF-8'); ?>">
                                                             </div>
                                                             <div class="form-group">
                                                                 <label>Skladom</label>
@@ -651,7 +555,6 @@ include __DIR__ . '/partials/dashboard-header.php';
         </section>
 
 
-        <!-- SEKCIA COUPONS -->
         <section class="dashboard-panel" id="coupons" data-dashboard-panel="coupons">
             <section class="admin-card coupons-section">
                 <div class="admin-card-head">
@@ -660,17 +563,18 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
 
                 <?php if ($discountCodeNotice !== ''): ?>
-                    <p class="panel-success"><?php echo dash_h($discountCodeNotice); ?></p>
+                    <p class="panel-success"><?php echo DashboardHelper::h($discountCodeNotice); ?></p>
                 <?php endif; ?>
 
                 <?php if ($discountCodeError !== ''): ?>
-                    <p class="panel-error"><?php echo dash_h($discountCodeError); ?></p>
+                    <p class="panel-error"><?php echo DashboardHelper::h($discountCodeError); ?></p>
                 <?php endif; ?>
 
                 <div class="coupons-grid">
                     <article class="management-card coupon-form-card">
                         <h3>Nový zľavový kód</h3>
                         <form method="POST" action="#coupons" class="management-form">
+                            <?php echo SessionHelper::csrfField(); ?>
                             <input type="hidden" name="form_type" value="create_discount_code">
 
                             <label for="coupon-code">Kód</label>
@@ -725,19 +629,19 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         <?php foreach ($discountCodes as $discountCode): ?>
                                             <tr>
                                                 <td>
-                                                    <strong><?php echo dash_h($discountCode['code'] ?? ''); ?></strong>
-                                                    <div class="product-meta"><?php echo dash_h($discountCode['description'] ?? ''); ?></div>
+                                                    <strong><?php echo DashboardHelper::h($discountCode['code'] ?? ''); ?></strong>
+                                                    <div class="product-meta"><?php echo DashboardHelper::h($discountCode['description'] ?? ''); ?></div>
                                                 </td>
                                                 <td>
                                                     <?php if ((string) ($discountCode['discount_type'] ?? 'percent') === 'fixed'): ?>
-                                                        <span class="product-price-chip"><?php echo dash_h(number_format((float) ($discountCode['value'] ?? 0), 2, '.', '')); ?> €</span>
+                                                        <span class="product-price-chip"><?php echo DashboardHelper::h(number_format((float) ($discountCode['value'] ?? 0), 2, '.', '')); ?> €</span>
                                                     <?php else: ?>
-                                                        <span class="product-price-chip"><?php echo dash_h(number_format((float) ($discountCode['value'] ?? 0), 2, '.', '')); ?> %</span>
+                                                        <span class="product-price-chip"><?php echo DashboardHelper::h(number_format((float) ($discountCode['value'] ?? 0), 2, '.', '')); ?> %</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <span class="product-stock-chip">
-                                                        min. <?php echo dash_h(number_format((float) ($discountCode['min_order_value'] ?? 0), 2, '.', '')); ?> €
+                                                        min. <?php echo DashboardHelper::h(number_format((float) ($discountCode['min_order_value'] ?? 0), 2, '.', '')); ?> €
                                                     </span>
                                                 </td>
                                                 <td>
@@ -747,8 +651,9 @@ include __DIR__ . '/partials/dashboard-header.php';
                                                 </td>
                                                 <td>
                                                     <form method="POST" action="#coupons" class="delete-form">
+                                                        <?php echo SessionHelper::csrfField(); ?>
                                                         <input type="hidden" name="form_type" value="delete_discount_code">
-                                                        <input type="hidden" name="discount_code_id" value="<?php echo dash_h($discountCode['id'] ?? ''); ?>">
+                                                        <input type="hidden" name="discount_code_id" value="<?php echo DashboardHelper::h($discountCode['id'] ?? ''); ?>">
                                                         <button type="submit" class="delete-btn" onclick="return confirm('Naozaj chceš zmazať tento zľavový kód?');">Odstrániť</button>
                                                     </form>
                                                 </td>
@@ -762,73 +667,121 @@ include __DIR__ . '/partials/dashboard-header.php';
                 </div>
             </section>
         </section>
-
+        
+        <!-- SEKCIA ORDERS -->
         <section class="dashboard-panel" id="orders" data-dashboard-panel="orders">
-            <section class="admin-card orders-management-section">
-                <div class="admin-card-head">
-                    <h2>Objednávky</h2>
-                    <span>Rýchla zmena stavu objednávky priamo v administrácii</span>
-                </div>
+            <div class="admin-content-grid">
+                
+                <article class="admin-card activity-panel">
+                    <div class="admin-card-head">
+                        <h2>Systémová aktivita</h2>
+                        <span>Objednávky, tržby a posledná aktivita</span>
+                    </div>
 
-                <?php if ($adminMailerNotice !== ''): ?>
-                    <p class="panel-success"><?php echo dash_h($adminMailerNotice); ?></p>
-                <?php endif; ?>
+                    <?php if (!empty($adminMailerError)): ?>
+                        <p class="panel-error"><?php echo DashboardHelper::h($adminMailerError); ?></p>
+                    <?php endif; ?>
 
-                <?php if ($adminMailerError !== ''): ?>
-                    <p class="panel-error"><?php echo dash_h($adminMailerError); ?></p>
-                <?php endif; ?>
+                    <div class="orders-summary-strip">
+                        <div class="orders-summary-item">
+                            <span>Dnešné objednávky</span>
+                            <strong><?php echo DashboardHelper::h($todayOrderCount ?? 0); ?></strong>
+                        </div>
+                        <div class="orders-summary-item">
+                            <span>Dnešné tržby</span>
+                            <strong><?php echo DashboardHelper::h(number_format((float)($todayRevenue ?? 0), 2, '.', ',')); ?> €</strong>
+                        </div>
+                    </div>
 
-                <div class="table-wrap recent-orders-wrap">
-                    <table class="admin-table recent-orders-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Zákazník</th>
-                                <th>Email</th>
-                                <th>Suma</th>
-                                <th>Stav</th>
-                                <th>Platba</th>
-                                <th>Zmena stavu</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($recentOrders)): ?>
+                    <div class="table-wrap">
+                        <table class="admin-table setting-table">
+                            <thead>
                                 <tr>
-                                    <td colspan="7" class="empty-cell">Žiadne objednávky nie sú k dispozícii.</td>
+                                    <th>ID</th><th>Zákazník</th><th>Email</th><th>Suma</th>
+                                    <th>Stav</th><th>Doprava</th><th>Platba</th><th>Dátum</th>
                                 </tr>
-                            <?php else: ?>
-                                <?php foreach ($recentOrders as $order): ?>
-                                    <tr>
-                                        <td><?php echo dash_h($order['id_order'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($order['customer_name'] ?? ''); ?></td>
-                                        <td><?php echo dash_h($order['customer_email'] ?? ''); ?></td>
-                                        <td><?php echo dash_h(number_format((float) ($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
-                                        <td>
-                                            <span class="message-status-badge message-status-<?php echo dash_h((string) ($order['status'] ?? 'pending')); ?>">
-                                                <?php echo dash_h((string) ($order['status'] ?? 'pending')); ?>
-                                            </span>
-                                        </td>
-                                        <td><?php echo dash_h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
-                                        <td>
-                                            <form method="POST" action="<?php echo route('/dashboard#orders'); ?>" class="order-status-form">
-                                                <input type="hidden" name="form_type" value="update_order_status">
-                                                <input type="hidden" name="order_id" value="<?php echo dash_h($order['id_order'] ?? ''); ?>">
-                                                <select name="order_status" class="order-status-select">
-                                                    <?php foreach (OrderModel::statusOptions() as $statusOption): ?>
-                                                        <option value="<?php echo dash_h($statusOption); ?>" <?php echo ((string) ($order['status'] ?? 'pending') === $statusOption) ? 'selected' : ''; ?>><?php echo dash_h($statusOption); ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                                <button type="submit" class="management-submit order-status-btn">Uložiť</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($recentOrders)): ?>
+                                    <tr><td colspan="8" class="empty-cell">Žiadne objednávky.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($recentOrders as $order): ?>
+                                        <tr>
+                                            <td><?php echo DashboardHelper::h($order['id_order'] ?? ''); ?></td>
+                                            <td><?php echo DashboardHelper::h($order['customer_name'] ?? ''); ?></td>
+                                            <td><?php echo DashboardHelper::h($order['customer_email'] ?? ''); ?></td>
+                                            <td><?php echo DashboardHelper::h(number_format((float)($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
+                                            <td><?php echo DashboardHelper::h($order['status'] ?? ''); ?></td>
+                                            <td><span class="delivery-tag"><?php echo DashboardHelper::h($order['delivery_method'] ?? 'Nezadané'); ?></span></td>
+                                            <td><?php echo DashboardHelper::h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
+                                            <td><?php echo DashboardHelper::h($order['created_at'] ?? ''); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="admin-card orders-management-section">
+                    <div class="admin-card-head">
+                        <h2>Správa objednávok</h2>
+                        <span>Rýchla zmena stavu objednávky</span>
+                    </div>
+
+                    <?php if (!empty($adminMailerNotice)): ?>
+                        <p class="panel-success"><?php echo DashboardHelper::h($adminMailerNotice); ?></p>
+                    <?php endif; ?>
+
+                    <div class="table-wrap recent-orders-wrap">
+                        <table class="admin-table recent-orders-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Zákazník</th><th>Email</th><th>Suma</th>
+                                    <th>Stav</th><th>Platba</th><th>Zmena stavu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($recentOrders)): ?>
+                                    <tr><td colspan="7" class="empty-cell">Žiadne objednávky.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($recentOrders as $order): ?>
+                                        <tr>
+                                            <td><?php echo DashboardHelper::h($order['id_order'] ?? ''); ?></td>
+                                            <td><?php echo DashboardHelper::h($order['customer_name'] ?? ''); ?></td>
+                                            <td><?php echo DashboardHelper::h($order['customer_email'] ?? ''); ?></td>
+                                            <td><?php echo DashboardHelper::h(number_format((float)($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
+                                            <td>
+                                                <span class="message-status-badge message-status-<?php echo DashboardHelper::h((string)($order['status'] ?? 'pending')); ?>">
+                                                    <?php echo DashboardHelper::h((string)($order['status'] ?? 'pending')); ?>
+                                                </span>
+                                            </td>
+                                            <td><?php echo DashboardHelper::h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
+                                            <td>
+                                                <form method="POST" action="#orders" class="order-status-form">
+                                                    <input type="hidden" name="form_type" value="update_order_status">
+                                                    <input type="hidden" name="order_id" value="<?php echo DashboardHelper::h($order['id_order'] ?? ''); ?>">
+                                                    <select name="order_status" class="order-status-select">
+                                                        <?php foreach (OrderModel::statusOptions() as $statusOption): ?>
+                                                            <option value="<?php echo DashboardHelper::h($statusOption); ?>" <?php echo ((string)($order['status'] ?? 'pending') === $statusOption) ? 'selected' : ''; ?>>
+                                                                <?php echo DashboardHelper::h($statusOption); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <button type="submit" class="management-submit order-status-btn">Uložiť</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
         </section>
+   
+        <!-- SEKCIA SETTINGS -->
         <section class="dashboard-panel" id="settings" data-dashboard-panel="settings">
              <article class="admin-card quick-tools-panel">
                     <div class="admin-card-head">
@@ -841,7 +794,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <a href="<?php echo route('/shopcart'); ?>" class="tool-btn ghost-link">Zobraziť košík</a>
                     </div>
                 </article>
-    </section>
+        </section>
 
 </main>
 

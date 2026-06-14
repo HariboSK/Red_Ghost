@@ -124,11 +124,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                 <p class="profile-popup-email"><?php echo htmlspecialchars($profileEmail !== '' ? $profileEmail : ($profileName !== '' ? $profileName : 'Prihlaseny pouzivatel'), ENT_QUOTES, 'UTF-8'); ?></p>
                 <p class="profile-popup-points">Body z nákupov: <strong><?php echo $profilePoints; ?></strong></p>
                 
-                <!-- TU BOL DUPLICITNÝ HTMLSPECIALCHARS - OPRAVENÉ -->
                 <?php $targetRoute = ($userRole === 'admin') ? route('/dashboard') : route('/userprofile'); ?>
                 <a href="<?php echo htmlspecialchars($targetRoute, ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prejsť na profil</a>
               <?php else: ?>
-                <p class="profile-popup-email">Niesieš prihlásený.</p>
+                <p class="profile-popup-email">Není si prihlásený.</p>
                 <a href="<?php echo htmlspecialchars(route('/login'), ENT_QUOTES, 'UTF-8'); ?>" class="profile-popup-link">Prihlás sa</a>
               <?php endif; ?>
             </div>

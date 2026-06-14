@@ -44,7 +44,7 @@ if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['form_t
 
 if (class_exists('ProductModel') && ($pdo instanceof PDO)) {
     $productModel = new ProductModel($pdo);
-    $products = $productModel->findAll(); // alebo tvoja metóda na vytiahnutie produktov
+    $products = $productModel->findAll();
 }
 
 ?>

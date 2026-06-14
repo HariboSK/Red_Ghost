@@ -40,7 +40,7 @@ class Router
         '/404.php' => ['errors.css', 'style.css'],
         '/error500' => ['errors.css', 'style.css'],
         '/error500.php' => ['errors.css', 'style.css'],
-        '/profile-edit' => ['style.css','profileEdit.css'],
+        '/profile-edit' => ['style.css','userprofile.css'],
     ];
 
     public function __construct()

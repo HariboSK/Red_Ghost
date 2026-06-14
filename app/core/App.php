@@ -24,7 +24,7 @@ class App
 
     private static function loadCore(string $projectRoot): void
     {
-        // Load database configuration FIRST
+        // Načítanie konfiguračného súboru
         require_once $projectRoot . '/config/config.php';
 
         $coreFiles = [
@@ -41,6 +41,8 @@ class App
             '/app/core/SessionManager.php',
             '/app/core/ShopService.php',
             '/app/core/UploadAvatar.php',
+            '/app/core/CartService.php',
+            '/app/core/ProductController.php',
             '/app/core/middleware/Function.php',
         ];
 
@@ -61,6 +63,8 @@ class App
             '/app/models/ProductReviewModel.php',
             '/app/models/ShopReviewModel.php',
             '/app/models/UserModel.php',
+            '/app/models/UserEditModule.php',
+            '/app/models/UserProfileModule.php',
         ];
 
         foreach ($modelFiles as $file) {

@@ -5,7 +5,6 @@ class DashboardHelper
 {
     private static ?array $baseDashboardState = null;
 
-
     public static function h(mixed $value): string
     {
         if (is_array($value)) {
@@ -138,6 +137,13 @@ class DashboardHelper
             return;
         }
 
+        // Kontrola CSRF tokenu pred spracovaním akejkoľvek POST požiadavky
+        $submittedToken = $post['csrf_token'] ?? null;
+        if (!SessionHelper::verifyCsrfToken($submittedToken)) {
+            $state['adminMailerError'] = 'Neplatný bezpečnostný token. Akcia bola zamietnutá.';
+            return;
+        }
+
         $productModel = class_exists('ProductModel') ? new ProductModel($pdo) : null;
         $discountCodeModel = new DiscountCodeModel($pdo);
         $contactMessageModel = new ContactMessageModel($pdo);
@@ -238,7 +244,7 @@ class DashboardHelper
             }
         }
 
-        if ($formType === 'create_product' || $formType === 'update_product') {
+        if ($formType === 'create_product' || $formType === 'edit_product') {
             if (!class_exists('ProductModel')) {
                 $state['productError'] = 'Funkcionalita produktov nie je momentálne dostupná.';
             } else {
@@ -250,19 +256,16 @@ class DashboardHelper
                     $productId = filter_var($post['product_id'] ?? null, FILTER_VALIDATE_INT);
                     try {
                         if ($formType === 'create_product') {
-                            // zápis do DB
                             $productModel->create($productValidation['payload']);
                             $state['productNotice'] = 'Produkt bol úspešne pridaný.';
                         } elseif ($productId && $productId > 0) {
-                            // volanie modelu pre úpravu v DB
                             $productModel->update((int) $productId, $productValidation['payload']);
                             $state['productNotice'] = 'Produkt bol úspešne upravený.';
                         } else {
                             $state['productError'] = 'Neplatné ID produktu.';
                         }
                     } catch (PDOException $exception) {
-                        // Ak by zlyhala databáza (napr. chýbajúca tabuľka), vypíše sa toto:
-                        $state['productError'] = 'Produkt sa nepodarilo uložiť do databázy: ' . $exception->getMessage();
+                        $state['productError'] = 'Produkt sa nepodarilo uložiť do databázy.';
                     }
                 }
             }
@@ -359,7 +362,7 @@ class DashboardHelper
                 'delete_message' => '#mailer',
                 'delete_all_messages' => '#mailer',
                 'create_product' => '#products',
-                'update_product' => '#products',
+                'edit_product' => '#products',
                 'delete_product' => '#products',
                 'create_discount_code' => '#coupons',
                 'delete_discount_code' => '#coupons',
@@ -410,7 +413,7 @@ class DashboardHelper
                 $state['productError'] = 'Funkcionalita produktov nie je momentálne dostupná.';
             }
         } catch (PDOException $exception) {
-            $state['productError'] = 'Nepodarilo sa načítať produkty: ' . $exception->getMessage();
+            $state['productError'] = 'Nepodarilo sa načítať produkty.';
         }
 
         try {
@@ -440,112 +443,4 @@ class DashboardHelper
             $state['recentOrders'] = [];
         }
     }
-}
-
-// Procedurálne funkcie na spodu súboru
-function dash_h($value): string
-{
-    return DashboardHelper::h($value);
-}
-
-function dashboard_mark_message_as_read(PDO $pdo, int $messageId): bool
-{
-    return (new ContactMessageModel($pdo))->markAsRead($messageId);
-}
-
-function dashboard_get_unread_messages(PDO $pdo): array
-{
-    return (new ContactMessageModel($pdo))->getUnread();
-}
-
-function dashboard_get_contact_messages(PDO $pdo): array
-{
-    return (new ContactMessageModel($pdo))->getAll();
-}
-
-function dashboard_reply_to_message(PDO $pdo, int $messageId, string $replyText): bool
-{
-    return (new ContactMessageModel($pdo))->reply($messageId, $replyText);
-}
-
-function dashboard_delete_message(PDO $pdo, int $messageId): bool
-{
-    return (new ContactMessageModel($pdo))->delete($messageId);
-}
-
-function dashboard_delete_all_messages(PDO $pdo): bool
-{
-    return (new ContactMessageModel($pdo))->deleteAll();
-}
-
-function dashboard_get_messages_by_email(PDO $pdo, string $email): array
-{
-    return (new ContactMessageModel($pdo))->getByEmail($email);
-}
-
-function dashboard_get_admin_users(PDO $pdo): array
-{
-    return (new UserModel($pdo))->getAdmins();
-}
-
-function dashboard_get_registered_users(PDO $pdo): array
-{
-    return (new UserModel($pdo))->getRegistered();
-}
-
-function dashboard_get_products(PDO $pdo): array
-{
-    if (!class_exists('ProductModel')) {
-        return [];
-    }
-    return (new ProductModel($pdo))->findAll();
-}
-
-function dashboard_get_discount_codes(PDO $pdo): array
-{
-    return (new DiscountCodeModel($pdo))->getAll();
-}
-
-function dashboard_get_today_order_summary(PDO $pdo): array
-{
-    return (new OrderModel($pdo))->getTodaySummary();
-}
-
-function dashboard_get_coupon_count(array $discountCodes): int
-{
-    return DashboardHelper::getCouponCount($discountCodes);
-}
-
-function dashboard_create_product(PDO $pdo, array $data): void
-{
-    if (!class_exists('ProductModel')) {
-        throw new RuntimeException('Product functionality not available');
-    }
-    (new ProductModel($pdo))->create($data);
-}
-
-function dashboard_update_product(PDO $pdo, int $productId, array $data): void
-{
-    if (!class_exists('ProductModel')) {
-        throw new RuntimeException('Product functionality not available');
-    }
-    (new ProductModel($pdo))->update($productId, $data);
-}
-
-function dashboard_create_discount_code(PDO $pdo, array $data): void
-{
-    (new DiscountCodeModel($pdo))->create($data);
-}
-
-function dashboard_delete_discount_code(PDO $pdo, int $discountCodeId): void
-{
-    (new DiscountCodeModel($pdo))->delete($discountCodeId);
-}
-
-function dashboard_delete_product(PDO $pdo, int $productId): void
-{
-    if (!class_exists('ProductModel')) {
-        throw new RuntimeException('Product functionality not available');
-    }
-    (new ProductModel($pdo))->delete($productId);
 }

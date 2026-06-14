@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`order` (
   `total_price` DECIMAL(10,2) NULL DEFAULT NULL,
   `delivery_method` VARCHAR(50) NULL DEFAULT 'standard',
   `status` ENUM('pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded') NULL DEFAULT 'pending',
-`delivery_method` ENUM('courier', 'post', 'alzabox') NULL DEFAULT NULL,
+  `delivery_method` ENUM('courier', 'post', 'alzabox') NULL DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   `user_id` INT(11) NULL DEFAULT NULL,
@@ -218,6 +218,7 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`product` (
   `rating` INT(11) NULL DEFAULT 0,
   `featured` TINYINT(4) NULL DEFAULT 0,
   `stock` INT(11) NULL DEFAULT 0,
+  `discount` INT(3) NULL DEFAULT 0,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id_product`)

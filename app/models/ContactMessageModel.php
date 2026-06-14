@@ -244,4 +244,78 @@ class ContactMessageModel extends BaseModel
 
         return is_array($rows) ? $rows : [];
     }
+
+    // Validácia polí kontaktného formulára pred uložením
+    public function validate(array $data): array
+    {
+        $errors = [];
+        $name = trim((string) ($data['name'] ?? ''));
+        $email = trim((string) ($data['email'] ?? ''));
+        $subject = trim((string) ($data['subject'] ?? ''));
+        $message = trim((string) ($data['message'] ?? ''));
+
+        $nameLength = function_exists('mb_strlen') ? mb_strlen($name) : strlen($name);
+        $subjectLength = function_exists('mb_strlen') ? mb_strlen($subject) : strlen($subject);
+        $messageLength = function_exists('mb_strlen') ? mb_strlen($message) : strlen($message);
+
+        if ($name === '' || $nameLength < 2 || $nameLength > 100) {
+            $errors[] = 'Meno musí mať aspoň 2 znaky a najviac 100 znakov.';
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Zadajte platnú emailovú adresu.';
+        }
+
+        if ($subject === '' || $subjectLength < 3 || $subjectLength > 150) {
+            $errors[] = 'Predmet musí mať aspoň 3 znaky a najviac 150 znakov.';
+        }
+
+        if ($message === '' || $messageLength < 10 || $messageLength > 5000) {
+            $errors[] = 'Správa musí mať aspoň 10 znakov a najviac 5000 znakov.';
+        }
+
+        return $errors;
+    }
+
+    // Založenie nového vlákna správy a vloženie prvého textu od používateľa
+    public function createNewMessage(string $name, string $email, string $subject, string $messageText): bool
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+            // 1. Vytvorenie hlavného záznamu správy
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO contact_messages (sender_name, sender_email, subject, status)
+                 VALUES (:sender_name, :sender_email, :subject, :status)'
+            );
+            $stmt->execute([
+                ':sender_name'  => $name,
+                ':sender_email' => $email,
+                ':subject'      => $subject,
+                ':status'       => 'new',
+            ]);
+
+            // Získanie ID vygenerovanej správy (používa sa správny stĺpec id_contact_msg)
+            $messageId = (int) $this->pdo->lastInsertId();
+
+            // 2. Vloženie textu správy do previazanej tabuľky replies
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO contact_replies (sender_type, message_text, id_message)
+                 VALUES (:sender_type, :message_text, :id_message)'
+            );
+            $stmt->execute([
+                ':sender_type'  => 'user',
+                ':message_text' => $messageText,
+                ':id_message'   => $messageId,
+            ]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return false;
+        }
+    }
 }

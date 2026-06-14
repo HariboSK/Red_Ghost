@@ -21,7 +21,6 @@ if (!$conn && class_exists('Database')) {
     }
 }
 
-// Ak spojenie stále neexistuje, vyhodiť bezpečné stopnutie
 if (!$conn) {
     $_SESSION['checkout_error'] = 'Chyba aplikácie: Databázové spojenie ($conn) nie je k dispozícii.';
     header('Location: /payment');
@@ -34,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $sessionUser = SessionHelper::user();
-// Ak je používateľ prihlásený, vezme ID. Ak nie je, priradí striktne null, čo DB akceptuje
 $userId = (isset($sessionUser['id']) && (int)$sessionUser['id'] > 0) ? (int)$sessionUser['id'] : null;
 $userEmail = (string) ($sessionUser['email'] ?? '');
 
@@ -56,9 +54,7 @@ $street = '';
 $city = ''; 
 $zip = '';
 
-// --- UPRAVENÁ LOGIKA ADRESY PODĽA SPÔSOBU PLATBY ---
 if ($paymentMethod === 'card' || $paymentMethod === 'transfer') {
-    // Platba kartou alebo prevodom -> berieme základnú adresu z 1. kroku
     $street = trim((string) ($_POST['street'] ?? ''));
     $city = trim((string) ($_POST['city'] ?? ''));
     $zip = trim((string) ($_POST['zip'] ?? ''));
@@ -69,7 +65,6 @@ if ($paymentMethod === 'card' || $paymentMethod === 'transfer') {
         exit;
     }
 } else {
-    // Platba na dobierku (cash) -> rozlišujeme špecifické spôsoby dopravy
     if ($deliveryMethod === 'alzabox') {
         $boxName = trim((string) ($_POST['alzabox_name'] ?? ''));
         $boxCode = trim((string) ($_POST['alzabox_code'] ?? ''));
@@ -98,7 +93,6 @@ if ($paymentMethod === 'card' || $paymentMethod === 'transfer') {
         $zip = $pZip;
 
     } elseif ($deliveryMethod === 'courier') {
-        // Kuriér pre dobierku
         $street = trim((string) ($_POST['courier_street'] ?? ''));
         $city = trim((string) ($_POST['courier_city'] ?? ''));
         $zip = trim((string) ($_POST['courier_zip'] ?? ''));
@@ -109,7 +103,6 @@ if ($paymentMethod === 'card' || $paymentMethod === 'transfer') {
             exit;
         }
     } else {
-        // Záložné riešenie (ak by zlyhala hodnota deliveryMethod)
         $street = trim((string) ($_POST['street'] ?? ''));
         $city = trim((string) ($_POST['city'] ?? ''));
         $zip = trim((string) ($_POST['zip'] ?? ''));
@@ -122,7 +115,6 @@ if ($paymentMethod === 'card' || $paymentMethod === 'transfer') {
     }
 }
 
-// Spoločná finálna kontrola základných osobných údajov a priradenej adresy
 if ($customerName === '' || $customerEmail === '' || $customerPhone === '' || $city === '' || $street === '' || $zip === '') {
     $_SESSION['checkout_error'] = 'Vyplň všetky povinné dodacie údaje.';
     header('Location: /payment');
@@ -146,48 +138,16 @@ $orderItems = [];
 try {
     $conn->beginTransaction();
 
-    $productStmt = $conn->prepare('SELECT id_product, name, price, stock FROM product WHERE id_product = :id_product LIMIT 1 FOR UPDATE');
+    $productStmt = $conn->prepare('SELECT id_product, name, price, stock, discount FROM product WHERE id_product = :id_product LIMIT 1 FOR UPDATE');
     $updateStockStmt = $conn->prepare('UPDATE product SET stock = stock - :quantity WHERE id_product = :id_product');
     
-    $orderStmt = $conn->prepare(
-                                'INSERT INTO `order`
-                                (
-                                    user_id,
-                                    customer_name,
-                                    customer_email,
-                                    customer_phone,
-                                    total_price,
-                                    status,
-                                    delivery_method,
-                                    created_at
-                                )
-                                VALUES
-                                (
-                                    :user_id,
-                                    :customer_name,
-                                    :customer_email,
-                                    :customer_phone,
-                                    :total_price,
-                                    :status,
-                                    :delivery_method,
-                                    NOW()
-                                )'
-    );
+    $orderStmt = $conn->prepare('INSERT INTO `order` (user_id, customer_name, customer_email, customer_phone, total_price, status, delivery_method, created_at) VALUES (:user_id, :customer_name, :customer_email, :customer_phone, :total_price, :status, :delivery_method, NOW())');
     
-    $orderItemStmt = $conn->prepare(
-        'INSERT INTO `order_item` (id_order, id_product, quantity, price)
-         VALUES (:id_order, :id_product, :quantity, :price)'
-    );
+    $orderItemStmt = $conn->prepare('INSERT INTO `order_item` (id_order, id_product, quantity, price) VALUES (:id_order, :id_product, :quantity, :price)');
     
-    $addressStmt = $conn->prepare(
-        'INSERT INTO `order_address` (type, street, city, zip, country, id_order)
-         VALUES (:type, :street, :city, :zip, :country, :id_order)'
-    );
+    $addressStmt = $conn->prepare('INSERT INTO `order_address` (type, street, city, zip, country, id_order) VALUES (:type, :street, :city, :zip, :country, :id_order)');
     
-    $paymentStmt = $conn->prepare(
-        'INSERT INTO `payment` (id_order, payment_method, amount, status, paid_at)
-         VALUES (:id_order, :payment_method, :amount, :status, NULL)'
-    );
+    $paymentStmt = $conn->prepare('INSERT INTO `payment` (id_order, payment_method, amount, status, paid_at) VALUES (:id_order, :payment_method, :amount, :status, NULL)');
 
     foreach ($cart as $item) {
         $productId = (int) ($item['id_product'] ?? ($item['id'] ?? 0));
@@ -209,7 +169,15 @@ try {
             throw new RuntimeException('Na sklade nie je dosť kusov pre produkt: ' . (string) ($product['name'] ?? 'Produkt'));
         }
 
-        $unitPrice = (float) ($product['price'] ?? 0);
+        // VÝPOČET CENY SO ZĽAVOU
+        $basePrice = (float) ($product['price'] ?? 0);
+        $discount = (float) ($product['discount'] ?? 0);
+        $unitPrice = $basePrice;
+
+        if ($discount > 0) {
+            $unitPrice = $basePrice * (1 - ($discount / 100));
+        }
+
         $lineTotal = $unitPrice * $quantity;
 
         $orderItems[] = [
@@ -229,7 +197,6 @@ try {
         throw new RuntimeException('Celková suma objednávky je neplatná.');
     }
 
-    // --- BEZPEČNÉ NAVIAZANIE HODNÔT (Rieši prechod NULL do foreign key) ---
     $orderStmt->bindValue(':user_id', $userId, $userId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
     $orderStmt->bindValue(':customer_name', $customerName, PDO::PARAM_STR);
     $orderStmt->bindValue(':customer_email', $customerEmail, PDO::PARAM_STR);
@@ -249,7 +216,6 @@ try {
         ]);
     }
 
-    // Zápis do order_address 
     $addressStmt->execute([
         ':id_order' => $orderId,
         ':type' => 'shipping',
@@ -266,7 +232,6 @@ try {
         ':status' => 'pending',
     ]);
 
-    // Loyalty body dáme len ak je užívateľ reálne registrovaný a prihlásený
     if ($userId !== null && $userId > 0) {
         $pointsStmt = $conn->prepare('UPDATE `user` SET loyalty_points = COALESCE(loyalty_points, 0) + :points WHERE id = :user_id');
         $pointsStmt->execute([':points' => 50, ':user_id' => $userId]);
@@ -288,7 +253,7 @@ try {
     }
 
     error_log('[checkout] ' . $e->getMessage());
-    $_SESSION['checkout_error'] = 'Chyba databázy/kódu: ' . $e->getMessage() . ' v súbore ' . $e->getFile() . ' na riadku ' . $e->getLine();
+    $_SESSION['checkout_error'] = 'Chyba databázy/kódu: ' . $e->getMessage();
     header('Location: /payment');
     exit;
 }

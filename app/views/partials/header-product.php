@@ -7,7 +7,7 @@ App::init();
 
 $resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
   ? $pageTitle
-  : Helper::getPageTitle() . ' - E-shop';
+  : Helper::getPageTitle() . ' - Produkt';
 
 require_once dirname(__DIR__, 2) . '/core/SessionHelper.php';
 SessionHelper::bootstrap();

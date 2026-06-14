@@ -5,7 +5,7 @@ require_once dirname(__DIR__, 1) . '/App.php';
 
 App::init();
 
-// Poistka pre DB pripojenie z config.php
+// Poistka pre DB pripojenie
 if (!isset($conn) || !($conn instanceof PDO)) {
     $back = $_POST['return_to'] ?? '/shop';
     set_flash('error', 'Košík sa nepodarilo aktualizovať.');
@@ -16,15 +16,12 @@ if (!isset($conn) || !($conn instanceof PDO)) {
 function NormalizeImagePath(string $image): string
 {
     $image = trim($image);
-
     if ($image === '') {
         return '/assets/images/omacka3.webp';
     }
-
     if (preg_match('~^(https?:)?//~i', $image) === 1 || strpos($image, '/') === 0) {
         return preg_replace('~\.(jpe?g)$~i', '.webp', $image);
     }
-
     return preg_replace('~\.(jpe?g)$~i', '.webp', '/assets/images/' . ltrim($image, '/'));
 }
 
@@ -37,8 +34,8 @@ if ($productId <= 0) {
     exit;
 }
 
-// Kontrola existencie produktu a skladu
-$stmt = $conn->prepare('SELECT id_product AS id, name, price, stock, image FROM product WHERE id_product = :id LIMIT 1');
+// 1. Získanie dát z databázy
+$stmt = $conn->prepare('SELECT id_product AS id, name, price, stock, image, discount FROM product WHERE id_product = :id LIMIT 1');
 $stmt->execute(['id' => $productId]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -48,6 +45,17 @@ if (!is_array($product)) {
     exit;
 }
 
+// 2. Výpočet zľavnenej ceny
+$originalPrice = (float) $product['price'];
+$discount = (int) ($product['discount'] ?? 0);
+$finalPrice = $originalPrice;
+
+if ($discount > 0) {
+    // Výpočet: Cena - (Cena * Zľava / 100)
+    $finalPrice = $originalPrice - ($originalPrice * $discount / 100);
+}
+
+// 3. Kontrola skladu
 $stock = (int) ($product['stock'] ?? 0);
 
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
@@ -63,19 +71,22 @@ if ($requested > $stock) {
     exit;
 }
 
+// 4. Pridanie alebo aktualizácia v SESSION
+// Ak produkt v košíku nie je, vytvoríme ho
 if (!isset($_SESSION['cart'][$productId])) {
     $_SESSION['cart'][$productId] = [
         'id' => $productId,
         'name' => $product['name'],
-        'price' => (float) $product['price'],
         'quantity' => 0,
         'image' => NormalizeImagePath((string) ($product['image'] ?? '')),
     ];
 }
 
+// Vždy aktualizujeme cenu a množstvo (aby bola cena vždy aktuálna podľa DB)
 $_SESSION['cart'][$productId]['quantity'] += 1;
 $_SESSION['cart'][$productId]['name'] = $product['name'];
-$_SESSION['cart'][$productId]['price'] = (float) $product['price'];
+$_SESSION['cart'][$productId]['price'] = $finalPrice;         // Zľavnená cena
+$_SESSION['cart'][$productId]['original_price'] = $originalPrice; // Pôvodná cena
 $_SESSION['cart'][$productId]['image'] = NormalizeImagePath((string) ($product['image'] ?? ''));
 
 set_flash('success', 'Produkt bol pridaný do košíka.');

@@ -16,9 +16,7 @@ class Database
 
     private function connect(): void
     {
-        $dsn = "mysql:host={$this->host};
-                dbname={$this->dbname};
-                charset=utf8mb4";
+        $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
 
         $this->connection = new PDO($dsn, $this->username, $this->password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

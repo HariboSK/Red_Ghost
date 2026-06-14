@@ -1,143 +1,47 @@
 <?php
+declare(strict_types=1);
+
 SessionHelper::bootstrap();
 
 $sessionUser = SessionHelper::user();
-$avatarFile = (string) ($sessionUser['image'] ?? '');
-$avatarFsPath = $avatarFile !== ''
-    ? dirname(__DIR__, 2) . '/public/uploads/avatars/' . $avatarFile
-    : '';
-$avatarUrl = ($avatarFile !== '' && is_file($avatarFsPath))
-    ? '/uploads/avatars/' . rawurlencode($avatarFile)
-    : '';
-$avatarInitial = strtoupper(substr(trim((string) ($sessionUser['name'] ?? 'A')), 0, 1));
-$profileEmail = (string) ($sessionUser['email'] ?? '');
-$profilePhone = (string) ($sessionUser['phone'] ?? '');
-$profileName = (string) ($sessionUser['name'] ?? '');
-$isLoggedIn = (bool) ($sessionUser['is_logged_in'] ?? false);
-$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
-$profileMessages = [];
-$profileMessagesError = '';
-$profileNotice = (string) ($_SESSION['profileNotice'] ?? '');
-$profileError = (string) ($_SESSION['profileError'] ?? '');
-
-unset($_SESSION['profileNotice'], $_SESSION['profileError']);
-
-// Ak používateľ nie je prihlásený, presmerujeme ho
-if (!$isLoggedIn) {
+if (!($sessionUser['is_logged_in'] ?? false)) {
     (new Redirect(route('/login')))->redirect();
 }
 
-// ==============================
-// SPRAVA OD POUŽÍVATEĽA -> ADMIN
-// ==============================
-if ((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string) ($_POST['form_type'] ?? '') === 'reply_to_admin') {
-    $messageId = filter_var($_POST['message_id'] ?? null, FILTER_VALIDATE_INT);
-    $replyText = trim((string) ($_POST['reply_text'] ?? ''));    
-    $userId = filter_var($sessionUser['id'] ?? null, FILTER_VALIDATE_INT);
+$pdo = $GLOBALS['conn'] ?? null;
+if (!$pdo instanceof PDO) {
+    die("Chyba: Databázové pripojenie nie je k dispozícii.");
+}
 
-    if (!($pdo instanceof PDO)) {
-        $_SESSION['profileError'] = 'Databázové pripojenie nie je dostupné.';
-    } elseif ($replyText === '') {
-        $_SESSION['profileError'] = 'Správa nemôže byť prázdna.';
-    } else {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO `contact_messages` 
-                                (sender_name, 
-                                 sender_email, 
-                                 subject, 
-                                 id_user) 
-                                VALUES 
-                                (:sender_name, 
-                                 :sender_email, 
-                                 :subject, 
-                                 :id_user)");
-            
-            $execution = $stmt->execute([
-                ':sender_name'  => $profileName !== '' ? $profileName : 'Zákazník',
-                ':sender_email' => $profileEmail,
-                ':subject'      => $replyText,
-                ':id_user'      => $userId > 0 ? $userId : null
-            ]);
+$profileModule = new UserProfileModule($pdo);
+$userId = (int) ($sessionUser['id'] ?? 0);
 
-            if ($execution) {
-                $_SESSION['profileNotice'] = 'Správa bola úspešne odoslaná administrátorovi.';
-            } else {
-                $_SESSION['profileError'] = 'Správu sa nepodarilo odoslať.';
-            }
-        } catch (Exception $e) {
-            $_SESSION['profileError'] = 'Chyba databázy: ' . $e->getMessage();
-        }
+// Spracovanie POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_type'] ?? '') === 'reply_to_admin') {
+    $replyText = trim((string) ($_POST['reply_text'] ?? ''));
+    if ($replyText !== '' && $profileModule->sendReply($userId, $sessionUser['name'], (string)$sessionUser['email'], $replyText)) {
+        $_SESSION['profileNotice'] = 'Správa odoslaná.';
     }
-
     (new Redirect(route('/userprofile')))->redirect();
 }
 
+$viewModel = $profileModule->getViewModel($userId, $sessionUser);
+extract($viewModel); 
 
-// Načítanie správ z databázy podľa emailu prihláseného používateľa
-if ($pdo instanceof PDO && $profileEmail !== '') {
-    try {
-        $contactMessageModel = new ContactMessageModel($pdo);
-        $profileMessages = $contactMessageModel->getByEmail($profileEmail);
-    } catch (PDOException $exception) {
-        $profileMessagesError = 'Správy sa nepodarilo načítať.';
-    }
-} elseif ($profileEmail !== '') {
-    $profileMessagesError = 'Databázové pripojenie nie je dostupné.';
-}
-
-// --- DYNAMICKÉ NAČÍTANIE ---
-$profileOrders = [];
-$totalOrdersCount = 0;
-$totalSavedMoney = 0.0;
-$loyaltyPoints = 0;
-$profileOrdersError = '';
-$customerSinceYear = '—';
-
-if ($pdo instanceof PDO) {
-    $userId = filter_var($sessionUser['id'] ?? null, FILTER_VALIDATE_INT);
-
-    if ($userId && $userId > 0) {
-        try {
-            $userStmt = $pdo->prepare("SELECT telephone, loyalty_points, created_at FROM `user` WHERE id = :id");
-            $userStmt->execute([':id' => $userId]);
-            $dbUser = $userStmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($dbUser) {
-                if (isset($dbUser['telephone']) && trim((string)$dbUser['telephone']) !== '') {
-                    $profilePhone = trim((string)$dbUser['telephone']);
-                }
-                
-                $loyaltyPoints = (int) ($dbUser['loyalty_points'] ?? 0);
-                
-                if (!empty($dbUser['created_at'])) {
-                    $customerSinceYear = date('Y', strtotime($dbUser['created_at']));
-                }
-            }
-
-            // 1. Načítanie objednávok z OrderModelu pomocou ID používateľa
-            $orderModel = new OrderModel($pdo);
-            $profileOrders = $orderModel->getOrdersByUserId($userId, 12);
-            $totalOrdersCount = count($profileOrders);
-
-            // Výpočet "Ušetrené"
-            $totalSavedMoney = $totalOrdersCount * 2.50;
-
-        } catch (Exception $e) {
-            $profileOrdersError = 'Nepodarilo sa načítať históriu objednávok a profilové údaje.';
-        }
-    }
-}
+unset($_SESSION['profileNotice']);
 
 include __DIR__ . '/partials/userprofile-header.php';
 ?>
 
+<main>
+    </main>
 <main>
     <section class="profile-page">
         <div class="profile-shell">
             <aside class="profile-card">
                 <div class="avatar-wrap">
                     <?php if ($avatarUrl !== ''): ?>
-                        <img src="<?php echo htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Avatar používateľa" class="profile-avatar">
+                        <img src="<?= htmlspecialchars((string)($avatarUrl ?? ''), ENT_QUOTES, 'UTF-8'); ?>" alt="Avatar" class="profile-avatar">
                     <?php else: ?>
                         <span aria-hidden="true" class="profile-avatar-initial"><?php echo htmlspecialchars($avatarInitial !== '' ? $avatarInitial : 'A', ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php endif; ?>
@@ -180,6 +84,9 @@ include __DIR__ . '/partials/userprofile-header.php';
                         <a href="<?php echo route('/profile-edit'); ?>" class="edit-link">Upraviť profil</a>
                     </div>
 
+                    <?php if ($profileNotice !== ''): ?>
+                        <p class="panel-success"><?= htmlspecialchars($profileNotice, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
                     <div class="account-grid">
                         <article>
                             <h3>Meno a priezvisko</h3>
@@ -203,7 +110,14 @@ include __DIR__ . '/partials/userprofile-header.php';
                         </article>
                         <article>
                             <h3>Adresa</h3>
-                            <p><?= htmlspecialchars((string)($sessionUser['address'] ?? 'Hlavná 24, Bratislava'), ENT_QUOTES, 'UTF-8'); ?></p>
+                            <?php $profileAddress = trim((string) ($sessionUser['address'] ?? ''));?>
+                                <?php if ($profileAddress !== ''): ?>
+                                    <?= htmlspecialchars($profileAddress, ENT_QUOTES, 'UTF-8'); ?>
+                                <?php else: ?>
+                                    <span style="color: rgba(255,255,255,0.3); font-weight: normal; font-style: italic;">
+                                        Adresa nie je zadaná
+                                    </span>
+                                <?php endif; ?>
                         </article>
                     </div>
                 </section>
@@ -315,6 +229,7 @@ include __DIR__ . '/partials/userprofile-header.php';
                                     </div>
 
                                     <form method="POST" action="<?php echo route('/userprofile#contact'); ?>" class="message-reply-form">
+                                        <?php echo SessionHelper::csrfField(); ?>
                                         <input type="hidden" name="form_type" value="reply_to_admin">
                                         <input type="hidden" name="message_id" value="<?= htmlspecialchars((string) ($profileMessage['id'] ?? $profileMessage['id_message'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                         

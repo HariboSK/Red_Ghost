@@ -12,7 +12,7 @@ class ProductModel extends BaseModel
                     p.name,
                     p.description,
                     p.price,
-                    0 AS discount_percent,
+                    p.discount,
                     p.image,
                     MIN(c.name) AS category,
                     p.stock,
@@ -47,7 +47,7 @@ class ProductModel extends BaseModel
                     p.name,
                     p.description,
                     p.price,
-                    0 AS discount_percent,
+                    p.discount,
                     p.image,
                     MIN(c.name) AS category,
                     p.stock,
@@ -83,8 +83,8 @@ class ProductModel extends BaseModel
             $this->pdo->beginTransaction();
 
             $stmt = $this->pdo->prepare(
-                'INSERT INTO product (name, description, price, image, stock, featured, rating)
-                 VALUES (:name, :description, :price, :image, :stock, :featured, :rating)'
+                'INSERT INTO product (name, description, price, image, stock, featured, rating, discount)
+                 VALUES (:name, :description, :price, :image, :stock, :featured, :rating, :discount)'
             );
 
             $stmt->execute([
@@ -95,6 +95,7 @@ class ProductModel extends BaseModel
                 ':stock' => $data['stock'],
                 ':featured' => $data['featured'],
                 ':rating' => $data['rating'],
+                ':discount' => $data['discount'] ?? 0,
             ]);
 
             $productId = (int) $this->pdo->lastInsertId();
@@ -122,7 +123,8 @@ class ProductModel extends BaseModel
                      image = :image,
                      stock = :stock,
                      featured = :featured,
-                     rating = :rating
+                     rating = :rating,
+                     discount = :discount
                  WHERE id_product = :id'
             );
 
@@ -135,6 +137,7 @@ class ProductModel extends BaseModel
                 ':stock' => $data['stock'],
                 ':featured' => $data['featured'],
                 ':rating' => $data['rating'],
+                ':discount' => $data['discount'] ?? 0,
             ]);
 
             $this->syncProductCategory($productId, (string) ($data['category'] ?? ''));
@@ -177,6 +180,7 @@ class ProductModel extends BaseModel
         $image = trim((string) ($post['image'] ?? ''));
         $featured = isset($post['featured']) ? 1 : 0;
         $rating = filter_var($post['rating'] ?? 4, FILTER_VALIDATE_INT);
+        $discount = filter_var($post['discount'] ?? 0, FILTER_VALIDATE_FLOAT);
 
         if ($name === '' || strlen($name) < 2) {
             return ['ok' => false, 'error' => 'Názov produktu je povinný.', 'payload' => []];
@@ -194,6 +198,10 @@ class ProductModel extends BaseModel
             return ['ok' => false, 'error' => 'Kategória je povinná.', 'payload' => []];
         }
 
+        if ($discount === false || $discount === null || $discount < 0 || $discount > 100) {
+            return ['ok' => false, 'error' => 'Zadaj platnú zľavu produktu (0-100%).', 'payload' => []];
+        }
+
         return [
             'ok' => true,
             'error' => '',
@@ -206,6 +214,7 @@ class ProductModel extends BaseModel
                 'stock' => (int) $stock,
                 'featured' => $featured,
                 'rating' => max(1, min(5, (int) ($rating ?: 4))),
+                'discount' => filter_var($post['discount'] ?? 0, FILTER_VALIDATE_FLOAT) ?: 0,
             ],
         ];
     }
