@@ -8,16 +8,20 @@ class UserProfileModule {
     }
 
     public function getProfileData(int $userId, string $email): array {
-        // stats použivatela
-        $stmt = $this->pdo->prepare("SELECT unique_reset_passwd, telephone, loyalty_points, created_at FROM `user` WHERE id = :id");
+        $stmt = $this->pdo->prepare("
+            SELECT u.unique_reset_passwd, u.telephone, u.loyalty_points, u.created_at, a.street 
+            FROM `user` u
+            LEFT JOIN address a ON u.id = a.id_user
+            WHERE u.id = :id
+        ");
         $stmt->execute([':id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-        // objednavky
+        //Objednávky
         $orderModel = new OrderModel($this->pdo);
         $orders = $orderModel->getOrdersByUserId($userId, 12);
 
-        // spravy
+        //Správy
         $contactModel = new ContactMessageModel($this->pdo);
         $messages = $contactModel->getByEmail($email);
 
@@ -56,6 +60,8 @@ class UserProfileModule {
         'profileMessages'     => $data['messages'],
         'profileName'         => $profileName,
         'profileEmail'        => $profileEmail,
+        'profileAddress'    => trim((string) ($data['user']['street'] ?? '')), 
+        'profilePhone'      => trim((string) ($data['user']['telephone'] ?? '')),
         'avatarInitial'       => mb_substr($profileName, 0, 1),
         'avatarUrl'           => $this->getAvatarUrl($sessionUser['image'] ?? null),
         'customerSinceYear'   => date('Y', strtotime($data['user']['created_at'] ?? 'now')),

@@ -30,7 +30,7 @@ class UserEditModule {
             return false;
         }
     }
-
+    
     private function updateAddress(int $userId, array $data): void {
         // Skontrolujeme, či adresa existuje
         $stmt = $this->pdo->prepare('SELECT id_address FROM address WHERE id_user = :id_user');

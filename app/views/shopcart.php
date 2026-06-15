@@ -18,6 +18,8 @@ $cartItems = $cartDetails['items'] ?? [];
 $cartSummary = $cartDetails['summary'] ?? ['count' => 0, 'subtotal' => 0.0, 'shipping' => 0.0, 'discount' => 0.0, 'total' => 0.0];
 $discountFlash = $cartDetails['discount_flash'] ?? null;
 
+unset($_SESSION['$discountFlash']);
+
 include __DIR__ . '/partials/header-product.php';
 ?>
 

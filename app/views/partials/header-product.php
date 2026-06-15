@@ -73,6 +73,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Jakub Chrkavy">
+  <meta name="csrf-token" content="<?php echo SessionHelper::getCsrfToken(); ?>">
   <meta name="description"
     content="Objav nasu ponuku chilli papriciek - klikni a ochutnaj palivu vasen zo slovenskych zahrad! Vyber si svoju palivost - od jemneho Jalapena po extremne Carolina Reaper!">
   <title><?php echo $resolvedPageTitle; ?></title>

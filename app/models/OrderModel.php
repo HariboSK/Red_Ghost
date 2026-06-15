@@ -43,23 +43,25 @@ class OrderModel extends BaseModel
     {
         $limit = max(1, min($limit, 200));
 
-        $sql = "
-            SELECT
-                o.id_order,
-                o.customer_name,
-                o.customer_email,
-                o.customer_phone,
-                o.total_price,
-                o.status,
-                o.created_at,
-                o.delivery_method,
-                p.payment_method,
-                p.status AS payment_status
-            FROM `order` o
-            LEFT JOIN payment p ON p.id_order = o.id_order
-            ORDER BY o.created_at DESC
-            LIMIT {$limit}
-        ";
+            $sql = "
+                SELECT
+                    o.id_order,
+                    o.customer_name,
+                    o.customer_email,
+                    o.customer_phone,
+                    o.total_price,
+                    o.status,
+                    o.created_at,
+                    o.delivery_method,
+                    oa.street AS street,
+                    p.payment_method,
+                    p.status AS payment_status
+                FROM `order` o
+                LEFT JOIN payment p ON p.id_order = o.id_order
+                LEFT JOIN order_address oa ON oa.id_order = o.id_order -- TU ZMEŇ INNER NA LEFT
+                ORDER BY o.created_at DESC
+                LIMIT {$limit}
+            ";
 
         $stmt = $this->pdo->query($sql);
         if (!($stmt instanceof PDOStatement)) {
@@ -83,6 +85,7 @@ class OrderModel extends BaseModel
                 o.id_order,
                 o.customer_name,
                 o.customer_email,
+                oa.street,
                 o.total_price,
                 o.status,
                 o.created_at,
@@ -90,6 +93,7 @@ class OrderModel extends BaseModel
                 p.status AS payment_status
             FROM `order` o
             LEFT JOIN payment p ON p.id_order = o.id_order
+            INNER JOIN order_address oa ON oa.id_order = o.id_order
             WHERE o.user_id = :user_id
             ORDER BY o.created_at DESC
             LIMIT {$limit}

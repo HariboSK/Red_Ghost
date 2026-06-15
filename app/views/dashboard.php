@@ -773,12 +773,12 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <thead>
                                 <tr>
                                     <th>ID</th><th>Zákazník</th><th>Email</th><th>Suma</th>
-                                    <th>Stav</th><th>Doprava</th><th>Platba</th><th>Dátum</th>
+                                    <th>Stav</th><th>Doprava</th><th>Adresa</th><th>Platba</th><th>Dátum</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($recentOrders)): ?>
-                                    <tr><td colspan="8" class="empty-cell">Žiadne objednávky.</td></tr>
+                                    <tr><td colspan="9" class="empty-cell">Žiadne objednávky.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($recentOrders as $order): ?>
                                         <tr>
@@ -788,6 +788,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                                             <td><?php echo DashboardHelper::h(number_format((float)($order['total_price'] ?? 0), 2, '.', ',')); ?> €</td>
                                             <td><?php echo DashboardHelper::h($order['status'] ?? ''); ?></td>
                                             <td><span class="delivery-tag"><?php echo DashboardHelper::h($order['delivery_method'] ?? 'Nezadané'); ?></span></td>
+                                            <td><?php echo DashboardHelper::h($order['street'] ?? 'Adresa nie je zadaná'); ?></td>
                                             <td><?php echo DashboardHelper::h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
                                             <td><?php echo DashboardHelper::h($order['created_at'] ?? ''); ?></td>
                                         </tr>
@@ -834,8 +835,11 @@ include __DIR__ . '/partials/dashboard-header.php';
                                             <td><?php echo DashboardHelper::h(($order['payment_method'] ?? '-') . ' / ' . ($order['payment_status'] ?? '-')); ?></td>
                                             <td>
                                                 <form method="POST" action="#orders" class="order-status-form">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo SessionHelper::getCsrfToken(); ?>">
+                                                    
                                                     <input type="hidden" name="form_type" value="update_order_status">
                                                     <input type="hidden" name="order_id" value="<?php echo DashboardHelper::h($order['id_order'] ?? ''); ?>">
+                                                    
                                                     <select name="order_status" class="order-status-select">
                                                         <?php foreach (OrderModel::statusOptions() as $statusOption): ?>
                                                             <option value="<?php echo DashboardHelper::h($statusOption); ?>" <?php echo ((string)($order['status'] ?? 'pending') === $statusOption) ? 'selected' : ''; ?>>

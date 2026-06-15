@@ -156,14 +156,13 @@ include __DIR__ . '/partials/userprofile-header.php';
                         </article>
                         <article>
                             <h3>Adresa</h3>
-                            <?php $profileAddress = trim((string) ($sessionUser['address'] ?? ''));?>
-                                <?php if ($profileAddress !== ''): ?>
-                                    <?= htmlspecialchars($profileAddress, ENT_QUOTES, 'UTF-8'); ?>
-                                <?php else: ?>
-                                    <span style="color: rgba(255,255,255,0.3); font-weight: normal; font-style: italic;">
-                                        Adresa nie je zadaná
-                                    </span>
-                                <?php endif; ?>
+                                <p>
+                                    <?php if ($profileAddress !== ''): ?>
+                                        <?= htmlspecialchars($profileAddress, ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php else: ?>
+                                        <span style="color: rgba(255,255,255,0.3); font-style: italic;">Adresa nie je zadaná</span>
+                                    <?php endif; ?>
+                                </p>
                         </article>
                     </div>
                 </section>

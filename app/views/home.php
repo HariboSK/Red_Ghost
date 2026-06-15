@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-// 1. INTELIGENTNÉ VYHĽADANIE DATABÁZOVÉHO SPOJENIA
+//INTELIGENTNÉ VYHĽADANIE DATABÁZOVÉHO SPOJENIA
 $databaseConnection = $conn ?? ($pdo ?? ($db ?? ($GLOBALS['conn'] ?? ($GLOBALS['pdo'] ?? ($GLOBALS['db'] ?? null)))));
 
 if (!($databaseConnection instanceof PDO)) {
     die('Systémová chyba: Databázové pripojenie zlyhalo. Uistite sa, že súbor s pripojením k DB je načítaný pred týmto súborom (napr. v index.php alebo routeri).');
 }
 
-// 2. INICIALIZÁCIA MODELOV
+//INICIALIZÁCIA MODELOV
 $shopReviewModel = new ShopReviewModel($databaseConnection);
 $contactMessageModel = new ContactMessageModel($databaseConnection);
 
