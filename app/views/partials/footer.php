@@ -19,7 +19,9 @@
 </main>
 
 <!-- Scripts -->
-<script src="/assets/js/animaciaScript.js"></script>
+<?php if (in_array('animaciaScript.js', AssetHelper::current_page_scripts(), true)): ?>
+    <script src="/assets/js/animaciaScript.js"></script>
+<?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <!-- Swiper na recenziu musi to bud tu lebo najprv sa nacita swiper bundle -->
 <script src="/assets/js/script.js"></script>

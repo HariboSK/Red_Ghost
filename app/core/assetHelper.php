@@ -15,4 +15,17 @@ class AssetHelper
 
         return class_exists('Router') ? Router::assetsFor($requestPath) : [];
     }
+
+    public static function current_page_scripts(): array
+    {
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $requestPath = parse_url((string) $requestUri, PHP_URL_PATH);
+        $requestPath = is_string($requestPath) ? $requestPath : '/';
+
+        if (function_exists('current_path')) {
+            $requestPath = current_path();
+        }
+
+        return class_exists('Router') ? Router::scriptsFor($requestPath) : [];
+    }
 }

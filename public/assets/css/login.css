@@ -463,6 +463,54 @@ body.login-page .footer-bottom {
   padding-left: 42px;
 }
 
+/* Základný stav pre input v kľúčiku */
+.key-icon input {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid #555;
+  padding: 10px 12px 10px 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: all 0.3s ease;
+  font-size: 0.96rem;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+  width: 100%;
+}
+
+/* STAV PRI KLIKNUTÍ (FOCUS) */
+.key-icon input:focus {
+  background: rgba(255, 102, 0, 0.1);
+  border-color: #ff6600;
+  box-shadow: 0 0 10px rgba(255, 102, 0, 0.4);
+  outline: none;
+}
+
+/* CSS pre ikonu kľúčika (už netreba inline štýly v HTML) */
+.key-icon {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.key-icon .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  transition: color 0.3s ease;
+  pointer-events: none;
+}
+
+/* BONUS: Keď klikneš do inputu, tak aj samotný kľúčik zoranžovie */
+.key-icon input:focus ~ .input-icon,
+.key-icon input:focus-within ~ .input-icon {
+  color: #ff6600;
+}
+
 .input-with-icon.password-icon input {
   padding-right: 42px;
 }

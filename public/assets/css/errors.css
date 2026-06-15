@@ -10,6 +10,14 @@
   background-color: #262626;
 }
 
+.flash-message--error {
+  color: white;
+  background-color: transparent;
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: bold;
+}
+
 .error-container h1 {
   font-size: 50px;
   color: red;

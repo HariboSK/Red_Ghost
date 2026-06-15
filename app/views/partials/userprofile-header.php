@@ -20,8 +20,6 @@ $resolvedPageTitle = (isset($pageTitle) && $pageTitle !== '') ? $pageTitle : Hel
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Custom CSS -->
     <?php foreach (AssetHelper::current_page_assets() as $css): ?>
         <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">

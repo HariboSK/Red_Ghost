@@ -144,11 +144,38 @@ class DashboardHelper
             return;
         }
 
+        $userModel = new UserModel($pdo);
         $productModel = class_exists('ProductModel') ? new ProductModel($pdo) : null;
         $discountCodeModel = new DiscountCodeModel($pdo);
         $contactMessageModel = new ContactMessageModel($pdo);
         $shopReviewModel = new ShopReviewModel($pdo);
         $formType = (string) ($post['form_type'] ?? '');
+
+        if ($formType === 'change_user_password') {
+            $userId = filter_var($post['user_id'] ?? null, FILTER_VALIDATE_INT);
+            $newPassword = trim((string) ($post['new_password'] ?? ''));
+            $userName = $userId ? $userModel->getUserNameById($userId) : null;
+
+            if (!$userId || $userId < 1) {
+                set_flash('error', 'Neplatné ID používateľa.');
+            } elseif ($userName === null) {
+                set_flash('error', 'Používateľ s týmto ID neexistuje.');
+            } elseif (strlen($newPassword) < 6) {
+                set_flash('error', 'Heslo musí mať aspoň 6 znakov.');
+            } else {
+                try {
+                    $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+                    $userModel->changePassword((int) $userId, $hashedPassword);
+                    
+                    set_flash('notice', 'Heslo používateľa ' . $userName . ' (ID: ' . $userId . ') bolo úspešne zmenené.');
+                } catch (PDOException $exception) {
+                    set_flash('error', 'Nepodarilo sa aktualizovať heslo v databáze.');
+                }
+            }
+
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit();
+        }
 
         if ($formType === 'mark_message_read') {
             $messageId = filter_var($post['message_id'] ?? null, FILTER_VALIDATE_INT);
@@ -369,9 +396,25 @@ class DashboardHelper
                 'approve_shop_review' => '#reviews',
                 'delete_shop_review' => '#reviews',
                 'update_order_status' => '#orders',
+                'change_user_password' => '#users',
             ];
 
-            $state['redirectTo'] = '/dashboard' . ($redirectAnchors[$formType] ?? '');
+            $allowedRedirects = [
+                '/dashboard'        => true,
+                '/dashboard.php'    => true,
+                '/userprofile'      => true,
+                '/userprofile.php'  => true,
+            ];
+
+            $targetUrl = $post['redirect_to'] ?? '/dashboard';
+
+            if (!isset($allowedRedirects[$targetUrl])) {
+                $targetUrl = '/dashboard';
+            }
+            
+            $anchor = $redirectAnchors[$formType] ?? '';
+            
+            $state['redirectTo'] = $targetUrl . $anchor;
         }
     }
 

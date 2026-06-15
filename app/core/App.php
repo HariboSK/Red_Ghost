@@ -44,6 +44,7 @@ class App
             '/app/core/CartService.php',
             '/app/core/ProductController.php',
             '/app/core/PaymentController.php',
+            '/app/core/ForgotPasswordController.php',
             '/app/core/middleware/Function.php',
         ];
 

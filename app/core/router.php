@@ -4,6 +4,13 @@ declare(strict_types=1);
 class Router
 {
     private $routes = [];
+
+    private static $page_scripts = [
+        '/'          => ['animaciaScript.js'],
+        '/home'      => ['animaciaScript.js'],
+        '/home.php'  => ['animaciaScript.js'],
+    ];
+
     private static $page_assets = [
         '/' => ['style.css', 'animation.css'],
         '/home' => ['style.css', 'animation.css'],
@@ -42,6 +49,22 @@ class Router
         '/error500.php' => ['errors.css', 'style.css'],
         '/profile-edit' => ['style.css','userprofile.css'],
     ];
+
+    public static function scriptsFor(string $path): array
+    {
+        $basePath = function_exists('app_base_path') ? app_base_path() : '';
+        $normalizedPath = parse_url((string) $path, PHP_URL_PATH);
+        $normalizedPath = is_string($normalizedPath) ? $normalizedPath : '/';
+
+        if ($basePath !== '' && strpos($normalizedPath, $basePath) === 0) {
+            $normalizedPath = substr($normalizedPath, strlen($basePath));
+        }
+
+        $normalizedPath = '/' . trim($normalizedPath, '/');
+        $normalizedPath = ($normalizedPath === '') ? '/' : $normalizedPath;
+
+        return self::$page_scripts[$normalizedPath] ?? [];
+    }
 
     public function __construct()
     {

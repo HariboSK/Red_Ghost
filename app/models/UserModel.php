@@ -36,4 +36,19 @@ class UserModel extends BaseModel
 
         return is_array($rows) ? $rows : [];
     }
+
+    public function changePassword(int $userId, string $hashedPassword): bool
+    {
+        $stmt = $this->pdo->prepare('UPDATE user SET password = ? WHERE id = ?');
+        return $stmt->execute([$hashedPassword, $userId]);
+    }
+
+    public function getUserNameById(int $userId): ?string
+    {
+        $stmt = $this->pdo->prepare('SELECT name FROM user WHERE id = ?');
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result['name'] ?? null;
+    }
 }

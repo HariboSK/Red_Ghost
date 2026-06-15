@@ -9,7 +9,7 @@ class UserProfileModule {
 
     public function getProfileData(int $userId, string $email): array {
         // stats použivatela
-        $stmt = $this->pdo->prepare("SELECT telephone, loyalty_points, created_at FROM `user` WHERE id = :id");
+        $stmt = $this->pdo->prepare("SELECT unique_reset_passwd, telephone, loyalty_points, created_at FROM `user` WHERE id = :id");
         $stmt->execute([':id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
@@ -48,6 +48,7 @@ class UserProfileModule {
     // 2. Priprava všetky premenné
     $profileName = (string) ($sessionUser['name'] ?? 'Zákazník');
     $profileEmail = (string) ($sessionUser['email'] ?? '');
+    $uniqueResetCode = (string) ($data['user']['unique_reset_passwd'] ?? '');
     
     return [
         'dbUser'              => $data['user'],
@@ -64,6 +65,7 @@ class UserProfileModule {
         'profilePhone'        => trim((string)($data['user']['telephone'] ?? '')),
         // Inicializácia error 
         'profileNotice'       => (string) ($_SESSION['profileNotice'] ?? ''),
+        'uniqueResetCode'     => $uniqueResetCode,
         'profileError'        => '',
         'profileOrdersError'  => '',
         'profileMessagesError'=> '',

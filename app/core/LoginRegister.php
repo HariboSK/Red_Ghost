@@ -35,6 +35,22 @@ class LoginRegister
         }
     }
 
+    public function getOrGenerateResetCode(int $userId): string
+    {
+        $stmt = $this->conn->prepare('SELECT unique_reset_passwd FROM `user` WHERE id = ?');
+        $stmt->execute([$userId]);
+        $code = $stmt->fetchColumn();
+
+        if (!$code) {
+            $code = bin2hex(random_bytes(6));
+
+            $update = $this->conn->prepare('UPDATE `user` SET unique_reset_passwd = ? WHERE id = ?');
+            $update->execute([$code, $userId]);
+        }
+
+        return (string) $code;
+    }
+
     private function handleRegister(): void
     {
         $name = trim((string) ($_POST['name'] ?? ''));
@@ -43,29 +59,21 @@ class LoginRegister
         $repeatPassword = (string) ($_POST['repeat-password'] ?? '');
         $role = 'customer';
 
-        if ($passwordRaw !== $repeatPassword) {
-            $_SESSION['register_error'] = 'Hesla sa nezhoduju';
-            $_SESSION['active_form'] = 'register';
-            (new Redirect('/login.php'))->redirect();
-        }
+        $resetCode = bin2hex(random_bytes(6));
 
         $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
 
-        $checkEmail = $this->conn->prepare('SELECT 1 FROM `user` WHERE email = :email LIMIT 1');
-        $checkEmail->execute([':email' => $email]);
-
-        if ($checkEmail->fetchColumn()) {
-            $_SESSION['register_error'] = 'E-mail uz existuje';
-            $_SESSION['active_form'] = 'register';
-            (new Redirect('/login.php'))->redirect();
-        }
-
-        $insertUser = $this->conn->prepare('INSERT INTO `user` (name, email, password, role) VALUES (:name, :email, :password, :role)');
+        $insertUser = $this->conn->prepare('
+            INSERT INTO `user` (name, email, password, role, unique_reset_passwd) 
+            VALUES (:name, :email, :password, :role, :unique_reset_passwd)
+        ');
+        
         $insertUser->execute([
             ':name' => $name,
             ':email' => $email,
             ':password' => $password,
             ':role' => $role,
+            ':unique_reset_passwd' => $resetCode,
         ]);
 
         (new Redirect('/login.php'))->redirect();

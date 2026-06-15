@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`user` (
   `loyalty_points` INT(11) NULL DEFAULT 0,
   `role` ENUM('customer', 'admin') NULL DEFAULT 'customer',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `unique_reset_passwd` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email` (`email` ASC)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
@@ -154,16 +155,6 @@ CREATE TABLE IF NOT EXISTS `red_ghost`.`contact_replies` (
   CONSTRAINT `contact_replies_ibfk_1`
     FOREIGN KEY (`id_message`)
     REFERENCES `red_ghost`.`contact_messages` (`id_contact_msg`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
-
--- -----------------------------------------------------
--- Table `red_ghost`.`password_resets`
--- -----------------------------------------------------
-CREATE TABLE `red_ghost`.`password_resets` (
-    `email` VARCHAR(255) NOT NULL,
-    `token` VARCHAR(64) NOT NULL,
-    `expires_at` DATETIME NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------

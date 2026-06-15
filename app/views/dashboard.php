@@ -1,6 +1,58 @@
 <?php
 declare(strict_types=1);
 
+if (!isset($_SESSION['user_id'])) {
+    set_flash('error', 'Najskôr sa musíš prihlásiť.');
+    header('Location: /login.php');
+    exit;
+}
+
+$userRole = $_SESSION['role'] ?? ($_SESSION['user']['role'] ?? 'user');
+
+if ($userRole !== 'admin') {
+    set_flash('error', 'Nemáš práva na túto stránku. Prístup majú len administrátori.');
+    header('Location: /404.php'); 
+    exit;
+}
+
+$adminMailerNotice = '';
+$adminMailerError = '';
+
+$flash = get_flash(); 
+
+if ($flash !== null) {
+    if ($flash['type'] === 'notice') {
+        $adminMailerNotice = $flash['message'];
+    } elseif ($flash['type'] === 'error') {
+        $adminMailerError = $flash['message'];
+    }
+}
+
+$sessionUser = SessionHelper::user();
+$pdo = $conn ?? ($GLOBALS['conn'] ?? null);
+
+$dashboardState = DashboardHelper::buildDashboardState($pdo, $sessionUser, $_SERVER, $_POST);
+if (($dashboardState['redirectTo'] ?? '') !== '') {
+    (new Redirect((string) $dashboardState['redirectTo']))->redirect();
+}
+
+extract($dashboardState, EXTR_SKIP);
+
+$avatarFile = (string) ($sessionUser['image'] ?? '');
+$avatarFsPath = $avatarFile !== ''
+    ? dirname(__DIR__, 2) . '/public/uploads/avatars/' . $avatarFile
+    : '';
+$avatarUrl = ($avatarFile !== '' && is_file($avatarFsPath))
+    ? '/uploads/avatars/' . rawurlencode($avatarFile)
+    : '';
+$avatarInitial = strtoupper(substr(trim((string) ($sessionUser['name'] ?? 'A')), 0, 1));
+
+$uploadError = (string) ($_SESSION['upload_error'] ?? '');
+unset($_SESSION['upload_error']);
+
+
+include __DIR__ . '/partials/dashboard-header.php';
+
 $sessionUser = SessionHelper::user();
 $pdo = $conn ?? ($GLOBALS['conn'] ?? null);
 
@@ -127,6 +179,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                         <label for="user-avatar-file" class="management-submit user-avatar-edit-btn">
                             Edit avatara
                         </label>
+                        <input type="hidden" name="redirect_to" value="/dashboard">
                         <input type="file" name="avatar" id="user-avatar-file" class="user-avatar-input" accept="image/*" onchange="this.form.submit()">
                     </form>
 
@@ -178,8 +231,12 @@ include __DIR__ . '/partials/dashboard-header.php';
                     <span>Prihlásení a zaregistrovaní používatelia s emailom a bodmi vernosti</span>
                 </div>
 
-                <?php if ($registeredUsersError !== ''): ?>
-                    <p class="panel-error"><?php echo DashboardHelper::h($registeredUsersError); ?></p>
+                <?php if ($adminMailerNotice !== ''): ?>
+                    <p class="panel-success"><?php echo DashboardHelper::h($adminMailerNotice); ?></p>
+                <?php endif; ?>
+
+                <?php if ($adminMailerError !== ''): ?>
+                    <p class="panel-error"><?php echo DashboardHelper::h($adminMailerError); ?></p>
                 <?php endif; ?>
 
                 <div class="table-wrap">
@@ -191,12 +248,13 @@ include __DIR__ . '/partials/dashboard-header.php';
                                 <th>Email</th>
                                 <th>Body vernosti</th>
                                 <th>Role</th>
+                                <th>Zmena hesla</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($registeredUsers)): ?>
                                 <tr>
-                                    <td colspan="5" class="empty-cell">Žiadni používatelia nie sú k dispozícii.</td>
+                                    <td colspan="6" class="empty-cell">Žiadni používatelia nie sú k dispozícii.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($registeredUsers as $registeredUser): ?>
@@ -206,6 +264,23 @@ include __DIR__ . '/partials/dashboard-header.php';
                                         <td><?php echo DashboardHelper::h($registeredUser['email'] ?? ''); ?></td>
                                         <td><?php echo DashboardHelper::h($registeredUser['loyalty_points'] ?? 0); ?></td>
                                         <td><?php echo DashboardHelper::h($registeredUser['role'] ?? 'user'); ?></td>
+                                        <td>
+                                            <form action="" method="POST" style="display: inline-flex; gap: 6px; align-items: center; margin: 0;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo SessionHelper::getCsrfToken(); ?>">
+                                                <input type="hidden" name="form_type" value="change_user_password">
+                                                <input type="hidden" name="user_id" value="<?php echo DashboardHelper::h($registeredUser['id'] ?? ''); ?>">
+                                                
+                                                <div class="admin-inline-pwd" style="position: relative;">
+                                                    <input type="name" name="new_password" placeholder="Nové heslo" required 
+                                                        style="padding: 6px 10px; border: 1px solid #555; background: rgba(0,0,0,0.2); color: #fff; border-radius: 4px; font-size: 13px; width: 130px; transition: all 0.3s ease; outline: none;">
+                                                </div>
+                                                
+                                                <button type="submit" title="Uložiť nové heslo" 
+                                                        style="background: #ff6600; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: background 0.2s ease;">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
