@@ -19,7 +19,6 @@ function route($path) {
         return htmlspecialchars((string) $path, ENT_QUOTES, 'UTF-8');
     }
 
-    // Prefer centralized Router::url when available so URL logic is in one place
     if (class_exists('Router') && method_exists('Router', 'url')) {
         return Router::url($path);
     }
