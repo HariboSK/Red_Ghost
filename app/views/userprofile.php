@@ -50,8 +50,6 @@ include __DIR__ . '/partials/userprofile-header.php';
 ?>
 
 <main>
-    </main>
-<main>
     <section class="profile-page">
         <div class="profile-shell">
             <aside class="profile-card">
