@@ -9,7 +9,7 @@ $reviewModel = new ShopReviewModel($pdo);
 $reviewFormErrors = [];
 $reviewFormSuccess = '';
 
-// load data zo Session
+//load data zo Session
 $reviewFormData = $_SESSION['shop_review_data'] ?? [
     'name' => '', 
     'rating' => 5, 
@@ -17,7 +17,7 @@ $reviewFormData = $_SESSION['shop_review_data'] ?? [
 ];
 unset($_SESSION['shop_review_data']);
 
-// 2. Načítanie stavových správ zo session
+//Načítanie stavových správ zo session
 if (isset($_SESSION['shop_review_success'])) {
     $reviewFormSuccess = $_SESSION['shop_review_success'];
     unset($_SESSION['shop_review_success']);
@@ -28,7 +28,7 @@ if (isset($_SESSION['shop_review_errors'])) {
     unset($_SESSION['shop_review_errors']);
 }
 
-// 3. Spracovanie POST požiadavky
+//Spracovanie POST požiadavky
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_type'] ?? '') === 'shop_review') {
     
     // CSRF overenie
