@@ -13,20 +13,22 @@
     <div class="footer-links">
       <h3>Rýchle odkazy</h3>
       <ul>
-        <li><a href="<?php echo route('/e-shop'); ?>">Produkty</a></li>
+        <li><a href="<?php echo route('/'); ?>">Domov</a></li>
+        <li><a href="<?php echo route('/e-shop'); ?>">E-shop</a></li>
         <li><a href="<?php echo route('/shopcart'); ?>">Košík</a></li>
-        <li><a href="#">Kupóny</a></li>
-        <li><a href="#">Doprava a platba</a></li>
+        <li><a href="<?php echo route('/userprofile'); ?>">Profil</a></li>
+        <li><a href="<?php echo route('/home#testimonials'); ?>">Recenzie</a></li>
+        <li><a href="<?php echo route('/home#menu'); ?>">Produkty</a></li>
+        <li><a href="<?php echo route('/home#about'); ?>">O nás</a></li>
       </ul>
     </div>
 
     <div class="footer-links">
       <h3>Podpora</h3>
       <ul>
-        <li><a href="#">Kontakt</a></li>
-        <li><a href="#">Reklamácie</a></li>
-        <li><a href="#">Obchodné podmienky</a></li>
-        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="<?php echo route('/home#contact'); ?>">Kontakt</a></li>
+        <li><a href="<?php echo route('/rules'); ?>">Obchodné podmienky</a></li>
+        <li><a href="<?php echo route('/home/privacy'); ?>">Privacy Policy</a></li>
       </ul>
     </div>
 
@@ -79,8 +81,8 @@
       </details>
 
       <details class="faq-item">
-        <summary>Kam sa dostanem po kliknutí na FAQ?</summary>
-        <p>Nikam. Otvorí sa len toto okienko priamo na stránke, bez presmerovania.</p>
+        <summary>Ako resetnem svoje heslo?</summary>
+        <p>Keď na stránke prhlásenia klikneš na odkaz "Zabudnuté heslo", môžeš si nastaviť nové heslo. Musíš mať k dispozícii e-mailovú adresu, ktorú si pri registrácii uviedol a svoj unikátny kod ak ho nemáš požiadaj Admina v správe v stránke DOMOV a úplne dole kontakt.</p>
       </details>
 
       <details class="faq-item">
