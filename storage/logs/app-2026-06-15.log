@@ -53,3 +53,6 @@
 [2026-06-15 15:13:14] WARNING: PHP warning/notice {"severity":2,"message":"Undefined variable $name","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\views\\dashboard.php","line":270,"uri":"/dashboard"}
 [2026-06-15 15:24:15] WARNING: PHP warning/notice {"severity":2,"message":"Undefined variable $conn","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\views\\userprofile.php","line":19,"uri":"/userprofile.php"}
 [2026-06-15 15:24:15] ERROR: Uncaught exception {"type":"RuntimeException","message":"Neplatne DB pripojenie v LoginRegister.","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\core\\LoginRegister.php","line":19,"uri":"/userprofile.php"}
+[2026-06-15 16:38:52] ERROR: Uncaught exception {"type":"Error","message":"Call to undefined method SessionHelper::checkCsrfToken()","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\core\\api\\Cart.php","line":9,"uri":"/api/Cart.php?action=list"}
+[2026-06-15 16:38:52] ERROR: Uncaught exception {"type":"Error","message":"Call to undefined method SessionHelper::checkCsrfToken()","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\core\\api\\Cart.php","line":9,"uri":"/api/Cart.php?action=summary"}
+[2026-06-15 16:38:55] ERROR: Uncaught exception {"type":"Error","message":"Call to undefined method SessionHelper::checkCsrfToken()","file":"C:\\xampp\\htdocs\\Red_Ghost\\app\\core\\api\\AddToCart.php","line":9,"uri":"/api/AddToCart.php"}

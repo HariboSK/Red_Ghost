@@ -55,12 +55,17 @@ class CartService
         }
 
         $shipping = $count > 0 ? 3.9 : 0.0;
+        
+        // Načítame uloženú zľavu zo session
         $discount = abs((float) ($_SESSION['applied_discount_amount'] ?? 0));
         
-        // Spracovanie flash zľavy
+        $discountFlash = null;
         if (isset($_SESSION['discount_flash']) && is_array($_SESSION['discount_flash'])) {
-            $discount = abs((float) ($_SESSION['discount_flash']['amount'] ?? 0));
-            unset($_SESSION['discount_flash']);
+            $discountFlash = $_SESSION['discount_flash'];
+            // Ak prišla úspešná zľava vo flashi, uistíme sa, že sa započíta do sumáru
+            if (isset($_SESSION['discount_flash']['amount']) && (float)$_SESSION['discount_flash']['amount'] > 0) {
+                $discount = abs((float) $_SESSION['discount_flash']['amount']);
+            }
         }
 
         $subtotalAfterDiscount = max(0, $subtotal - $discount);
@@ -68,6 +73,7 @@ class CartService
 
         return [
             'items' => $cartItems,
+            'discount_flash' => $discountFlash, // <-- Odovzdáme flash správu do šablóny
             'summary' => [
                 'count' => $count,
                 'subtotal' => $subtotal,

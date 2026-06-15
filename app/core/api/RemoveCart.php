@@ -1,104 +1,98 @@
 <?php
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 1) . '/App.php'; 
-
+require_once dirname(__DIR__, 1) . '/App.php';
 App::init();
 
-// Poistka pre DB pripojenie z config.php
-if (!isset($conn) || !($conn instanceof PDO)) {
-    $back = $_POST['return_to'] ?? '/shop';
-    set_flash('error', 'Košík sa nepodarilo aktualizovať.');
-    header('Location: ' . $back);
-    exit;
-}
-// Akceptujeme iba POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    $back = $_POST['return_to'] ?? '/shopcart';
-    header('Location: ' . $back);
-    exit;
-}
-
-$id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-$action = isset($_POST['action']) ? (string) $_POST['action'] : 'decrement';
-$quantity = isset($_POST['quantity']) ? (int) $_POST['quantity'] : null;
+// --- ZÁKLADNÉ BEZPEČNOSTNÉ KONTROLY ---
 $returnTo = $_POST['return_to'] ?? '/shopcart';
 
-
-if (!is_string($returnTo) || strpos($returnTo, '/') !== 0) {
-    $returnTo = '/shopcart';
-} else {
-    $u = parse_url($returnTo);
-    if ($u === false || isset($u['scheme']) || isset($u['host'])) {
-        $returnTo = '/shopcart';
-    }
+// Kontrola CSRF tokenu
+$csrfToken = $_POST['csrf_token'] ?? null;
+if (!class_exists('SessionHelper') || !SessionHelper::verifyCsrfToken($csrfToken)) {
+    set_flash('error', 'Neplatná požiadavka (CSRF útok).');
+    header('Location: ' . $returnTo);
+    exit;
 }
 
+// Kontrola metódy
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ' . $returnTo);
+    exit;
+}
+
+// Validácia DB pripojenia
+$conn = $GLOBALS['conn'] ?? null;
+$dbAvailable = ($conn instanceof PDO);
+
+// --- VSTUPY ---
+$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$action = isset($_POST['action']) ? (string)$_POST['action'] : 'decrement';
+$quantity = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 0;
+
+// Ošetrenie otvoreného presmerovania (Open Redirect)
+$path = parse_url($returnTo, PHP_URL_PATH);
+$returnTo = ($path && strpos($path, '/') === 0) ? $returnTo : '/shopcart';
+
+// Inicializácia session
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Volitelne: overit produkt v DB ak je $conn dostupne
-function ProductExistsAndStock($conn, $id) {
-    if (!($conn instanceof PDO)) {
-        return null;
-    }
-    $stmt = $conn->prepare('SELECT id_product AS id, stock 
-                            FROM product 
-                            WHERE id_product = :id 
-                            LIMIT 1');
+// Pomocná funkcia pre kontrolu skladu
+function ProductExistsAndStock(PDO $conn, int $id): int {
+    $stmt = $conn->prepare('SELECT stock FROM product WHERE id_product = :id LIMIT 1');
     $stmt->execute(['id' => $id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!is_array($row)) return null;
-    return (int) ($row['stock'] ?? 0);
+    return is_array($row) ? (int)($row['stock'] ?? 0) : 0;
 }
 
-// Spracovanie akcii
+// --- LOGIKA ---
+$successMessage = 'Košík bol aktualizovaný.';
+
 switch ($action) {
     case 'decrement':
         if ($id > 0 && isset($_SESSION['cart'][$id])) {
-            $_SESSION['cart'][$id]['quantity'] = max(0, (int) ($_SESSION['cart'][$id]['quantity'] ?? 0) - 1);
+            $_SESSION['cart'][$id]['quantity'] = max(0, (int)$_SESSION['cart'][$id]['quantity'] - 1);
             if ($_SESSION['cart'][$id]['quantity'] <= 0) {
                 unset($_SESSION['cart'][$id]);
             }
+            $successMessage = 'Počet kusov bol znížený.';
         }
         break;
 
     case 'increment':
         if ($id > 0) {
-            $stock = isset($conn) && ($conn instanceof PDO) ? ProductExistsAndStock($conn, $id) : null;
-            $current = isset($_SESSION['cart'][$id]) ? (int) ($_SESSION['cart'][$id]['quantity'] ?? 0) : 0;
-            $requested = $current + 1;
-            if ($stock !== null && $requested > $stock) {
-                // prekrocenie skladu -> ignorovat alebo nastavit na max
-                if ($stock > 0) {
-                    $_SESSION['cart'][$id]['quantity'] = $stock;
-                }
-            } else {
+            $stock = $dbAvailable ? ProductExistsAndStock($conn, $id) : 9999; // Fallback ak nie je DB
+            $current = isset($_SESSION['cart'][$id]) ? (int)$_SESSION['cart'][$id]['quantity'] : 0;
+            
+            if ($current < $stock) {
                 if (!isset($_SESSION['cart'][$id])) {
-                    $_SESSION['cart'][$id] = ['id' => $id, 'name' => '', 'price' => 0, 'quantity' => 1];
+                    $_SESSION['cart'][$id] = ['id' => $id, 'quantity' => 1];
                 } else {
-                    $_SESSION['cart'][$id]['quantity'] = $requested;
+                    $_SESSION['cart'][$id]['quantity'] = $current + 1;
                 }
+                $successMessage = 'Počet kusov bol zvýšený.';
+            } else {
+                set_flash('error', 'Produkt už nie je skladom v takom množstve.');
+                header('Location: ' . $returnTo);
+                exit;
             }
         }
         break;
 
     case 'set':
         if ($id > 0) {
-            $q = $quantity === null ? 0 : max(0, $quantity);
-            if ($q <= 0) {
+            $q = max(0, $quantity);
+            $stock = $dbAvailable ? ProductExistsAndStock($conn, $id) : 9999;
+            $finalQty = ($q > $stock) ? $stock : $q;
+
+            if ($finalQty <= 0) {
                 unset($_SESSION['cart'][$id]);
+                $successMessage = 'Produkt bol odstránený.';
             } else {
-                $stock = isset($conn) && ($conn instanceof PDO) ? ProductExistsAndStock($conn, $id) : null;
-                if ($stock !== null && $q > $stock) {
-                    $q = $stock;
-                }
-                if (!isset($_SESSION['cart'][$id])) {
-                    $_SESSION['cart'][$id] = ['id' => $id, 'name' => '', 'price' => 0, 'quantity' => $q];
-                } else {
-                    $_SESSION['cart'][$id]['quantity'] = $q;
-                }
+                $_SESSION['cart'][$id] = ['id' => $id, 'quantity' => $finalQty];
+                $successMessage = 'Množstvo bolo nastavené.';
             }
         }
         break;
@@ -106,20 +100,22 @@ switch ($action) {
     case 'remove':
         if ($id > 0 && isset($_SESSION['cart'][$id])) {
             unset($_SESSION['cart'][$id]);
+            $successMessage = 'Produkt bol odstránený z košíka.';
         }
         break;
 
     case 'clear':
         $_SESSION['cart'] = [];
+        $successMessage = 'Košík bol vyprázdnený.';
         break;
 
     default:
-        http_response_code(400);
-        set_flash('error', 'Neplatná akcia');
-        break;
+        set_flash('error', 'Neplatná akcia.');
+        header('Location: ' . $returnTo);
+        exit;
 }
 
-set_flash('success', 'Produkt bol odstránený z košíka.');
-
+// --- DOKONČENIE ---
+set_flash('success', $successMessage);
 header('Location: ' . $returnTo);
 exit;

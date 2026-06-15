@@ -500,7 +500,7 @@ include __DIR__ . '/partials/dashboard-header.php';
                             <input id="quick-product-price" name="price" type="number" step="0.01" min="0" required>
 
                             <label for="quick-product-discount">Zľava (%)</label>
-                            <input id="quick-product-discount" name="discount_percent" type="number" min="0" max="100" step="0.01" value="0">
+                            <input id="quick-product-discount" name="discount" type="number" min="0" max="100" step="0.01" value="0">
 
                             <label for="quick-product-stock">Skladom (ks) *</label>
                             <input id="quick-product-stock" name="stock" type="number" min="0" required>

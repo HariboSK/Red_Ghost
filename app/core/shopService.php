@@ -59,7 +59,6 @@ class ShopService
         }
 
         $newProducts = $allProducts;
-        // Použitie PHP 8 arrow function (fn) pre čistejší kód
         usort($newProducts, fn(array $a, array $b): int => (int) ($b['id'] ?? 0) <=> (int) ($a['id'] ?? 0));
         $newProducts = array_slice($newProducts, 0, 4);
 
@@ -84,7 +83,6 @@ class ShopService
         }
 
         $price = (float) ($row['price'] ?? 0);
-        // Zoberieme reálnu zľavu z DB, ak neexistuje, dáme 0
         $discount = (float) ($row['discount'] ?? 0); 
 
         return [
@@ -94,7 +92,7 @@ class ShopService
             'image' => $image,
             'price' => $price,
             'basePrice' => $price,
-            'discount' => $discount, // <--- TOTO je kľúč, ktorý tvoj view (e_shop.php) očakáva
+            'discount' => $discount,
             'rating' => (int) ($row['rating'] ?? 4),
             'featured' => (int) ($row['featured'] ?? 0) === 1,
             'stock' => (int) ($row['stock'] ?? 0),
@@ -127,7 +125,7 @@ class ShopService
                             p.description,
                             p.image,
                             p.price,
-                            p.discount, // <--- PRIDAJ TOTO
+                            p.discount,
                             p.rating,
                             p.stock,
                             MIN(c.name) AS category

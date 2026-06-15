@@ -94,6 +94,7 @@ $renderProductCard = function(array $product) use ($returnTo) {
         </div>
         
         <form method="POST" action="<?= htmlspecialchars(function_exists('route') ? route('/api/AddToCart.php') : '/api/AddToCart.php', ENT_QUOTES, 'UTF-8') ?>" class="add_to_cart_form">
+            <?= SessionHelper::csrfField(); ?>
             <input type="hidden" name="id" value="<?= $productId ?>">
             <input type="hidden" name="return_to" value="<?= $returnTo ?>">
             <button type="submit" class="add_to_cart-btn" <?= $stock <= 0 ? 'disabled' : '' ?>>
@@ -181,6 +182,8 @@ $renderProductCard = function(array $product) use ($returnTo) {
                                     Zobraziť produkt
                                 </a>
                                 <form method="POST" action="<?= htmlspecialchars(function_exists('route') ? route('/api/AddToCart.php') : '/api/AddToCart.php', ENT_QUOTES, 'UTF-8') ?>" class="shop-banner-cart-form">
+                                    <?= SessionHelper::csrfField(); ?>
+
                                     <input type="hidden" name="id" value="<?= $bannerId ?>">
                                     <input type="hidden" name="return_to" value="<?= $returnTo ?>">
                                     <button type="submit" class="shop-banner-btn shop-banner-btn--ghost" <?= ($bannerStock <= 0 || $bannerId <= 0) ? 'disabled' : '' ?>>

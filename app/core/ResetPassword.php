@@ -17,7 +17,7 @@ class ResetPassword
             return false;
         }
 
-        // Hľadáme používateľa, ktorý má v stĺpci unique_reset_passwd presne tento kód
+        // Hľadáme používateľa, ktorý má v stĺpci unique_reset_passwd
         $stmt = $this->db->prepare('SELECT id FROM user WHERE email = :email AND unique_reset_passwd = :code');
         $stmt->execute([
             ':email' => $email,

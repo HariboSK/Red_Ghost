@@ -1,5 +1,9 @@
 // Inicializuje spravanie shop stranky po nacitani DOM.
 document.addEventListener("DOMContentLoaded", function () {
+  // Získanie CSRF tokenu z meta tagu v hlavičke
+  var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  var csrfToken = csrfMeta ? csrfMeta.content : "";
+
   var searchInputs = document.querySelectorAll(".shop-search-input");
   var headerSearchInput = document.getElementById("searchInput");
   var searchSuggestions = document.getElementById("searchSuggestions");
@@ -479,6 +483,12 @@ document.addEventListener("DOMContentLoaded", function () {
         returnToInput.name = "return_to";
         returnToInput.value = cartPageReturnTo;
 
+        // --- PRIDANIE CSRF TOKENU DO FORMULÁRA ---
+        var csrfInput = document.createElement("input");
+        csrfInput.type = "hidden";
+        csrfInput.name = "csrf_token";
+        csrfInput.value = csrfToken;
+
         var button = document.createElement("button");
         button.type = "submit";
         button.className = "cart-item-remove";
@@ -489,6 +499,7 @@ document.addEventListener("DOMContentLoaded", function () {
         form.appendChild(idInput);
         form.appendChild(actionInput);
         form.appendChild(returnToInput);
+        form.appendChild(csrfInput); // Vloženie tokenu
         form.appendChild(button);
 
         return form;
@@ -729,8 +740,6 @@ document.addEventListener("DOMContentLoaded", function () {
   applyCatalogFilters({ focusResults: false });
   refreshCartViews().catch(function () {});
 
-  // Product search/suggestions and client-side product filtering restored.
-
   if (headerCartTotal || headerCartCount) {
     fetch(cartApiUrl + "?action=summary", {
       method: "GET",
@@ -746,9 +755,7 @@ document.addEventListener("DOMContentLoaded", function () {
           updateHeaderSummary(payload.summary);
         }
       })
-      .catch(function () {
-        // Keep default value when API is unavailable.
-      });
+      .catch(function () {});
   }
 
   if (profileMenu && profileIcon && profilePopup) {
@@ -781,7 +788,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Image zoom funckie pre produktove karty
   var zoomTrigger = document.getElementById("zoomTrigger");
   var zoomModal = document.getElementById("zoomModal");
   var closeModal = document.getElementById("closeModal");

@@ -66,6 +66,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Jakub Chrkavy">
   <meta name="description" content="Objav nasu ponuku chilli papriciek - klikni a ochutnaj palivu vasen zo slovenskych zahrad! Vyber si svoju palivost - od jemneho Jalapena po extremne Carolina Reaper!">
+  <meta name="csrf-token" content="<?php echo SessionHelper::getCsrfToken(); ?>">
   <title><?php echo $resolvedPageTitle; ?></title>
 
   <!-- Custom CSS -->
@@ -140,13 +141,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   
             <div id="cartPopup" class="cart-popup" aria-hidden="true">
               <div class="cart-items-list" id="cartItemsList">
-                <?php if (!empty($headerCartItems)): ?>
+                <?php if (!empty($headerCartItems) && is_array($headerCartItems)): ?>
                   <?php foreach ($headerCartItems as $item): ?>
                     <div class="cart-item">
-                      <img src="<?php echo htmlspecialchars($item['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                      <img src="<?php echo htmlspecialchars((string)($item['image'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($item['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?>">
                       <div class="cart-item-info">
-                        <p class="cart-item-name"><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                        <p class="cart-item-price"><?php echo number_format($item['price'], 2, '.', ''); ?> EUR x <?php echo $item['quantity']; ?></p>
+                        <p class="cart-item-name"><?php echo htmlspecialchars((string)($item['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p class="cart-item-price"><?php echo number_format((float)($item['price'] ?? 0.0), 2, '.', ''); ?> EUR x <?php echo (int)($item['quantity'] ?? 0); ?></p>
                       </div>
                     </div>
                   <?php endforeach; ?>

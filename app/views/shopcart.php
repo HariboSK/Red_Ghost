@@ -4,20 +4,19 @@ declare(strict_types=1);
 $bodyClass = 'shopcart-page';
 SessionHelper::bootstrap();
 
-// Databázu si vytiahneme z globálneho pripojenia, ktoré už na webe beží
+// Spojenie DB
 $pdo = $GLOBALS['conn'] ?? null;
 
 if (!($pdo instanceof PDO)) {
     die('Chyba: Databázové spojenie nie je dostupné.');
 }
 
-// Inicializácia OOP služby a vytiahnutie kompletne spracovaných dát
 $cartService = new CartService($pdo);
 $cartDetails = $cartService->getFullCartDetails();
 
-$cartItems = $cartDetails['items'];
-$cartSummary = $cartDetails['summary'];
-$discountFlash = $cartDetails['discountFlash'] ?? null;
+$cartItems = $cartDetails['items'] ?? [];
+$cartSummary = $cartDetails['summary'] ?? ['count' => 0, 'subtotal' => 0.0, 'shipping' => 0.0, 'discount' => 0.0, 'total' => 0.0];
+$discountFlash = $cartDetails['discount_flash'] ?? null;
 
 include __DIR__ . '/partials/header-product.php';
 ?>
@@ -31,36 +30,41 @@ include __DIR__ . '/partials/header-product.php';
             </div>
 
             <div class="cart-items" id="cartPageItemsList">
-                <?php if (!empty($cartItems)): ?>
+                <?php if (!empty($cartItems) && is_array($cartItems)): ?>
                     <?php foreach ($cartItems as $item): ?>
+                        <?php 
+                            $itemPrice = (float) ($item['price'] ?? 0.0);
+                            $itemQty = (int) ($item['quantity'] ?? 0);
+                            $itemTotal = $itemPrice * $itemQty;
+                        ?>
                         <div class="cart-item">
-                            <img src="<?php echo htmlspecialchars($item['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <img src="<?php echo htmlspecialchars((string) ($item['image'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string) ($item['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?>">
                             <div class="item-info">
-                                <h3><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
-                                <p>Množstvo: <?php echo (int) $item['quantity']; ?></p>
+                                <h3><?php echo htmlspecialchars((string) ($item['name'] ?? 'Produkt'), ENT_QUOTES, 'UTF-8'); ?></h3>
+                                <p>Množstvo: <?php echo $itemQty; ?></p>
                             </div>
                             <div class="item-controls">
-                                <p class="item-price"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', ' '); ?> EUR</p>
+                                <p class="item-price"><?php echo number_format($itemTotal, 2, ',', ' '); ?> EUR</p>
 
                                 <div class="cart-item-controls">
                                     <form method="POST" action="<?php echo route('/api/RemoveCart.php'); ?>" class="cart-action-form">
                                         <?php echo SessionHelper::csrfField(); ?>
-                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                        <input type="hidden" name="return_to" value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/shopcart', ENT_QUOTES, 'UTF-8'); ?>">
+                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) ($item['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                        <input type="hidden" name="return_to" value="<?php echo htmlspecialchars((string) ($_SERVER['REQUEST_URI'] ?? '/shopcart'), ENT_QUOTES, 'UTF-8'); ?>">
                                         <button type="submit" name="action" value="decrement">-</button>
                                     </form>
 
                                     <form method="POST" action="<?php echo route('/api/RemoveCart.php'); ?>" class="cart-action-form">
                                         <?php echo SessionHelper::csrfField(); ?>
-                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                        <input type="hidden" name="return_to" value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/shopcart', ENT_QUOTES, 'UTF-8'); ?>">
+                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) ($item['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                        <input type="hidden" name="return_to" value="<?php echo htmlspecialchars((string) ($_SERVER['REQUEST_URI'] ?? '/shopcart'), ENT_QUOTES, 'UTF-8'); ?>">
                                         <button type="submit" name="action" value="increment">+</button>
                                     </form>
 
                                     <form method="POST" action="<?php echo route('/api/RemoveCart.php'); ?>" class="cart-action-form">
                                         <?php echo SessionHelper::csrfField(); ?>
-                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                        <input type="hidden" name="return_to" value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/shopcart', ENT_QUOTES, 'UTF-8'); ?>">
+                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars((string) ($item['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                        <input type="hidden" name="return_to" value="<?php echo htmlspecialchars((string) ($_SERVER['REQUEST_URI'] ?? '/shopcart'), ENT_QUOTES, 'UTF-8'); ?>">
                                         <button type="submit" name="action" value="remove">Odstrániť</button>
                                     </form>
                                 </div>
@@ -78,19 +82,19 @@ include __DIR__ . '/partials/header-product.php';
             <div class="summary-list">
                 <div class="summary-row">
                     <span>Medzisúčet</span>
-                    <strong id="cartPageSubtotal"><?php echo number_format($cartSummary['subtotal'], 2, ',', ' '); ?> EUR</strong>
+                    <strong id="cartPageSubtotal"><?php echo number_format((float) ($cartSummary['subtotal'] ?? 0.0), 2, ',', ' '); ?> EUR</strong>
                 </div>
                 <div class="summary-row">
                     <span>Doprava</span>
-                    <strong id="cartPageShipping"><?php echo number_format($cartSummary['shipping'], 2, ',', ' '); ?> EUR</strong>
+                    <strong id="cartPageShipping"><?php echo number_format((float) ($cartSummary['shipping'] ?? 0.0), 2, ',', ' '); ?> EUR</strong>
                 </div>
                 <div class="summary-row">
                     <span>Zľava</span>
-                    <strong id="cartPageDiscount">-<?php echo number_format($cartSummary['discount'], 2, ',', ' '); ?> EUR</strong>
+                    <strong id="cartPageDiscount">-<?php echo number_format((float) ($cartSummary['discount'] ?? 0.0), 2, ',', ' '); ?> EUR</strong>
                 </div>
                 <div class="summary-row total">
                     <span>Spolu</span>
-                    <strong id="cartPageTotal"><?php echo number_format($cartSummary['total'], 2, ',', ' '); ?> EUR</strong>
+                    <strong id="cartPageTotal"><?php echo number_format((float) ($cartSummary['total'] ?? 0.0), 2, ',', ' '); ?> EUR</strong>
                 </div>
             </div>
 
@@ -101,17 +105,19 @@ include __DIR__ . '/partials/header-product.php';
                     <input id="discount_code" name="code" type="text" placeholder="Zadaj kód" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);" value="<?php echo htmlspecialchars((string) ($_SESSION['applied_discount_code'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                     <button type="submit" class="apply-discount-btn">Použiť</button>
                 </div>
+                
                 <?php if (is_array($discountFlash)): ?>
                     <div class="discount-message discount-message--<?php echo htmlspecialchars((string) ($discountFlash['type'] ?? 'info'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo htmlspecialchars((string) ($discountFlash['message'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                     </div>
                 <?php endif; ?>
-                <?php if (!empty($cartSummary['discount'])): ?>
-                    <p class="discount-applied">Aplikovaná zľava: <?php echo number_format($cartSummary['discount'], 2, ',', ' '); ?> EUR</p>
+                
+                <?php if ((float) ($cartSummary['discount'] ?? 0.0) > 0): ?>
+                    <p class="discount-applied">Aplikovaná zľava: <?php echo number_format((float) $cartSummary['discount'], 2, ',', ' '); ?> EUR</p>
                 <?php endif; ?>
             </form>
 
-            <?php if ($cartSummary['count'] > 0): ?>
+            <?php if ((int) ($cartSummary['count'] ?? 0) > 0): ?>
                 <a href="<?php echo route('/payment'); ?>" class="checkout-btn" id="checkoutBtn">Pokračovať na objednávku</a>
             <?php else: ?>
                 <button type="button" class="checkout-btn" id="checkoutBtn" disabled>Pokračovať na objednávku</button>

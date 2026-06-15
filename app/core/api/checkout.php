@@ -138,16 +138,34 @@ $orderItems = [];
 try {
     $conn->beginTransaction();
 
-    $productStmt = $conn->prepare('SELECT id_product, name, price, stock, discount FROM product WHERE id_product = :id_product LIMIT 1 FOR UPDATE');
-    $updateStockStmt = $conn->prepare('UPDATE product SET stock = stock - :quantity WHERE id_product = :id_product');
+    $productStmt = $conn->prepare('SELECT id_product, 
+                                            name, 
+                                            price, 
+                                            stock, 
+                                            discount 
+                                            FROM product 
+                                            WHERE id_product = :id_product 
+                                            LIMIT 1 FOR UPDATE');
+
+    $updateStockStmt = $conn->prepare('UPDATE product 
+                                            SET stock = stock - :quantity 
+                                            WHERE id_product = :id_product');
     
-    $orderStmt = $conn->prepare('INSERT INTO `order` (user_id, customer_name, customer_email, customer_phone, total_price, status, delivery_method, created_at) VALUES (:user_id, :customer_name, :customer_email, :customer_phone, :total_price, :status, :delivery_method, NOW())');
+    $orderStmt = $conn->prepare('INSERT INTO `order` 
+                                            (user_id, customer_name, customer_email, customer_phone, total_price, status, delivery_method, created_at) 
+                                            VALUES (:user_id, :customer_name, :customer_email, :customer_phone, :total_price, :status, :delivery_method, NOW())');
     
-    $orderItemStmt = $conn->prepare('INSERT INTO `order_item` (id_order, id_product, quantity, price) VALUES (:id_order, :id_product, :quantity, :price)');
+    $orderItemStmt = $conn->prepare('INSERT INTO `order_item` 
+                                                (id_order, id_product, quantity, price) 
+                                                VALUES (:id_order, :id_product, :quantity, :price)');
     
-    $addressStmt = $conn->prepare('INSERT INTO `order_address` (type, street, city, zip, country, id_order) VALUES (:type, :street, :city, :zip, :country, :id_order)');
+    $addressStmt = $conn->prepare('INSERT INTO `order_address` 
+                                                (type, street, city, zip, country, id_order) 
+                                                VALUES (:type, :street, :city, :zip, :country, :id_order)');
     
-    $paymentStmt = $conn->prepare('INSERT INTO `payment` (id_order, payment_method, amount, status, paid_at) VALUES (:id_order, :payment_method, :amount, :status, NULL)');
+    $paymentStmt = $conn->prepare('INSERT INTO `payment` 
+                                                (id_order, payment_method, amount, status, paid_at) 
+                                                VALUES (:id_order, :payment_method, :amount, :status, NULL)');
 
     foreach ($cart as $item) {
         $productId = (int) ($item['id_product'] ?? ($item['id'] ?? 0));
@@ -169,7 +187,7 @@ try {
             throw new RuntimeException('Na sklade nie je dosť kusov pre produkt: ' . (string) ($product['name'] ?? 'Produkt'));
         }
 
-        // VÝPOČET CENY SO ZĽAVOU
+        // VÝPOČET CENY SO ZĽAVOU PRODUKTU
         $basePrice = (float) ($product['price'] ?? 0);
         $discount = (float) ($product['discount'] ?? 0);
         $unitPrice = $basePrice;
@@ -191,6 +209,12 @@ try {
             ':quantity' => $quantity,
             ':id_product' => $productId,
         ]);
+    }
+
+    // APLIKÁCIA ZĽAVOVÉHO KÓDU NA CELKOVÚ SUMU OBJEDNÁVKY
+    $appliedDiscountAmount = (float) ($_SESSION['applied_discount_amount'] ?? 0.0);
+    if ($appliedDiscountAmount > 0) {
+        $orderTotal = max(0.0, $orderTotal - $appliedDiscountAmount);
     }
 
     if ($orderTotal <= 0) {
@@ -231,6 +255,33 @@ try {
         ':amount' => $orderTotal,
         ':status' => 'pending',
     ]);
+
+    // ZÁPIS UPLATNENIA ZĽAVOVÉHO KÓDU (iba ak bol nejaký úspešne aplikovaný)
+    $appliedDiscountCodeId = $_SESSION['applied_discount_code_id'] ?? null;
+    if ($appliedDiscountCodeId !== null && $userId !== null) {
+        // Poistka vo vnútri transakcie pred samotným zápisom
+        $checkRedeem = $conn->prepare('SELECT id_redemption FROM discount_code_redemption WHERE id_user = :id_user AND id_discount_code = :id_discount_code LIMIT 1');
+        $checkRedeem->execute([':id_user' => $userId, ':id_discount_code' => $appliedDiscountCodeId]);
+        
+        if ($checkRedeem->fetch()) {
+            throw new RuntimeException('Tento zľavový kód ste už uplatnili v minulosti.');
+        }
+
+        $redemptionStmt = $conn->prepare('
+            INSERT INTO discount_code_redemption (id_discount_code, id_user, id_order, used_at) 
+            VALUES (:id_discount_code, :id_user, :id_order, NOW())
+        ');
+        $redemptionStmt->execute([
+            ':id_discount_code' => $appliedDiscountCodeId,
+            ':id_user' => $userId,
+            ':id_order' => $orderId
+        ]);
+
+        // Vymazanie zliav zo session, aby kód nezostal aktívny pre ďalší nákup
+        unset($_SESSION['applied_discount_code']);
+        unset($_SESSION['applied_discount_code_id']);
+        unset($_SESSION['applied_discount_amount']);
+    }
 
     if ($userId !== null && $userId > 0) {
         $pointsStmt = $conn->prepare('UPDATE `user` SET loyalty_points = COALESCE(loyalty_points, 0) + :points WHERE id = :user_id');

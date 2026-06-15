@@ -23,8 +23,7 @@ class DiscountCodeModel extends BaseModel
             return null;
         }
 
-        $stmt = $this->pdo->prepare('SELECT * 
-                                    FROM discount_code 
+        $stmt = $this->pdo->prepare('SELECT * FROM discount_code 
                                     WHERE LOWER(code) = LOWER(:code) 
                                     LIMIT 1');
         $stmt->execute([':code' => $code]);
@@ -103,5 +102,34 @@ class DiscountCodeModel extends BaseModel
         } catch (PDOException $exception) {
             return false;
         }
+    }
+
+    /**
+     * Vyhľadá kód a zároveň zistí, či ho konkrétny užívateľ už uplatnil.
+     */
+    public function findByCodeAndUser(string $code, int $userId): ?array
+    {
+        if (!$this->hasDiscountCodesTable()) {
+            return null;
+        }
+
+        $sql = "SELECT dc.*, 
+                       COUNT(dcr.id_redemption) AS already_redeemed
+                FROM discount_code dc
+                LEFT JOIN discount_code_redemption dcr 
+                    ON dc.id_discount_code = dcr.id_discount_code AND dcr.id_user = :id_user
+                WHERE LOWER(dc.code) = LOWER(:code)
+                GROUP BY dc.id_discount_code 
+                LIMIT 1";
+
+        // OPRAVENÉ: Zmenené z $this->conn na $this->pdo
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':code' => $code,
+            ':id_user' => $userId
+        ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return is_array($result) ? $result : null;
     }
 }

@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 class PaymentController
 {
-    /**
-     * Získa dáta pre zobrazenie košíka a platby.
-     */
+    //Získa dáta pre zobrazenie košíka a platby.
     public function getCheckoutData(): array
     {
         $cartItems = [];

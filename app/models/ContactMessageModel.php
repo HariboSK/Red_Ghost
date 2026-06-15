@@ -295,7 +295,6 @@ class ContactMessageModel extends BaseModel
                 ':status'       => 'new',
             ]);
 
-            // Získanie ID vygenerovanej správy (používa sa správny stĺpec id_contact_msg)
             $messageId = (int) $this->pdo->lastInsertId();
 
             // 2. Vloženie textu správy do previazanej tabuľky replies

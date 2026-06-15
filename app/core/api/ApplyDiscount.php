@@ -6,6 +6,14 @@ App::init();
 
 $returnTo = trim((string) ($_POST['return_to'] ?? ($_SERVER['HTTP_REFERER'] ?? '/shopcart')));
 
+//KONTROLA CSRF TOKENU
+$csrfToken = $_POST['csrf_token'] ?? null;
+if (!SessionHelper::verifyCsrfToken($csrfToken)) {
+    $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Neplatná požiadavka (CSRF útok).', 'amount' => 0];
+    header('Location: ' . $returnTo);
+    exit;
+}
+
 $code = trim((string) ($_POST['code'] ?? ''));
 if (strlen($code) > 64) {
     $code = substr($code, 0, 64);
@@ -17,15 +25,32 @@ if ($code === '') {
     exit;
 }
 
-// Poistka pre databázové pripojenie
+//NOVÁ KONTROLA: Či už nie je tento kód aplikovaný v košíku práve teraz
+$alreadyApplied = $_SESSION['applied_discount_code'] ?? '';
+if ($alreadyApplied !== '' && strcasecmp($alreadyApplied, $code) === 0) {
+    $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Tento zľavový kód už máte v košíku uplatnený.', 'amount' => 0];
+    header('Location: ' . $returnTo);
+    exit;
+}
+
+//databázové pripojenie
 if (!isset($conn) || !($conn instanceof PDO)) {
     $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Databázové pripojenie nie je dostupné.', 'amount' => 0];
     header('Location: ' . $returnTo);
     exit;
 }
 
+$sessionUser = class_exists('SessionHelper') ? SessionHelper::user() : ($_SESSION['user'] ?? []);
+$userId = (isset($sessionUser['id']) && (int)$sessionUser['id'] > 0) ? (int)$sessionUser['id'] : null;
+
+if ($userId === null) {
+    $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Pre použitie zľavového kódu sa musíte najskôr prihlásiť.', 'amount' => 0];
+    header('Location: ' . $returnTo);
+    exit;
+}
+
 $discountModel = new DiscountCodeModel($conn);
-$found = $discountModel->findByCode($code);
+$found = $discountModel->findByCodeAndUser($code, $userId); 
 
 if (!$found) {
     $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Kód nebol nájdený.', 'amount' => 0];
@@ -33,7 +58,16 @@ if (!$found) {
     exit;
 }
 
-// Základná validácia: aktívny + minimálna hodnota objednávky
+//Či kód nebol použitý v minulosti
+if ((int)($found['already_redeemed'] ?? 0) > 0) {
+    $_SESSION['discount_flash'] = ['type' => 'error', 'message' => 'Tento zľavový kód ste už v minulosti využili.', 'amount' => 0];
+    header('Location: ' . $returnTo);
+    exit;
+}
+
+$idDiscountCode = (int) ($found['id_discount_code'] ?? 0);
+
+//aktívny + minimálna hodnota objednávky
 $isActive = (bool) ($found['is_active'] ?? false);
 $minOrder = (float) ($found['min_order_value'] ?? 0);
 
@@ -68,6 +102,7 @@ if (($found['discount_type'] ?? '') === 'percent') {
 $discountValue = min($discountValue, $cartSubtotal);
 
 $_SESSION['applied_discount_code'] = (string) ($found['code'] ?? '');
+$_SESSION['applied_discount_code_id'] = $idDiscountCode;
 $_SESSION['applied_discount_amount'] = $discountValue;
 $_SESSION['discount_flash'] = ['type' => 'success', 'message' => 'Zľavový kód bol aplikovaný.', 'amount' => $discountValue];
 
