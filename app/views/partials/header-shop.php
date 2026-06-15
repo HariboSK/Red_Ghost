@@ -4,10 +4,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/core/App.php';
 App::init();
 
-$resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
-  ? $pageTitle
-  : Helper::getPageTitle() . ' - E-shop';
-
+$resolvedPageTitle = (isset($pageTitle) && $pageTitle !== '') ? $pageTitle : Helper::getPageTitle();
 SessionHelper::bootstrap();
 
 $sessionUser = SessionHelper::user();
@@ -69,7 +66,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Jakub Chrkavy">
   <meta name="description" content="Objav nasu ponuku chilli papriciek - klikni a ochutnaj palivu vasen zo slovenskych zahrad! Vyber si svoju palivost - od jemneho Jalapena po extremne Carolina Reaper!">
-  <title><?php echo htmlspecialchars($resolvedPageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
+  <title><?php echo $resolvedPageTitle; ?></title>
 
   <!-- Custom CSS -->
   <?php foreach (AssetHelper::current_page_assets() as $css): ?>

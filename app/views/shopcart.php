@@ -17,7 +17,7 @@ $cartDetails = $cartService->getFullCartDetails();
 
 $cartItems = $cartDetails['items'];
 $cartSummary = $cartDetails['summary'];
-$discountFlash = $cartDetails['discountFlash'];
+$discountFlash = $cartDetails['discountFlash'] ?? null;
 
 include __DIR__ . '/partials/header-product.php';
 ?>

@@ -4,10 +4,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/core/App.php';
 
 App::init();
-
-$resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
-  ? $pageTitle
-  : Helper::getPageTitle() . ' - Produkt';
+$resolvedPageTitle = (isset($pageTitle) && $pageTitle !== '') ? $pageTitle : Helper::getPageTitle();
 
 require_once dirname(__DIR__, 2) . '/core/SessionHelper.php';
 SessionHelper::bootstrap();
@@ -78,7 +75,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   <meta name="author" content="Jakub Chrkavy">
   <meta name="description"
     content="Objav nasu ponuku chilli papriciek - klikni a ochutnaj palivu vasen zo slovenskych zahrad! Vyber si svoju palivost - od jemneho Jalapena po extremne Carolina Reaper!">
-  <title><?php echo htmlspecialchars($resolvedPageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
+  <title><?php echo $resolvedPageTitle; ?></title>
 
   <!-- Custom CSS -->
   <?php foreach (AssetHelper::current_page_assets() as $css): ?>
@@ -90,8 +87,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
   <!-- Favicon -->
-  <link rel="shortcut icon" type="image/x-icon"
-    href="/assets/images/favicon.webp">
+  <link rel="shortcut icon" type="image/x-icon" href="<?php echo asset('images/favicon.webp'); ?>">
 </head>
 
 <body class="<?php echo isset($bodyClass) ? htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') : ''; ?>"

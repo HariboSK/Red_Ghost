@@ -1,6 +1,6 @@
 <?php
 
-//funkcia na ziskanie zakladnej cesty aplikacie, aby sme mohli správne generovat URL
+//zistenie kde aplikacia beží
 function app_base_path() {
     $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
     $scriptDir = str_replace('\\', '/', dirname($scriptName));
@@ -36,6 +36,7 @@ function baseUrl() {
 }
 
 // Helper na tvorbu URL pre assety v public/assets
+//filemtime sa pri každej zmene súboru zmení URL na novú, aby sa predišlo starej verzii
 function asset(string $path): string
 {
     $basePath = app_base_path();
@@ -50,7 +51,6 @@ function asset(string $path): string
 }
 
 //Funckie na zachytenie chyb ktore nastanu pri prevadzke aplikacie a ich logovanie do suboru. 
-//V pripade fatálnych chyb sa zobrazí užívateľovi přátelská zpráva.  LOGOVANIE CHYB
 function app_log($uroven, $sprava, array $context = []) {
     $uroven = strtoupper((string) $uroven);
     $sprava = (string) $sprava;
@@ -102,6 +102,7 @@ function app_render_friendly_error($publicMessage = 'Prepacte, nieco sa pokazilo
 }
 
 function app_register_error_handlers() {
+    //Zachytáva PHP varovania a notifikácie
     set_error_handler(function ($typ_chyby, $sprava, $suborchyby, $riadokchyby) {
         if (!(error_reporting() & $typ_chyby)) {
             return false;
@@ -118,6 +119,7 @@ function app_register_error_handlers() {
         return false;
     });
 
+    //Zachytáva nepredvídané výnimky (try-catch bloky)
     set_exception_handler(function (Throwable $e) {
         app_log('error', 'Uncaught exception', [
             'type' => get_class($e),
@@ -130,6 +132,7 @@ function app_register_error_handlers() {
         app_render_friendly_error();
     });
 
+    //fatálne chyby
     register_shutdown_function(function () {
         $lastError = error_get_last();
         if ($lastError === null) {
@@ -152,16 +155,3 @@ function app_register_error_handlers() {
         app_render_friendly_error('Aplikacia narazila na kriticku chybu. Skuste to prosim neskor.');
     });
 }
-
-
-
-/*
-
-
-<?php
-baseUrl();           // '/Red_Ghost'
-route('home');       // '/Red_Ghost/home'
-route('/login');     // '/Red_Ghost/login'
-
-
-*/

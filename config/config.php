@@ -2,10 +2,10 @@
 
 class Database
 {
-    private string $host = 'localhost';
-    private string $dbname = 'red_ghost';
-    private string $username = 'root';
-    private string $password = '';
+    private const HOST = 'localhost';
+    private const DBNAME = 'red_ghost';
+    private const USERNAME = 'root';
+    private const PASSWORD = '';
 
     private PDO $connection;
 
@@ -16,9 +16,9 @@ class Database
 
     private function connect(): void
     {
-        $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+        $dsn = "mysql:host=" . self::HOST . ";dbname=" . self::DBNAME . ";charset=utf8mb4";
 
-        $this->connection = new PDO($dsn, $this->username, $this->password, [
+        $this->connection = new PDO($dsn, self::USERNAME, self::PASSWORD, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,

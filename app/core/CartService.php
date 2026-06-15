@@ -78,7 +78,7 @@ class CartService
         ];
     }
 
-    // Rýchly sumár pre API (napr. počítadlo v hlavičke)
+    // Rýchly sumár pre API
     public function getSummary(): array
     {
         $count = 0;
@@ -134,7 +134,6 @@ class CartService
 
     private function getProductById(int $productId): ?array
     {
-        // Pridaný stĺpec 'discount' do SELECT
         $stmt = $this->db->prepare('SELECT id_product AS id, name, price, image, stock, discount FROM product WHERE id_product = :id LIMIT 1');
         $stmt->execute(['id' => $productId]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);

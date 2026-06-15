@@ -5,9 +5,7 @@ require_once dirname(__DIR__, 2) . '/core/App.php';
 
 App::init();
 
-$resolvedPageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
-  ? $pageTitle
-  : Helper::getPageTitle() . ' - E-shop';
+$resolvedPageTitle = (isset($pageTitle) && $pageTitle !== '') ? $pageTitle : Helper::getPageTitle();
   
 SessionHelper::bootstrap();
 
@@ -43,7 +41,7 @@ if ($isLoggedIn && $userRole === 'admin') {
   <meta name="author" content="Jakub Chrkavý">
   <meta name="description"
     content="Objav našu ponuku chilli papričiek – klikni a ochutnaj pálivú vášeň zo slovenských záhrad! Vyber si svoju pálivosť – od jemného Jalapena po extrémne Carolina Reaper!">
-  <title><?php echo htmlspecialchars(Helper::getPageTitle(), ENT_QUOTES, 'UTF-8'); ?></title>
+  <title><?php echo $resolvedPageTitle; ?></title>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -54,8 +52,7 @@ if ($isLoggedIn && $userRole === 'admin') {
      <link rel="stylesheet" href="<?php echo asset('css/' . ltrim($css, '/')); ?>">
   <?php endforeach; ?>
   <!-- Favicon -->
-  <link rel="shortcut icon" type="image/x-icon"
-    href="/assets/images/favicon.webp">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.webp">
 </head>
 
 <body<?php echo isset($bodyClass) && is_string($bodyClass) && $bodyClass !== '' ? ' class="' . htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>

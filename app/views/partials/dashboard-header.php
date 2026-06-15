@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/core/App.php';
 
 App::init();
-
+$resolvedPageTitle = (isset($pageTitle) && $pageTitle !== '') ? $pageTitle : Helper::getPageTitle();
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +15,7 @@ App::init();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Jakub Chrkavý">
     <meta name="description" content="Red Ghost Admin Dashboard">
-    <title>Red Ghost - Dashboard</title>
+    <title><?php echo $resolvedPageTitle; ?></title>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
