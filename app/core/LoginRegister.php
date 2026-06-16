@@ -90,7 +90,6 @@ class LoginRegister
 
         if ($user && password_verify($password, (string) ($user['password'] ?? ''))) {
             
-            // OPRAVA: Použitie natívnej, bezpečnej PHP funkcie namiesto chýbajúcej triedy
             if (session_status() === PHP_SESSION_ACTIVE) {
                 session_regenerate_id(true);
             }
